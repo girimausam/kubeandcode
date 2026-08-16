@@ -1,12 +1,13 @@
 ---
 import type { Post } from '../utils/posts';
+import { withBase } from '../utils/url';
 
 interface Props {
 	post: Post;
 }
 
 const { post } = Astro.props;
-const href = `/${post.id}/`;
+const href = withBase(`${post.id}/`);
 ---
 
 <article class="post-card" data-post-tags={post.data.tags.join(',')}>
@@ -20,7 +21,7 @@ const href = `/${post.id}/`;
 				<ul class="tags">
 					{post.data.tags.map((tag) => (
 						<li>
-							<a class="tag" href={`/?tag=${encodeURIComponent(tag)}`}>
+							<a class="tag" href={withBase(`?tag=${encodeURIComponent(tag)}`)}>
 								#{tag}
 							</a>
 						</li>

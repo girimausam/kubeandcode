@@ -16,6 +16,7 @@ interface Props {
 }
 
 const { title = 'Blogs', description = 'A minimal developer blog.', posts } = Astro.props;
+const base = import.meta.env.BASE_URL;
 ---
 
 <!doctype html>
@@ -25,7 +26,7 @@ const { title = 'Blogs', description = 'A minimal developer blog.', posts } = As
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
 		<title>{title}</title>
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
 		<script is:inline>
 			{
 				`(function () {

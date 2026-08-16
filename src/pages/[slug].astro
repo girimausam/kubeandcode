@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
 import { formatDate, getPostLinks, getRelatedPosts } from '../utils/posts';
+import { withBase } from '../utils/url';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('posts');
@@ -30,7 +31,7 @@ const related = getRelatedPosts(post, allPosts);
 						<ul class="tags">
 							{post.data.tags.map((tag) => (
 								<li>
-									<a class="tag" href={`/?tag=${encodeURIComponent(tag)}`}>
+									<a class="tag" href={withBase(`?tag=${encodeURIComponent(tag)}`)}>
 										{tag}
 									</a>
 								</li>
