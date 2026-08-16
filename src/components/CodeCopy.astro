@@ -1,0 +1,42 @@
+<script>
+	const enhanceCodeBlocks = () => {
+		document.querySelectorAll('pre').forEach((pre) => {
+			if (pre.closest('.code-block')) return;
+
+			const wrapper = document.createElement('div');
+			wrapper.className = 'code-block';
+			pre.parentNode?.insertBefore(wrapper, pre);
+			wrapper.append(pre);
+
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'code-copy';
+			button.setAttribute('aria-label', 'Copy code');
+			button.textContent = 'Copy';
+
+			button.addEventListener('click', async () => {
+				const code = pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
+
+				try {
+					await navigator.clipboard.writeText(code);
+					button.textContent = 'Copied';
+					button.classList.add('is-copied');
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+						button.classList.remove('is-copied');
+					}, 2000);
+				} catch {
+					button.textContent = 'Failed';
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+					}, 2000);
+				}
+			});
+
+			wrapper.prepend(button);
+		});
+	};
+
+	enhanceCodeBlocks();
+	document.addEventListener('astro:page-load', enhanceCodeBlocks);
+</script>

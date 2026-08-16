@@ -1,0 +1,250 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: VPC with Public/Private Subnets, IGW and Route Tables
+
+Parameters:
+  VpcName:
+    Type: String
+    Default: egress-vpc
+
+  VpcCidr:
+    Type: String
+    Default: 10.1.0.0/16
+
+  PrivateSubnet1ACidr:
+    Type: String
+    Default: 10.1.11.0/24
+
+  PrivateSubnet1BCidr:
+    Type: String
+    Default: 10.1.12.0/24
+
+  TGWSubnet1ACidr:
+    Type: String
+    Default: 10.1.21.0/28
+
+  TGWSubnet1BCidr:
+    Type: String
+    Default: 10.1.22.0/28
+    
+Resources:
+  # VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Ref VpcName
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-igw"
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  # Public Subnets
+  PublicSubnet1A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet1ACidr
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-public-subnet-1a"
+
+  PublicSubnet1B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet1BCidr
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-public-subnet-1b"
+
+  # Private Subnets
+  PrivateSubnet1A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnet1ACidr
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-private-subnet-1a"
+
+  PrivateSubnet1B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnet1BCidr
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-private-subnet-1b"
+
+    # TGW Subnets
+  
+  TGWSubnet1A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref TGWSubnet1ACidr
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-tgw-subnet-1a"
+
+  TGWSubnet1B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref TGWSubnet1BCidr
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-tgw-subnet-1b"
+
+  # Private Route Table
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-private-rt"
+
+  PrivateSubnet1ARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1A
+
+  PrivateSubnet1BRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1B
+
+  # Public Route Table
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-public-rt"
+
+  PublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1ARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1A
+
+  # Transit Gateway
+  TransitGateway:
+    Type: AWS::EC2::TransitGateway
+    Properties:
+      Description: !Sub "${VpcName}-tgw"
+      AutoAcceptSharedAttachments: Enable
+      DefaultRouteTableAssociation: Disable
+      DefaultRouteTablePropagation: Disable
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-tgw"
+  
+  # TGW Attachment
+  TGWAttachment:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties:
+      TransitGatewayId: !Ref TransitGateway
+      VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref TGWSubnet1A
+        - !Ref TGWSubnet1B
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-tgw-attachment"
+
+  # TGW Route Table
+  # Egress Route Table
+  EgressTGWRouteTable:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref TransitGateway
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-egress-tgw-rt"
+
+  EgressTGWRouteTableAssociation:
+    Type: AWS::EC2::TransitGatewayRouteTableAssociation
+    Properties:
+      TransitGatewayRouteTableId: !Ref EgressTGWRouteTable
+      TransitGatewayAttachmentId: !Ref TGWAttachment
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-egress-tgw-rt-association"
+
+  # Isolated Route Table
+  IsolatedTGWRouteTable:
+    Type: AWS::EC2::TransitGatewayRouteTable
+    Properties:
+      TransitGatewayId: !Ref TransitGateway
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-isolated-tgw-rt"
+
+  IsolatedTGWRoute:
+    Type: AWS::EC2::TransitGatewayRoute
+    Properties:
+      TransitGatewayRouteTableId: !Ref IsolatedTGWRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayId: !Ref TransitGateway
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-isolated-tgw-route"
+          
+Outputs:
+  VpcId:
+    Value: !Ref VPC
+
+  InternetGatewayId:
+    Value: !Ref InternetGateway
+
+  PublicSubnet1A:
+    Value: !Ref PublicSubnet1A
+
+  PublicSubnet1B:
+    Value: !Ref PublicSubnet1B
+
+  PrivateSubnet1A:
+    Value: !Ref PrivateSubnet1A
+
+  PrivateSubnet1B:
+    Value: !Ref PrivateSubnet1B
+
+  PublicRouteTable:
+    Value: !Ref PublicRouteTable
+
+  PrivateRouteTable:
+    Value: !Ref PrivateRouteTable

@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import CodeCopy from '../components/CodeCopy.astro';
+import SearchModal from '../components/SearchModal.astro';
+import type { Post } from '../utils/posts';
+
+interface Props {
+	title?: string;
+	description?: string;
+	posts: Post[];
+}
+
+const { title = 'Blogs', description = 'A minimal developer blog.', posts } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content={description} />
+		<title>{title}</title>
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<script is:inline>
+			{
+				`(function () {
+					const storageKey = 'theme';
+					const theme =
+						localStorage.getItem(storageKey) ||
+						(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+					document.documentElement.dataset.theme = theme;
+				})();`
+			}
+		</script>
+	</head>
+	<body>
+		<Header>
+			<ThemeToggle slot="actions" />
+		</Header>
+		<SearchModal />
+		<main class="site-main">
+			<slot />
+		</main>
+		<Footer posts={posts} />
+		<CodeCopy />
+	</body>
+</html>

@@ -1,0 +1,74 @@
+---
+import type { Post } from '../utils/posts';
+
+interface Props {
+	post: Post;
+}
+
+const { post } = Astro.props;
+const href = `/${post.id}/`;
+---
+
+<article class="post-card" data-post-tags={post.data.tags.join(',')}>
+	<h2>
+		<a href={href}>{post.data.title}</a>
+	</h2>
+	<p>{post.data.description}</p>
+	<div class="meta">
+		{
+			post.data.tags.length > 0 && (
+				<ul class="tags">
+					{post.data.tags.map((tag) => (
+						<li>
+							<a class="tag" href={`/?tag=${encodeURIComponent(tag)}`}>
+								#{tag}
+							</a>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</div>
+</article>
+
+<style>
+	.post-card {
+		padding: 1.25rem 0;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.post-card:first-child {
+		padding-top: 0;
+	}
+
+	h2 {
+		margin: 0;
+		font-size: var(--text-xl);
+		font-weight: 600;
+		letter-spacing: -0.02em;
+	}
+
+	p {
+		margin: 0.5rem 0 0;
+		color: var(--text-muted);
+	}
+
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		align-items: center;
+		margin-top: 0.25rem;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+</style>

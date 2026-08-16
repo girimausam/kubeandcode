@@ -1,0 +1,54 @@
+---
+import type { Post } from '../utils/posts';
+import { getAllResources } from '../utils/posts';
+
+interface Props {
+	posts: Post[];
+}
+
+const { posts } = Astro.props;
+const resources = getAllResources(posts);
+const year = new Date().getUTCFullYear();
+---
+
+<footer class="site-footer">
+	<div class="container">
+		<div class="footer-row">
+			<p>Blogs © {year}</p>
+			<p class="utc-clock" aria-live="polite">
+				<time id="utc-time"></time> UTC
+			</p>
+		</div>
+		{
+			resources.length > 0 && (
+				<nav class="footer-resources" aria-label="Resources">
+					{resources.map((resource) => (
+						<a href={resource.url} rel="noopener noreferrer">
+							{resource.title}
+						</a>
+					))}
+				</nav>
+			)
+		}
+	</div>
+</footer>
+
+<script is:inline>
+	const el = document.getElementById('utc-time');
+
+	const tick = () => {
+		if (!el) return;
+		el.textContent = new Date().toISOString().replace('T', ' ').slice(0, 19);
+	};
+
+	tick();
+	setInterval(tick, 1000);
+</script>
+
+<style>
+	.utc-clock {
+		margin: 0;
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+	}
+</style>

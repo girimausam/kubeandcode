@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import TagList from '../components/TagList.astro';
+import { getAllTags } from '../utils/posts';
+
+const posts = (await getCollection('posts')).sort(
+	(a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0)
+);
+
+const initialTags = [...new Set(Astro.url.searchParams.getAll('tag'))];
+const tags = getAllTags(posts);
+---
+
+<BaseLayout title="Blogs" posts={posts}>
+	<main class="container landing">
+		<section class="posts">
+			<h1>Posts</h1>
+			<div class="posts-list">
+				{posts.map((post) => <PostCard post={post} />)}
+				<p class="empty" data-posts-empty hidden>No posts match your filters.</p>
+			</div>
+		</section>
+		<TagList tags={tags} totalCount={posts.length} initialTags={initialTags} />
+	</main>
+</BaseLayout>
+
+<style>
+	.landing {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 14rem;
+		gap: 3rem;
+		padding: 2.5rem 0 0;
+	}
+
+	.posts h1 {
+		margin: 0 0 1.5rem;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-muted);
+	}
+
+	.empty {
+		color: var(--text-muted);
+	}
+
+	@media (max-width: 48rem) {
+		.landing {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+	}
+</style>

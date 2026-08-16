@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: VPC with Public/Private Subnets, IGW and Route Tables
+
+Parameters:
+  VpcName:
+    Type: String
+    Default: app-a-vpc
+
+  VpcCidr:
+    Type: String
+    Default: 10.0.0.0/16
+
+  PrivateSubnet1ACidr:
+    Type: String
+    Default: 10.0.11.0/24
+
+  PrivateSubnet1BCidr:
+    Type: String
+    Default: 10.0.12.0/24
+
+  TGWSubnet1ACidr:
+    Type: String
+    Default: 10.0.21.0/28
+
+  TGWSubnet1BCidr:
+    Type: String
+    Default: 10.0.22.0/28
+
+
+Resources:
+  # VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Ref VpcName
+
+  # Private Subnets
+  PrivateSubnet1A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnet1ACidr
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-private-subnet-1a"
+
+  PrivateSubnet1B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnet1BCidr
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-private-subnet-1b"
+
+    # TGW Subnets
+  
+  TGWSubnet1A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref TGWSubnet1ACidr
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-tgw-subnet-1a"
+
+  TGWSubnet1B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref TGWSubnet1BCidr
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-tgw-subnet-1b"
+
+  # Private Route Table
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${VpcName}-private-rt"
+
+  PrivateSubnet1ARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1A
+
+  PrivateSubnet1BRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1B
+
+Outputs:
+  VpcId:
+    Value: !Ref VPC
+
+  InternetGatewayId:
+    Value: !Ref InternetGateway
+
+  PublicSubnet1A:
+    Value: !Ref PublicSubnet1A
+
+  PublicSubnet1B:
+    Value: !Ref PublicSubnet1B
+
+  PrivateSubnet1A:
+    Value: !Ref PrivateSubnet1A
+
+  PrivateSubnet1B:
+    Value: !Ref PrivateSubnet1B
+
+  PublicRouteTable:
+    Value: !Ref PublicRouteTable
+
+  PrivateRouteTable:
+    Value: !Ref PrivateRouteTable

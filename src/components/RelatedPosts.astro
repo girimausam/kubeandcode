@@ -1,0 +1,76 @@
+---
+import type { Post } from '../utils/posts';
+import { formatDate } from '../utils/posts';
+
+interface Props {
+	posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+	posts.length > 0 && (
+		<section class="related">
+			<h2>Related Posts</h2>
+			<ul>
+				{posts.map((post) => (
+					<li>
+						<a href={`/${post.id}/`}>
+							<span class="title">{post.data.title}</span>
+							{post.data.date && (
+								<time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+							)}
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}
+
+<style>
+	.related {
+		margin-top: 3rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--border);
+	}
+
+	h2 {
+		margin: 0 0 1rem;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-muted);
+	}
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li + li {
+		margin-top: 0.5rem;
+	}
+
+	a {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.75rem 0;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.title {
+		font-weight: 500;
+	}
+
+	time {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		white-space: nowrap;
+	}
+</style>

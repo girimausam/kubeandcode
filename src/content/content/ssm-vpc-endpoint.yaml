@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Creates Security Group + Interface VPC Endpoints (ssm, ssmmessages, ec2messages)
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of the existing VPC
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: >
+      One or more private subnet IDs (in the same VPC) where the endpoint
+
+  VpcCidr:
+    Type: String
+    Description: >
+      CIDR block of the VPC (e.g. 10.0.0.0/16). Used to allow inbound 443
+      traffic from the VPC to the endpoints.
+
+Resources:
+  # ----------------------------------------------------------------
+  # Security Group for the VPC Endpoints
+  # ----------------------------------------------------------------
+  SsmEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTPS (443) from VPC to SSM VPC Endpoints
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - Description: HTTPS from VPC CIDR
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref VpcCidr
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ssm-endpoints-sg"
+
+  # ----------------------------------------------------------------
+  # VPC Endpoints for Systems Manager
+  # ----------------------------------------------------------------
+  SsmEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcId: !Ref VpcId
+      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds:
+        - !Ref SsmEndpointSecurityGroup
+      PrivateDnsEnabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ssm"
+
+  SsmMessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcId: !Ref VpcId
+      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds:
+        - !Ref SsmEndpointSecurityGroup
+      PrivateDnsEnabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ssmmessages"
+
+  Ec2MessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ec2messages"
+      VpcId: !Ref VpcId
+      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds:
+        - !Ref SsmEndpointSecurityGroup
+      PrivateDnsEnabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ec2messages"
+
+Outputs:
+  SecurityGroupId:
+    Description: Security Group ID attached to the SSM VPC Endpoints
+    Value: !Ref SsmEndpointSecurityGroup
+    Export:
+      Name: !Sub "${AWS::StackName}-SsmEndpointSG"
+
+  SsmEndpointId:
+    Description: VPC Endpoint ID for com.amazonaws.region.ssm
+    Value: !Ref SsmEndpoint
+
+  SsmMessagesEndpointId:
+    Description: VPC Endpoint ID for com.amazonaws.region.ssmmessages
+    Value: !Ref SsmMessagesEndpoint
+
+  Ec2MessagesEndpointId:
+    Description: VPC Endpoint ID for com.amazonaws.region.ec2messages
+    Value: !Ref Ec2MessagesEndpoint

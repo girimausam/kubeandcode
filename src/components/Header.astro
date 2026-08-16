@@ -1,0 +1,21 @@
+---
+---
+
+<header class="site-header">
+	<div class="container">
+		<a class="brand" href="/">Blogs</a>
+		<div class="header-actions">
+			<button type="button" class="header-link search-trigger" data-search-open>Search</button>
+			<slot name="actions" />
+		</div>
+	</div>
+</header>
+
+<style>
+	.search-trigger {
+		padding: 0;
+		border: 0;
+		background: none;
+		cursor: pointer;
+	}
+</style>

@@ -1,0 +1,55 @@
+<button type="button" class="theme-toggle" aria-label="Toggle theme">
+	<span class="light">Light</span>
+	<span class="dark">Dark</span>
+</button>
+
+<script is:inline>
+	const storageKey = 'theme';
+	const root = document.documentElement;
+	const button = document.currentScript?.previousElementSibling;
+
+	const applyTheme = (theme) => {
+		root.dataset.theme = theme;
+		localStorage.setItem(storageKey, theme);
+	};
+
+	const preferred = () =>
+		localStorage.getItem(storageKey) ||
+		(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+	applyTheme(preferred());
+
+	button?.addEventListener('click', () => {
+		applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+	});
+</script>
+
+<style>
+	.theme-toggle {
+		padding: 0.35rem 0.65rem;
+		border: 1px solid var(--border);
+		border-radius: 0.35rem;
+		background: var(--bg);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		cursor: pointer;
+	}
+
+	.theme-toggle:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.dark {
+		display: none;
+	}
+
+	:global(:root[data-theme='dark']) .light {
+		display: none;
+	}
+
+	:global(:root[data-theme='dark']) .dark {
+		display: inline;
+	}
+</style>

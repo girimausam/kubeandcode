@@ -1,0 +1,22 @@
+# configmap-my-app.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+  namespace: my-app
+data:
+  config.ini: |
+    [app]
+    port = 8080
+
+    [aws]
+    region = us-east-1
+
+    [database]
+    host = <rds-host>
+    port = 5432
+    dbname = <dbname>
+    secret_name = <rds-secret-name>
+
+    [firehose]
+    stream_name = <firehose-stream>

@@ -1,0 +1,186 @@
+---
+interface Props {
+	tags: { tag: string; count: number }[];
+	totalCount: number;
+	initialTags?: string[];
+}
+
+const { tags, totalCount, initialTags = [] } = Astro.props;
+---
+
+<aside class="tags-panel" data-tags-panel>
+	<div class="tags-header">
+		<span>Tags</span>
+		<span class="selected-count" data-selected-count hidden></span>
+	</div>
+
+	<div class="tags-list thin-scrollbar">
+		<button type="button" class="tag-pill is-active" data-tag-all>
+			All
+		</button>
+
+		{
+			tags.map(({ tag, count }) => (
+				<button
+					type="button"
+					class="tag-pill"
+					data-tag={tag}
+					aria-pressed={initialTags.includes(tag) ? 'true' : 'false'}
+				>
+					<span class="tag-label">
+						{initialTags.includes(tag) ? '✓ ' : ''}#{tag}
+					</span>
+					<span class="tag-count">({count})</span>
+				</button>
+			))
+		}
+	</div>
+</aside>
+
+<script define:vars={{ initialTags }}>
+	const panel = document.querySelector('[data-tags-panel]');
+	const selectedCount = panel?.querySelector('[data-selected-count]');
+	const allButton = panel?.querySelector('[data-tag-all]');
+	const tagButtons = panel?.querySelectorAll('[data-tag]');
+	const posts = document.querySelectorAll('[data-post-tags]');
+
+	const selected = new Set(initialTags);
+
+	const updateUrl = () => {
+		const url = new URL(window.location.href);
+		url.searchParams.delete('tag');
+		for (const tag of selected) url.searchParams.append('tag', tag);
+		window.history.replaceState({}, '', url);
+	};
+
+	const updateLabel = (button, tag) => {
+		const label = button.querySelector('.tag-label');
+		if (!label) return;
+		label.textContent = `${selected.has(tag) ? '✓ ' : ''}#${tag}`;
+	};
+
+	const applyFilter = () => {
+		const count = selected.size;
+
+		allButton?.classList.toggle('is-active', count === 0);
+		allButton?.setAttribute('aria-pressed', count === 0 ? 'true' : 'false');
+
+		tagButtons?.forEach((button) => {
+			const tag = button.getAttribute('data-tag');
+			if (!tag) return;
+			const active = selected.has(tag);
+			button.classList.toggle('is-active', active);
+			button.setAttribute('aria-pressed', active ? 'true' : 'false');
+			updateLabel(button, tag);
+		});
+
+		if (selectedCount) {
+			selectedCount.hidden = count === 0;
+			selectedCount.textContent = count ? `${count} selected` : '';
+		}
+
+		posts.forEach((post) => {
+			const postTags = (post.getAttribute('data-post-tags') ?? '')
+				.split(',')
+				.map((t) => t.trim())
+				.filter(Boolean);
+			const visible = count === 0 || postTags.some((tag) => selected.has(tag));
+			post.hidden = !visible;
+		});
+
+		const empty = document.querySelector('[data-posts-empty]');
+		if (empty) {
+			const visibleCount = [...posts].filter((post) => !post.hidden).length;
+			empty.hidden = visibleCount > 0;
+		}
+	};
+
+	allButton?.addEventListener('click', () => {
+		selected.clear();
+		updateUrl();
+		applyFilter();
+	});
+
+	tagButtons?.forEach((button) => {
+		button.addEventListener('click', () => {
+			const tag = button.getAttribute('data-tag');
+			if (!tag) return;
+			if (selected.has(tag)) selected.delete(tag);
+			else selected.add(tag);
+			updateUrl();
+			applyFilter();
+		});
+	});
+
+	applyFilter();
+</script>
+
+<style>
+	.tags-panel {
+		padding-bottom: 1rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.tags-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.5rem;
+		font-size: var(--text-xs);
+		font-weight: 500;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.selected-count {
+		text-transform: none;
+		color: var(--accent);
+	}
+
+	.tags-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		max-height: 15rem;
+		overflow-y: auto;
+	}
+
+	.tag-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.2rem;
+		padding: 0.125rem 0.625rem;
+		border: none;
+		border-radius: 999px;
+		background: var(--bg-subtle);
+		color: var(--text);
+		font-size: var(--text-xs);
+		font-weight: 500;
+		line-height: 1.4;
+		cursor: pointer;
+		transition:
+			background 0.15s,
+			color 0.15s,
+			box-shadow 0.15s;
+	}
+
+	.tag-pill:hover {
+		background: color-mix(in srgb, var(--bg-subtle) 70%, var(--text-muted));
+	}
+
+	.tag-pill.is-active {
+		background: var(--accent);
+		color: white;
+		box-shadow: 0 0 0 1px var(--accent);
+	}
+
+	.tag-pill.is-active:hover {
+		background: var(--accent);
+	}
+
+	.tag-count {
+		font-size: 0.625rem;
+		opacity: 0.7;
+	}
+</style>

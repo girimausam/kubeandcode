@@ -1,0 +1,120 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RelatedPosts from '../components/RelatedPosts.astro';
+import { formatDate, getPostLinks, getRelatedPosts } from '../utils/posts';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('posts');
+
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: { post },
+	}));
+}
+
+const allPosts = await getCollection('posts');
+const { post } = Astro.props;
+const { Content } = await render(post);
+const links = getPostLinks(post);
+const related = getRelatedPosts(post, allPosts);
+---
+
+<BaseLayout title={`${post.data.title} | Blogs`} description={post.data.description} posts={allPosts}>
+	<article class="container post">
+		<header class="post-header">
+			<h1>{post.data.title}</h1>
+			<div class="post-meta">
+				{
+					post.data.tags.length > 0 && (
+						<ul class="tags">
+							{post.data.tags.map((tag) => (
+								<li>
+									<a class="tag" href={`/?tag=${encodeURIComponent(tag)}`}>
+										{tag}
+									</a>
+								</li>
+							))}
+						</ul>
+					)
+				}
+				<p class="details">
+					{post.data.date && <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>}
+					{post.data.author && <span>{post.data.author}</span>}
+					{
+						links.map((link) => (
+							<a href={link.url} rel="noopener noreferrer">
+								{link.title}
+							</a>
+						))
+					}
+				</p>
+			</div>
+		</header>
+
+		{post.data.image && <img class="cover" src={post.data.image} alt="" loading="lazy" />}
+
+		<div class="prose">
+			<Content />
+		</div>
+
+		<RelatedPosts posts={related} />
+	</article>
+</BaseLayout>
+
+<style>
+	.post {
+		padding: 3rem 0 0;
+	}
+
+	.post-header {
+		text-align: center;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: var(--text-3xl);
+		line-height: 1.2;
+		letter-spacing: -0.03em;
+	}
+
+	.post-meta {
+		margin-top: 1rem;
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.4rem;
+		margin: 0 0 0.75rem;
+		padding: 0;
+		list-style: none;
+	}
+
+	.details {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.5rem 1rem;
+		margin: 0;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+
+	.details a {
+		color: var(--accent);
+	}
+
+	.cover {
+		width: 100%;
+		margin: 2rem 0 0;
+		border: 1px solid var(--border);
+		border-radius: 0.5rem;
+	}
+
+	/* Title is rendered in post-header; hide duplicate markdown h1 */
+	.prose > :global(h1:first-of-type) {
+		display: none;
+	}
+</style>
