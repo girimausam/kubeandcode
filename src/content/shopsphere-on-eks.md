@@ -29,7 +29,7 @@ graph TD
     Prometheus --> Metrics[Cluster Metrics]
 ```
 
-## Table of contents
+<!-- ## Table of contents
 
 | Phase | Topic |
 | --- | --- |
@@ -51,7 +51,7 @@ graph TD
 | 16 | [Advanced autoscaling with Karpenter](#phase-16-16-advanced-autoscaling-karpenter) |
 | 17 | [GitOps with Argo CD](#phase-17-17-gitops-argocd) |
 | 18 | [DNS and TLS automation](#phase-18-18-dns-tls-automation) |
-| 19 | [Security and secrets](#phase-19-19-security-secrets) |
+| 19 | [Security and secrets](#phase-19-19-security-secrets) | -->
 
 Each phase follows the same layout: **Objective** → **Architecture** → **Commands** → **Manifests** → **Verification** → **Troubleshooting** (where applicable).
 
