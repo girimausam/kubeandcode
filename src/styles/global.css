@@ -247,7 +247,7 @@ pre.astro-code code {
 
 .site-footer {
 	margin-top: auto;
-	padding: 1.5rem 0 2rem;
+	padding: 1rem 0 0.5rem;
 	border-top: 1px solid var(--border);
 	font-size: var(--text-sm);
 	color: var(--text-muted);
@@ -255,16 +255,16 @@ pre.astro-code code {
 
 .footer-row {
 	display: flex;
+	align-items: center;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	gap: 0.75rem 1.5rem;
 }
 
 .footer-resources {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem 1rem;
-	margin-top: 1rem;
+	/* margin-top: 1rem; */
 }
 
 .footer-resources a {
@@ -293,6 +293,16 @@ pre.astro-code code {
 
 .prose {
 	font-size: var(--text-lg);
+}
+
+.prose a {
+	color: var(--accent);
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+
+.prose a:hover {
+	color: var(--accent);
 }
 
 .prose > :first-child {
@@ -343,4 +353,10 @@ pre.astro-code code {
 	border-left: 3px solid var(--accent);
 	border-radius: 0 0.35rem 0.35rem 0;
 	background: var(--bg-subtle);
+}
+
+.prose .mermaid {
+	margin: 1.5rem 0;
+	overflow-x: auto;
+	text-align: center;
 }

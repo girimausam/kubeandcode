@@ -1,7 +1,7 @@
 <div id="search-modal" class="search-modal" hidden>
 	<div class="search-modal-backdrop" data-search-close></div>
 	<div class="search-modal-dialog" role="dialog" aria-modal="true" aria-label="Search">
-		<div id="pagefind-search" class="pagefind-host"></div>
+		<div id="pagefind-search"></div>
 		<p class="search-unavailable" id="search-unavailable" hidden>
 			Run npm run build, then npm run preview to use search.
 		</p>
@@ -13,7 +13,7 @@
 		interface Window {
 			PagefindUI?: new (options: {
 				element: string;
-				showSubResults?: boolean;
+				showImages?: boolean;
 				resetStyles?: boolean;
 			}) => void;
 		}
@@ -25,7 +25,16 @@
 	const openButtons = () => document.querySelectorAll('[data-search-open]');
 
 	let pagefindReady = false;
-	let pagefindLoading = false;
+
+	const loadPagefind = () => {
+		if (document.querySelector('link[data-pagefind-ui]')) return;
+
+		const link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = '/pagefind/pagefind-ui.css';
+		link.dataset.pagefindUi = 'true';
+		document.head.appendChild(link);
+	};
 
 	const initPagefind = () =>
 		new Promise<boolean>((resolve) => {
@@ -34,23 +43,12 @@
 				return;
 			}
 
-			if (pagefindLoading) {
-				const wait = window.setInterval(() => {
-					if (pagefindReady) {
-						window.clearInterval(wait);
-						resolve(true);
-					}
-				}, 50);
-				return;
-			}
-
-			pagefindLoading = true;
+			loadPagefind();
 
 			const script = document.createElement('script');
 			script.src = '/pagefind/pagefind-ui.js';
 			script.onload = () => {
 				if (!window.PagefindUI || !host) {
-					pagefindLoading = false;
 					resolve(false);
 					return;
 				}
@@ -58,18 +56,14 @@
 				host.innerHTML = '';
 				new window.PagefindUI({
 					element: '#pagefind-search',
-					showSubResults: false,
-					resetStyles: true,
+					showImages: false,
+					resetStyles: false,
 				});
 
 				pagefindReady = true;
-				pagefindLoading = false;
 				resolve(true);
 			};
-			script.onerror = () => {
-				pagefindLoading = false;
-				resolve(false);
-			};
+			script.onerror = () => resolve(false);
 			document.body.appendChild(script);
 		});
 
@@ -96,34 +90,23 @@
 		document.body.classList.remove('search-modal-open');
 	};
 
-	openButtons().forEach((button) => {
-		button.addEventListener('click', openModal);
-	});
-
-	document.querySelectorAll('[data-search-close]').forEach((element) => {
-		element.addEventListener('click', closeModal);
-	});
+	openButtons().forEach((button) => button.addEventListener('click', openModal));
+	document.querySelectorAll('[data-search-close]').forEach((el) => el.addEventListener('click', closeModal));
 
 	document.addEventListener('keydown', (event) => {
 		const isOpen = modal && !modal.hidden;
 
 		if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
 			event.preventDefault();
-			if (isOpen) closeModal();
-			else openModal();
+			isOpen ? closeModal() : openModal();
 			return;
 		}
 
-		if (event.key === 'Escape' && isOpen) {
-			closeModal();
-		}
+		if (event.key === 'Escape' && isOpen) closeModal();
 	});
 
 	document.addEventListener('astro:page-load', () => {
-		openButtons().forEach((button) => {
-			button.removeEventListener('click', openModal);
-			button.addEventListener('click', openModal);
-		});
+		openButtons().forEach((button) => button.addEventListener('click', openModal));
 	});
 </script>
 
@@ -134,7 +117,7 @@
 		z-index: 50;
 		display: flex;
 		justify-content: center;
-		padding: 12vh 1rem 2rem;
+		padding: 10vh 1rem 2rem;
 	}
 
 	.search-modal[hidden] {
@@ -144,110 +127,59 @@
 	.search-modal-backdrop {
 		position: absolute;
 		inset: 0;
-		background: color-mix(in srgb, var(--bg) 35%, transparent);
+		background: rgba(0, 0, 0, 0.4);
 	}
 
 	.search-modal-dialog {
 		position: relative;
-		width: min(100%, 32rem);
-		max-height: min(65vh, 28rem);
+		width: min(100%, 42rem);
+		max-height: 80vh;
 		overflow: auto;
-	}
-
-	.pagefind-host :global(.pagefind-ui) {
-		width: 100%;
-		color: var(--text);
-		font-family: var(--font-sans);
-	}
-
-	.pagefind-host :global(.pagefind-ui__form) {
-		position: relative;
-	}
-
-	.pagefind-host :global(.pagefind-ui__search-input) {
-		width: 100%;
-		padding: 0.65rem 0.85rem;
+		padding: 1rem;
 		border: 1px solid var(--border);
-		border-radius: 0.375rem;
+		border-radius: 0.5rem;
 		background: var(--bg);
 		color: var(--text);
-		font-family: var(--font-sans);
-		font-size: var(--text-base);
-		font-weight: 400;
-		appearance: none;
 	}
 
-	.pagefind-host :global(.pagefind-ui__search-input:focus) {
-		outline: none;
-		border-color: var(--accent);
+	#pagefind-search :global(.pagefind-ui) {
+		--pagefind-ui-text: var(--text);
+		--pagefind-ui-background: var(--bg);
+		--pagefind-ui-border: var(--border);
+		--pagefind-ui-primary: var(--accent);
+		--pagefind-ui-tag: var(--bg-subtle);
 	}
 
-	.pagefind-host :global(.pagefind-ui__search-input::placeholder) {
+	#pagefind-search :global(.pagefind-ui__search-input),
+	#pagefind-search :global(.pagefind-ui__search-clear) {
+		color: var(--text);
+		background-color: var(--bg);
+	}
+
+	#pagefind-search :global(.pagefind-ui__search-input::placeholder) {
 		color: var(--text-muted);
 		opacity: 0.7;
 	}
 
-	.pagefind-host :global(.pagefind-ui__search-clear) {
-		position: absolute;
-		top: 50%;
-		right: 0.5rem;
-		transform: translateY(-50%);
-		padding: 0.2rem 0.45rem;
-		border: 0;
-		background: transparent;
-		color: var(--text-muted);
-		font-size: var(--text-xs);
-		cursor: pointer;
-	}
-
-	.pagefind-host :global(.pagefind-ui__results) {
-		margin: 0.35rem 0 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.pagefind-host :global(.pagefind-ui__result) {
-		padding: 0.6rem 0;
-		border-bottom: 1px solid var(--border);
-	}
-
-	.pagefind-host :global(.pagefind-ui__result:last-child) {
-		border-bottom: 0;
-	}
-
-	.pagefind-host :global(.pagefind-ui__result-link) {
+	#pagefind-search :global(.pagefind-ui__result-link) {
 		color: var(--text);
-		font-weight: 500;
-		text-decoration: none;
 	}
 
-	.pagefind-host :global(.pagefind-ui__result-link:hover) {
-		color: var(--accent);
+	#pagefind-search :global(.pagefind-ui__message) {
+		color: var(--text-muted);
 	}
 
-	.pagefind-host :global(.pagefind-ui__result-excerpt) {
+	#pagefind-search :global(.pagefind-ui__result-excerpt) {
 		display: block;
-		margin-top: 0.2rem;
-		font-size: var(--text-sm);
-		color: var(--text-muted);
-		line-height: 1.45;
-	}
-
-	.pagefind-host :global(.pagefind-ui__message) {
-		margin: 0.5rem 0 0;
-		font-size: var(--text-sm);
-		color: var(--text-muted);
-	}
-
-	.pagefind-host :global(mark) {
-		padding: 0 0.1rem;
-		border-radius: 0.15rem;
-		background: var(--accent-muted);
-		color: var(--accent);
+		min-width: 0;
+		max-width: 100%;
+		/* white-space: nowrap; */
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.search-unavailable {
-		margin: 0.5rem 0 0;
+		margin: 1rem 0 0;
 		font-size: var(--text-sm);
 		color: var(--text-muted);
 		text-align: center;

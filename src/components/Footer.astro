@@ -15,11 +15,9 @@ const year = new Date().getUTCFullYear();
 	<div class="container">
 		<div class="footer-row">
 			<p>Blogs © {year}</p>
-			<p class="utc-clock" aria-live="polite">
-				<time id="utc-time"></time> UTC
-			</p>
+			<time id="utc-time"></time> UTC
 		</div>
-		{
+		<!-- {
 			resources.length > 0 && (
 				<nav class="footer-resources" aria-label="Resources">
 					{resources.map((resource) => (
@@ -29,7 +27,7 @@ const year = new Date().getUTCFullYear();
 					))}
 				</nav>
 			)
-		}
+		} -->
 	</div>
 </footer>
 
@@ -46,9 +44,4 @@ const year = new Date().getUTCFullYear();
 </script>
 
 <style>
-	.utc-clock {
-		margin: 0;
-		font-family: var(--font-mono);
-		font-size: var(--text-xs);
-	}
 </style>

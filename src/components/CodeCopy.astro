@@ -1,7 +1,7 @@
 <script>
 	const enhanceCodeBlocks = () => {
 		document.querySelectorAll('pre').forEach((pre) => {
-			if (pre.closest('.code-block')) return;
+			if (pre.closest('.code-block') || pre.classList.contains('mermaid')) return;
 
 			const wrapper = document.createElement('div');
 			wrapper.className = 'code-block';

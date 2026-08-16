@@ -1,6 +1,6 @@
 ---
-title: ArgoCD on EKS
-description: Install Argo CD on EKS, expose it with a LoadBalancer, and retrieve the admin password.
+title: "Argo CD on Amazon EKS"
+description: "Install Argo CD on EKS, expose the server with a LoadBalancer, retrieve the admin password, and log in from the CLI."
 tags:
   - eks
   - argocd
