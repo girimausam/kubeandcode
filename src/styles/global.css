@@ -45,14 +45,14 @@ html {
 	color-scheme: light dark;
 }
 
-html,
+/* html, */
 pre,
 .thin-scrollbar {
 	scrollbar-width: thin;
 	scrollbar-color: color-mix(in srgb, var(--text-muted) 45%, transparent) transparent;
 }
 
-html::-webkit-scrollbar,
+/* html::-webkit-scrollbar, */
 pre::-webkit-scrollbar,
 .thin-scrollbar::-webkit-scrollbar {
 	width: 4px;
