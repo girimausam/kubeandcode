@@ -26,12 +26,14 @@
 
 	let pagefindReady = false;
 
+	const base = import.meta.env.BASE_URL;
+
 	const loadPagefind = () => {
 		if (document.querySelector('link[data-pagefind-ui]')) return;
 
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
-		link.href = '/pagefind/pagefind-ui.css';
+		link.href = `${base}pagefind/pagefind-ui.css`;
 		link.dataset.pagefindUi = 'true';
 		document.head.appendChild(link);
 	};
@@ -46,7 +48,7 @@
 			loadPagefind();
 
 			const script = document.createElement('script');
-			script.src = '/pagefind/pagefind-ui.js';
+			script.src = `${base}pagefind/pagefind-ui.js`;
 			script.onload = () => {
 				if (!window.PagefindUI || !host) {
 					resolve(false);

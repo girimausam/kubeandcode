@@ -6,6 +6,8 @@ import { remarkAdmonitions } from './src/utils/remark-admonitions.js';
 import { remarkMermaid } from './src/utils/remark-mermaid.js';
 
 export default defineConfig({
+	site: process.env.ASTRO_SITE,
+	base: process.env.ASTRO_BASE ?? '/',
 	trailingSlash: 'always',
 	markdown: {
 		processor: unified({
