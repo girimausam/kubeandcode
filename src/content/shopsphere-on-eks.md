@@ -3284,35 +3284,6 @@ curl -I http://<ALB-DNS>/grafana
 
 ---
 
-## Project summary & Key Learnings
-
-## 🧠 Kubernetes Mastery
-
-- **Core Primitives:** Deployments, Services, ConfigMaps, Secrets, PVCs.
-- **Networking:** ClusterIP vs NodePort vs LoadBalancer, Ingress path-based routing, DNS resolution between pods.
-- **Storage:** Dynamic provisioning with StorageClasses and EBS CSI Driver.
-- **Scaling:** HPA mechanics, the absolute requirement of `requests` for autoscaling.
-
-## ☁️ AWS Integration
-
-- **VPC Design:** Public vs Private subnets, NAT Gateways for private node internet access.
-- **IAM & Security:** IRSA (IAM Roles for Service Accounts) to grant pod-level AWS permissions without node-level keys.
-- **Load Balancing:** AWS Load Balancer Controller, ALB target types (IP vs Instance), Subnet tagging requirements.
-
-## 📊 Observability
-
-- **Metrics Server:** The bridge between Kubelet and HPA.
-- **Prometheus/Grafana:** Scrape configs, ServiceMonitors, and visualizing cluster health.
-
-## Troubleshooting notes
-
-1. **Subnet Tags:** The ALB controller will silently fail to create load balancers if subnets aren't tagged with `kubernetes.io/role/elb`.
-2. **Resource Requests:** HPA will completely ignore your pods if `resources.requests.cpu` is missing.
-3. **Namespace Boundaries:** Ingress cannot cross namespaces.
-4. **Node Capacity:** Monitoring stacks (Prometheus) will easily OOM or fail to schedule on `t3.small` instances.
-
----
-
 ## Phase 15: 15-application-metrics
 
 ## Objective
@@ -3886,34 +3857,5 @@ echo $DB_PASSWORD
 
 **Cause:** The Service Account lacks the IAM permissions to read the specific secret in AWS Secrets Manager, or the CSI driver isn't running on the node.
 **Fix:** Verify the IRSA role trust policy and the attached IAM policy allows `secretsmanager:GetSecretValue`. Check `kubectl describe pod` for the exact CSI error.
-
----
-
-## Project completion
-
-You have successfully built, deployed, and operated a production-grade, fully automated, and highly observable microservices architecture on Amazon EKS!
-
-### Final architecture checklist
-
-```
-✅ Infrastructure: VPC, Public/Private Subnets, NAT Gateways
-✅ Compute: EKS Cluster, Managed Node Groups, Karpenter Node Autoscaling
-✅ Storage: EBS CSI Driver, gp3 Persistent Volumes for PostgreSQL
-✅ Application: Flask Backend, Nginx Frontend, Path-based ALB Ingress
-✅ Scaling: Horizontal Pod Autoscaler (CPU-based)
-✅ Observability: Prometheus, Grafana, Custom App Metrics (ServiceMonitors)
-✅ GitOps: ArgoCD for automated deployment and self-healing
-✅ Networking & Security: ExternalDNS, Let's Encrypt TLS, AWS Secrets Manager via CSI
-```
-
-### What's next
-
-You now have a robust platform. To continue your DevOps journey, consider exploring:
-
-1. **Service Mesh:** Install **Istio** or **Linkerd** for mTLS, traffic splitting (Canary deployments), and advanced observability.
-2. **Policy as Code:** Implement **Kyverno** or **OPA Gatekeeper** to enforce security policies (e.g., "no root containers", "must have resource limits").
-3. **Chaos Engineering:** Use **Litmus** or **Chaos Mesh** to intentionally kill pods or inject network latency to test the resilience of your HPA and Karpenter configurations.
-4. **CI/CD Pipelines:** Build GitHub Actions or GitLab CI pipelines to automatically run tests, build Docker images, push to ECR, and update the GitOps repository.
-
 
 ---

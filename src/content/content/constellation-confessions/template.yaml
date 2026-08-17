@@ -1,0 +1,246 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Constellation Confessions — S3 + CloudFront + Lambda + Bedrock Agent
+
+Parameters:
+  FoundationModel:
+    Type: String
+    Default: amazon.nova-lite-v1:0
+    Description: Bedrock model the mythographer agent uses (try us.amazon.nova-lite-v1:0 if this ID is denied)
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.14
+    Architectures:
+      - x86_64
+
+Resources:
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "constellation-confessions-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${AWS::StackName}-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+        Description: OAC for Constellation Confessions
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - content-type
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+
+  MythAgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: bedrock.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+              ArnLike:
+                aws:SourceArn: !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:agent/*"
+      Policies:
+        - PolicyName: InvokeFoundationModels
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                  - bedrock:GetInferenceProfile
+                  - bedrock:GetFoundationModel
+                Resource: "*"
+
+  MythAgent:
+    Type: AWS::Bedrock::Agent
+    Properties:
+      AgentName: constellation-confessions
+      AgentResourceRoleArn: !GetAtt MythAgentRole.Arn
+      FoundationModel: !Ref FoundationModel
+      AutoPrepare: true
+      IdleSessionTTLInSeconds: 600
+      Description: Night-shift mythographer who names constellations after human confessions
+      Instruction: |
+        You are the night-shift mythographer at a dilapidated observatory. People whisper
+        short confessions (worries, wishes, weird thoughts). You invent a FAKE constellation
+        name and origin myth for the star pattern implied by their words.
+
+        Rules:
+        - Stay PG. Be funny and tender, never cruel. Roast the situation, not the person.
+        - Never give medical, legal, or crisis advice. If the confession is about self-harm
+          or harming others, reply with JSON whose myth gently suggests talking to a real
+          human and do not joke about the harm.
+        - Do not claim the constellation is real astronomy.
+        - Return ONLY valid JSON. No markdown fences. No preamble.
+        JSON shape:
+        {
+          "name": "English constellation name, 2-6 words, mythical",
+          "latinish": "fake Latin catalog name like 'Regretum Vagans'",
+          "firstSighted": "one sentence, include that it was first sighted the night they typed this",
+          "myth": "120 to 180 words, origin story of the stars, weave in the confession without quoting it verbatim if it would embarrass them",
+          "starHint": "one visual motif such as a crooked ladle, a moth, a key, a boat"
+        }
+
+  MythAlias:
+    Type: AWS::Bedrock::AgentAlias
+    DependsOn: MythAgent
+    Properties:
+      AgentId: !GetAtt MythAgent.AgentId
+      AgentAliasName: live
+      Description: Live alias for Constellation Confessions
+
+  MythFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          AGENT_ID: !GetAtt MythAgent.AgentId
+          AGENT_ALIAS_ID: !GetAtt MythAlias.AgentAliasId
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeAgent
+              Resource: !Sub
+                - "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:agent-alias/${AgentId}/${AliasId}"
+                - AgentId: !GetAtt MythAgent.AgentId
+                  AliasId: !GetAtt MythAlias.AgentAliasId
+      Events:
+        Health:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /api/health
+            Method: GET
+        Constellation:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /api/constellation
+            Method: POST
+
+  Cdn:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: Constellation Confessions
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - Id: s3origin
+            DomainName: !GetAtt SiteBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+          - Id: apiorigin
+            DomainName: !Sub "${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: s3origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: apiorigin
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68733b56d47e
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 10
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 10
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${SiteBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Cdn}"
+
+Outputs:
+  CloudFrontUrl:
+    Description: Open this URL after you upload the frontend to S3
+    Value: !Sub "https://${Cdn.DomainName}"
+  BucketName:
+    Description: Sync frontend dist here
+    Value: !Ref SiteBucket
+  AgentId:
+    Description: Bedrock agent id
+    Value: !GetAtt MythAgent.AgentId
+  AgentAliasId:
+    Description: Bedrock agent alias id
+    Value: !GetAtt MythAlias.AgentAliasId
+  HttpApiUrl:
+    Description: Direct API URL (also proxied at CloudFront /api)
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"

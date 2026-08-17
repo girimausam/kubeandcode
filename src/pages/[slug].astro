@@ -6,116 +6,319 @@ import { formatDate, getPostLinks, getRelatedPosts } from '../utils/posts';
 import { withBase } from '../utils/url';
 
 export async function getStaticPaths() {
-	const posts = await getCollection('posts');
-
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: { post },
-	}));
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
 }
 
 const allPosts = await getCollection('posts');
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const links = getPostLinks(post);
 const related = getRelatedPosts(post, allPosts);
+
+const toc = headings.filter((h) => h.depth >= 2);
 ---
 
 <BaseLayout title={`${post.data.title} | Blogs`} description={post.data.description} posts={allPosts}>
-	<article class="container post">
-		<header class="post-header">
-			<h1>{post.data.title}</h1>
-			<div class="post-meta">
-				{
-					post.data.tags.length > 0 && (
-						<ul class="tags">
-							{post.data.tags.map((tag) => (
-								<li>
-									<a class="tag" href={withBase(`?tag=${encodeURIComponent(tag)}`)}>
-										{tag}
-									</a>
-								</li>
-							))}
-						</ul>
-					)
-				}
-				<p class="details">
-					{post.data.date && <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>}
-					{post.data.author && <span>{post.data.author}</span>}
-					{
-						links.map((link) => (
-							<a href={link.url} rel="noopener noreferrer">
-								{link.title}
-							</a>
-						))
-					}
-				</p>
-			</div>
-		</header>
+  <article class="container post">
+    <header class="post-header">
+      <h1>{post.data.title}</h1>
+      <div class="post-meta">
+        {
+          post.data.tags.length > 0 && (
+            <ul class="tags">
+              {post.data.tags.map((tag) => (
+                <li>
+                  <a class="tag" href={withBase(`?tag=${encodeURIComponent(tag)}`)}>
+                    {tag}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <p class="details">
+          {post.data.date && <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>}
+          {post.data.author && <span>{post.data.author}</span>}
+          {
+            links.map((link) => (
+              <a href={link.url} rel="noopener noreferrer">
+                {link.title}
+              </a>
+            ))
+          }
+        </p>
+      </div>
+    </header>
 
-		{post.data.image && <img class="cover" src={post.data.image} alt="" loading="lazy" />}
+    {post.data.image && <img class="cover" src={post.data.image} alt="" loading="lazy" />}
 
-		<div class="prose">
-			<Content />
-		</div>
+    <div class="post-body">
+      {toc.length > 0 && (
+        <aside class="toc" id="toc" aria-label="Table of contents">
+          <div class="toc-header">
+            <span class="toc-title">On this page</span>
+            <button class="toc-toggle" type="button" aria-expanded="true" aria-controls="toc-list" aria-label="Toggle table of contents">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
 
-		<RelatedPosts posts={related} />
-	</article>
+          <nav class="toc-nav">
+            <ol class="toc-list" id="toc-list">
+              {toc.map((heading) => (
+                <li class={`toc-item depth-${heading.depth}`}>
+                  <a href={`#${heading.slug}`} data-slug={heading.slug}>
+                    {heading.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </aside>
+      )}
+
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+
+    <RelatedPosts posts={related} />
+  </article>
 </BaseLayout>
 
 <style>
-	.post {
-		padding: 3rem 0 0;
-	}
+  .post {
+    padding: 3rem 0 0;
+  }
+  .post-header {
+    text-align: center;
+  }
+  h1 {
+    margin: 0;
+    font-size: var(--text-3xl);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+  .post-meta {
+    margin-top: 1rem;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+  .details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+  .details a {
+    color: var(--accent);
+  }
+  .cover {
+    width: 100%;
+    margin: 2rem 0 0;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+  }
+  .prose > :global(h1:first-of-type) {
+    display: none;
+  }
 
-	.post-header {
-		text-align: center;
-	}
+  /* ── Layout ── */
+  .post-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-top: 3rem;
+    position: relative;
+  }
 
-	h1 {
-		margin: 0;
-		font-size: var(--text-3xl);
-		line-height: 1.2;
-		letter-spacing: -0.03em;
-	}
+  @media (min-width: 1100px) {
+    .post-body {
+      grid-template-columns: 200px minmax(0, 1fr);
+      gap: 3.5rem;
+      align-items: start;
+    }
+    .toc {
+      position: sticky;
+      top: 5.5rem;
+      max-height: calc(100vh - 7rem);
+      overflow-y: auto;
+      order: -1;
+      /* hide scrollbar but keep functionality */
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+    }
+    .toc:hover {
+      scrollbar-color: var(--border) transparent;
+    }
+  }
 
-	.post-meta {
-		margin-top: 1rem;
-	}
+  /* ── TOC – clean professional style ── */
+  .toc {
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.4;
+  }
 
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.4rem;
-		margin: 0 0 0.75rem;
-		padding: 0;
-		list-style: none;
-	}
+  .toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-right: 0.25rem;
+  }
 
-	.details {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.5rem 1rem;
-		margin: 0;
-		font-size: var(--text-sm);
-		color: var(--text-muted);
-	}
+  .toc-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
 
-	.details a {
-		color: var(--accent);
-	}
+  .toc-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toc-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text);
+  }
+  .toc-toggle svg {
+    transition: transform 0.2s ease;
+  }
+  .toc[data-collapsed] .toc-toggle svg {
+    transform: rotate(-90deg);
+  }
 
-	.cover {
-		width: 100%;
-		margin: 2rem 0 0;
-		border: 1px solid var(--border);
-		border-radius: 0.5rem;
-	}
+  .toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 1px solid var(--border);
+  }
 
-	/* Title is rendered in post-header; hide duplicate markdown h1 */
-	.prose > :global(h1:first-of-type) {
-		display: none;
-	}
+  .toc[data-collapsed] .toc-nav {
+    display: none;
+  }
+
+  .toc-item {
+    margin: 0;
+  }
+
+  .toc-item a {
+    display: block;
+    padding: 0.35rem 0 0.35rem 1rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    margin-left: -1px; /* sit on top of the vertical line */
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .toc-item a:hover {
+    color: var(--text);
+  }
+
+  /* Active state */
+  .toc-item a.active {
+    color: var(--accent, #2563eb);
+    border-left-color: var(--accent, #2563eb);
+    font-weight: 500;
+  }
+
+  /* Nesting */
+  .toc-item.depth-3 a { padding-left: 1.75rem; }
+  .toc-item.depth-4 a { padding-left: 2.5rem; }
+  .toc-item.depth-5 a { padding-left: 3.25rem; }
+  .toc-item.depth-6 a { padding-left: 4rem; }
+
+  /* Mobile */
+  @media (max-width: 1099px) {
+    .toc {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      background: var(--bg-muted, #fafafa);
+    }
+    .toc-list {
+      border-left: none;
+    }
+    .toc-item a {
+      border-left: none;
+      margin-left: 0;
+      padding-left: 0;
+    }
+    .toc-item.depth-3 a { padding-left: 0.9rem; }
+    .toc-item.depth-4 a { padding-left: 1.8rem; }
+  }
 </style>
+
+<script>
+  const toc = document.getElementById('toc');
+  const btn = toc?.querySelector('.toc-toggle');
+  const links = toc?.querySelectorAll('.toc-item a') ?? [];
+
+  // Toggle
+  if (toc && btn) {
+    if (window.matchMedia('(max-width: 1099px)').matches) {
+      toc.setAttribute('data-collapsed', '');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    btn.addEventListener('click', () => {
+      const collapsed = toc.hasAttribute('data-collapsed');
+      toc.toggleAttribute('data-collapsed', !collapsed);
+      btn.setAttribute('aria-expanded', String(collapsed));
+    });
+  }
+
+  // Active section highlighting
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute('id');
+        if (!id) return;
+        const link = toc?.querySelector(`a[data-slug="${id}"]`);
+        if (!link) return;
+
+        if (entry.isIntersecting) {
+          links.forEach((l) => l.classList.remove('active'));
+          link.classList.add('active');
+        }
+      });
+    },
+    {
+      rootMargin: '-20% 0px -70% 0px',
+      threshold: 0,
+    }
+  );
+
+  // Observe all headings that appear in the TOC
+  document.querySelectorAll('.prose h2, .prose h3, .prose h4, .prose h5, .prose h6').forEach((heading) => {
+    if (heading.id) observer.observe(heading);
+  });
+</script>
