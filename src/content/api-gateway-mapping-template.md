@@ -50,7 +50,7 @@ Content-Type: application/json
 
 Set **Content-Type** to `application/json`, then use this VTL for DynamoDB `PutItem`:
 
-```velocity
+```json
 {
   "TableName": "Users",
   "Item": {
@@ -65,7 +65,7 @@ Set **Content-Type** to `application/json`, then use this VTL for DynamoDB `PutI
 
 DynamoDB `PutItem` returns `{}`. Return a friendly message to the client:
 
-```velocity
+```json
 {
   "message": "User created successfully"
 }
@@ -83,7 +83,7 @@ Path parameter: `id` = `u123`
 
 ### Integration request mapping template
 
-```velocity
+```json
 {
   "TableName": "Users",
   "Key": {
@@ -108,7 +108,7 @@ Path parameter: `id` = `u123`
 
 Flatten DynamoDB attribute types into plain JSON:
 
-```velocity
+```json
 {
   "userId": "$input.path('$.Item.userId.S')",
   "name": "$input.path('$.Item.name.S')",
@@ -136,7 +136,7 @@ GET /users
 
 ### Integration request mapping template
 
-```velocity
+```json
 {
   "TableName": "Users"
 }
@@ -146,7 +146,7 @@ Use DynamoDB action **Scan** for this route.
 
 ### Integration response mapping template
 
-```velocity
+```json
 #set($items = [])
 
 #foreach($item in $input.path('$.Items'))
@@ -196,10 +196,20 @@ Grant the API Gateway execution role access to the `Users` table:
 
 Start a state machine execution from API Gateway:
 
-```velocity
+- #1
+```json
 {
-  "stateMachineArn": "arn:aws:states:REGION:ACCOUNT_ID:stateMachine:STATE_MACHINE_NAME",
   "input": "$util.escapeJavaScript($input.body)"
+  "stateMachineArn": "arn:aws:states:REGION:ACCOUNT_ID:stateMachine:STATE_MACHINE_NAME",
+}
+```
+
+- #2
+```json
+#set($rawRequest = $input.json('$'))
+{
+  "input": "$util.escapeJavaScript($rawRequest)",
+  "stateMachineArn": "arn:aws:states:us-east-1:271995869266:stateMachine:express-stat-flow"
 }
 ```
 
@@ -207,11 +217,17 @@ Start a state machine execution from API Gateway:
 
 Parse and return the Step Functions output:
 
-```velocity
-#set($output = $util.parseJson($input.path('$.output')))
+To get the specific property from the response. eg `output` try:
+```json
+$input.path('$.output')
+```
 
+_this converts the response into JAVA Map Object (avoid)_
+```json
+#set($output = $util.parseJson($input.path('$.output')))
 $output
 ```
+
 
 ## Quick reference
 
@@ -222,3 +238,5 @@ $output
 | `GET /users` | `Scan` | — | Table name only |
 
 **DynamoDB type suffixes:** `S` = String, `N` = Number, `B` = Binary. VTL maps client JSON into these typed attributes on the way in, and flattens them on the way out.
+
+Ref: https://medium.com/@kruchkov.alexandr/a-deep-dive-into-aws-api-gateway-velocity-mapping-templates-9a6c9f4ed742

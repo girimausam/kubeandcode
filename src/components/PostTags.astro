@@ -1,0 +1,42 @@
+---
+import { tagFilterUrl } from '../utils/url';
+
+interface Props {
+	tags: string[];
+	centered?: boolean;
+	showHash?: boolean;
+}
+
+const { tags, centered = false, showHash = false } = Astro.props;
+---
+
+{
+	tags.length > 0 && (
+		<ul class:list={['tags', { 'tags--centered': centered }]}>
+			{tags.map((tag) => (
+				<li>
+					<a class="tag" href={tagFilterUrl(tag)}>
+						{showHash ? '#' : ''}
+						{tag}
+					</a>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.tags--centered {
+		justify-content: center;
+		margin-bottom: 0.75rem;
+	}
+</style>

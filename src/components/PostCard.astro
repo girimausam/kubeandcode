@@ -1,5 +1,6 @@
 ---
 import type { Post } from '../utils/posts';
+import PostTags from './PostTags.astro';
 import { withBase } from '../utils/url';
 
 interface Props {
@@ -16,19 +17,7 @@ const href = withBase(`${post.id}/`);
 	</h2>
 	<p>{post.data.description}</p>
 	<div class="meta">
-		{
-			post.data.tags.length > 0 && (
-				<ul class="tags">
-					{post.data.tags.map((tag) => (
-						<li>
-							<a class="tag" href={withBase(`?tag=${encodeURIComponent(tag)}`)}>
-								#{tag}
-							</a>
-						</li>
-					))}
-				</ul>
-			)
-		}
+		<PostTags tags={post.data.tags} showHash />
 	</div>
 </article>
 
@@ -62,14 +51,5 @@ const href = withBase(`${post.id}/`);
 		margin-top: 0.25rem;
 		font-size: var(--text-sm);
 		color: var(--text-muted);
-	}
-
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.35rem;
-		margin: 0;
-		padding: 0;
-		list-style: none;
 	}
 </style>

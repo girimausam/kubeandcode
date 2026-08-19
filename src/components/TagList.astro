@@ -38,81 +38,94 @@ const { tags, totalCount, initialTags = [] } = Astro.props;
 </aside>
 
 <script define:vars={{ initialTags }}>
-	const panel = document.querySelector('[data-tags-panel]');
-	const selectedCount = panel?.querySelector('[data-selected-count]');
-	const allButton = panel?.querySelector('[data-tag-all]');
-	const tagButtons = panel?.querySelectorAll('[data-tag]');
-	const posts = document.querySelectorAll('[data-post-tags]');
+	const getTagsFromUrl = () => [...new Set(new URL(window.location.href).searchParams.getAll('tag'))];
 
-	const selected = new Set(initialTags);
+	const selected = new Set();
 
-	const updateUrl = () => {
-		const url = new URL(window.location.href);
-		url.searchParams.delete('tag');
-		for (const tag of selected) url.searchParams.append('tag', tag);
-		window.history.replaceState({}, '', url);
-	};
+	const initTagFilter = () => {
+		const panel = document.querySelector('[data-tags-panel]');
+		if (!panel) return;
 
-	const updateLabel = (button, tag) => {
-		const label = button.querySelector('.tag-label');
-		if (!label) return;
-		label.textContent = `${selected.has(tag) ? '✓ ' : ''}#${tag}`;
-	};
+		const applyFilter = () => {
+			const selectedCount = panel.querySelector('[data-selected-count]');
+			const allButton = panel.querySelector('[data-tag-all]');
+			const tagButtons = panel.querySelectorAll('[data-tag]');
+			const posts = document.querySelectorAll('[data-post-tags]');
+			const count = selected.size;
 
-	const applyFilter = () => {
-		const count = selected.size;
+			allButton?.classList.toggle('is-active', count === 0);
+			allButton?.setAttribute('aria-pressed', count === 0 ? 'true' : 'false');
 
-		allButton?.classList.toggle('is-active', count === 0);
-		allButton?.setAttribute('aria-pressed', count === 0 ? 'true' : 'false');
+			tagButtons.forEach((button) => {
+				const tag = button.getAttribute('data-tag');
+				if (!tag) return;
+				const active = selected.has(tag);
+				button.classList.toggle('is-active', active);
+				button.setAttribute('aria-pressed', active ? 'true' : 'false');
+				const label = button.querySelector('.tag-label');
+				if (label) label.textContent = `${active ? '✓ ' : ''}#${tag}`;
+			});
 
-		tagButtons?.forEach((button) => {
-			const tag = button.getAttribute('data-tag');
-			if (!tag) return;
-			const active = selected.has(tag);
-			button.classList.toggle('is-active', active);
-			button.setAttribute('aria-pressed', active ? 'true' : 'false');
-			updateLabel(button, tag);
-		});
+			if (selectedCount) {
+				selectedCount.hidden = count === 0;
+				selectedCount.textContent = count ? `${count} selected` : '';
+			}
 
-		if (selectedCount) {
-			selectedCount.hidden = count === 0;
-			selectedCount.textContent = count ? `${count} selected` : '';
-		}
+			posts.forEach((post) => {
+				const postTags = (post.getAttribute('data-post-tags') ?? '')
+					.split(',')
+					.map((t) => t.trim())
+					.filter(Boolean);
+				const visible = count === 0 || postTags.some((tag) => selected.has(tag));
+				post.hidden = !visible;
+			});
 
-		posts.forEach((post) => {
-			const postTags = (post.getAttribute('data-post-tags') ?? '')
-				.split(',')
-				.map((t) => t.trim())
-				.filter(Boolean);
-			const visible = count === 0 || postTags.some((tag) => selected.has(tag));
-			post.hidden = !visible;
-		});
+			const empty = document.querySelector('[data-posts-empty]');
+			if (empty) {
+				const visibleCount = [...posts].filter((post) => !post.hidden).length;
+				empty.hidden = visibleCount > 0;
+			}
+		};
 
-		const empty = document.querySelector('[data-posts-empty]');
-		if (empty) {
-			const visibleCount = [...posts].filter((post) => !post.hidden).length;
-			empty.hidden = visibleCount > 0;
-		}
-	};
+		const updateUrl = () => {
+			const url = new URL(window.location.href);
+			url.searchParams.delete('tag');
+			for (const tag of selected) url.searchParams.append('tag', tag);
+			window.history.replaceState({}, '', url);
+		};
 
-	allButton?.addEventListener('click', () => {
 		selected.clear();
-		updateUrl();
+		const urlTags = getTagsFromUrl();
+		for (const tag of (urlTags.length ? urlTags : initialTags)) {
+			selected.add(tag);
+		}
+
+		if (!panel.dataset.bound) {
+			panel.dataset.bound = 'true';
+
+			panel.querySelector('[data-tag-all]')?.addEventListener('click', () => {
+				selected.clear();
+				updateUrl();
+				applyFilter();
+			});
+
+			panel.querySelectorAll('[data-tag]').forEach((button) => {
+				button.addEventListener('click', () => {
+					const tag = button.getAttribute('data-tag');
+					if (!tag) return;
+					if (selected.has(tag)) selected.delete(tag);
+					else selected.add(tag);
+					updateUrl();
+					applyFilter();
+				});
+			});
+		}
+
 		applyFilter();
-	});
+	};
 
-	tagButtons?.forEach((button) => {
-		button.addEventListener('click', () => {
-			const tag = button.getAttribute('data-tag');
-			if (!tag) return;
-			if (selected.has(tag)) selected.delete(tag);
-			else selected.add(tag);
-			updateUrl();
-			applyFilter();
-		});
-	});
-
-	applyFilter();
+	initTagFilter();
+	document.addEventListener('astro:page-load', initTagFilter);
 </script>
 
 <style>

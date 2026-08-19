@@ -13,3 +13,8 @@ export function withBase(path = '') {
 	const suffix = path.startsWith('/') ? path.slice(1) : path;
 	return `${base}${suffix}`;
 }
+
+/** Homepage URL filtered by a single tag. */
+export function tagFilterUrl(tag: string) {
+	return withBase(`?tag=${encodeURIComponent(tag)}`);
+}
