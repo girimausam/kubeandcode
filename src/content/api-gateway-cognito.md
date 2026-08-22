@@ -1,6 +1,6 @@
 ---
 
-## title: "API Gateway with Cognito"
+title: "API Gateway with Cognito"
 description: "Runbook for securing REST and HTTP APIs with Cognito User Pools (JWT authorizer) and Identity Pools (IAM/SigV4), including OAuth grants, trust policies, and scopes."
 tags:
   - aws
@@ -10,6 +10,7 @@ tags:
   - api gateway
   - oauth
   - iam
+---
 
 ## Overview
 
