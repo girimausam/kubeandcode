@@ -1,5 +1,6 @@
 ---
-title: "API Gateway with Cognito"
+
+## title: "API Gateway with Cognito"
 description: "Runbook for securing REST and HTTP APIs with Cognito User Pools (JWT authorizer) and Identity Pools (IAM/SigV4), including OAuth grants, trust policies, and scopes."
 tags:
   - aws
@@ -9,7 +10,6 @@ tags:
   - api gateway
   - oauth
   - iam
----
 
 ## Overview
 
@@ -522,6 +522,8 @@ The caller still needs permission to invoke the API (via Cognito authorizer or I
 
 ---
 
+
+
 ## Enable Refresh Token Rotation
 
 In the Amazon Cognito console , go to your Cognito User Pool.
@@ -536,9 +538,27 @@ Under Advanced security configurations, check Enable refresh token rotation.
 
 For Refresh token rotation grace period, enter 10 seconds. This brief grace period allows retries before the old token is revoked.
 
-Reference: https://catalog.workshops.aws/workshops/137bc34c-33d9-43a8-bf8f-2d4f6c22c333/en-US/30-managed-login-authentication#step-7:-enable-refresh-token-rotation-(optional)
+Reference: [https://catalog.workshops.aws/workshops/137bc34c-33d9-43a8-bf8f-2d4f6c22c333/en-US/30-managed-login-authentication#step-7:-enable-refresh-token-rotation-(optional)](https://catalog.workshops.aws/workshops/137bc34c-33d9-43a8-bf8f-2d4f6c22c333/en-US/30-managed-login-authentication#step-7:-enable-refresh-token-rotation-(optional))
 
 ---
+
+
+
+### Cognito User ( Verify )
+
+`FORCE_CHANGE_PASSWORD` => `CONFIRMED`
+
+```bash
+aws cognito-idp admin-set-user-password \
+  --user-pool-id  \
+  --username admin@example.com \
+  --password Admin@123 \
+  --permanent
+```
+
+---
+
+
 
 ## References
 
