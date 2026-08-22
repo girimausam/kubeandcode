@@ -22,5 +22,13 @@ export function response(ctx) {
     util.error(ctx.error.message, ctx.error.type);
   }
 
+  if (!ctx.result) {
+    util.error(
+      'Task not found',
+      'NotFoundError'
+    );
+  }
+
+
   return ctx.result;
 }

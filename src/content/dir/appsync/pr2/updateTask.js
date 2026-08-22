@@ -1,7 +1,23 @@
 import { util } from '@aws-appsync/utils';
 
 export function request(ctx) {
-  const { id, ...input } = ctx.args.input;
+  const { id, title, description, completed } = ctx.args.input;
+
+  if (!id || id.trim().length === 0) {
+    util.error('id is required', 'ValidationError');
+  }
+
+  if (
+    title === undefined &&
+    description === undefined &&
+    completed === undefined
+  ) {
+    util.error(
+      'At least one field must be provided for update',
+      'ValidationError'
+    );
+  }
+
 
   const values = {
     ...input,

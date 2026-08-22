@@ -1,5 +1,6 @@
 ---
-title: "AppSync GraphQL Task Manager"
+
+## title: "AppSync GraphQL Task Manager"
 description: "Cognito-authenticated AppSync GraphQL API with DynamoDB, JavaScript resolvers, user-scoped task access, and Admins group authorization."
 tags:
   - appsync
@@ -8,17 +9,18 @@ tags:
   - dynamodb
   - aws
 date: 2026-08-22
----
 
 ## Overview
 
 Build a task manager API where users authenticate with Cognito, own their tasks, and members of an **Admins** group can read any task.
 
-| Component | Role |
-| --- | --- |
-| Amazon Cognito User Pool | Sign-in, JWT issuance, `Admins` group |
-| AWS AppSync | GraphQL API with Cognito authorization |
-| Amazon DynamoDB | Task storage (`owner` + `id` composite key) |
+
+| Component                | Role                                        |
+| ------------------------ | ------------------------------------------- |
+| Amazon Cognito User Pool | Sign-in, JWT issuance, `Admins` group       |
+| AWS AppSync              | GraphQL API with Cognito authorization      |
+| Amazon DynamoDB          | Task storage (`owner` + `id` composite key) |
+
 
 **End state:**
 
@@ -28,6 +30,8 @@ Build a task manager API where users authenticate with Cognito, own their tasks,
 - The **Admins** Cognito group can view and manage all tasks.
 - Resolvers use **AppSync JavaScript** (`APPSYNC_JS`), not VTL.
 - Test from the AppSync console and AWS CLI.
+
+
 
 ### Target architecture
 
@@ -43,6 +47,8 @@ AWS AppSync GraphQL API
         ▼
 Amazon DynamoDB
 ```
+
+
 
 ### Authorization model
 
@@ -73,6 +79,8 @@ Amazon DynamoDB
 
 ---
 
+
+
 ## Prerequisites
 
 Set shell variables before running CLI commands:
@@ -87,7 +95,11 @@ export TABLE_ARN=<your-dynamodb-table-arn>
 
 ---
 
+
+
 ## Cognito User Pool
+
+
 
 ### App client (SPA)
 
@@ -97,6 +109,8 @@ Create an app client **without** a client secret.
 
 - `ALLOW_ADMIN_USER_PASSWORD_AUTH`
 - `ALLOW_REFRESH_TOKEN_AUTH`
+
+
 
 ### Users
 
@@ -126,6 +140,8 @@ aws cognito-idp admin-set-user-password \
   --region $AWS_REGION
 ```
 
+
+
 ### Create Admins group
 
 ```bash
@@ -134,6 +150,8 @@ aws cognito-idp create-group \
   --user-pool-id $USER_POOL_ID \
   --region $AWS_REGION
 ```
+
+
 
 ### Add user to Admins group
 
@@ -144,6 +162,8 @@ aws cognito-idp admin-add-user-to-group \
   --group-name Admins \
   --region $AWS_REGION
 ```
+
+
 
 ### Get authentication token
 
@@ -169,6 +189,8 @@ Use the **ID token** consistently when sending Cognito authentication to AppSync
 export ALICE_ID_TOKEN=$(echo "$AUTH_RESULT" | jq -r '.AuthenticationResult.IdToken')
 ```
 
+
+
 ### Get user identity (sub)
 
 ```bash
@@ -185,26 +207,36 @@ export ALICE_TASK_ID="<alice-task-id>"
 
 ---
 
+
+
 ## DynamoDB table
 
 Use as the AppSync data source.
 
-| Attribute | Key | Value |
-| --- | --- | --- |
-| `owner` | PK | Cognito user `sub` |
-| `id` | SK | UUID |
+
+| Attribute | Key | Value              |
+| --------- | --- | ------------------ |
+| `owner`   | PK  | Cognito user `sub` |
+| `id`      | SK  | UUID               |
+
 
 ---
+
+
 
 ## AppSync GraphQL API
 
 Console path: **AWS AppSync → Create API → GraphQL APIs**
 
-| Setting | Value |
-| --- | --- |
-| API name | `TaskManagerAPI` |
+
+| Setting            | Value                    |
+| ------------------ | ------------------------ |
+| API name           | `TaskManagerAPI`         |
 | Authorization mode | Amazon Cognito User Pool |
-| User pool | Select your pool |
+| User pool          | Select your pool         |
+
+
+
 
 ### Schema (`schema.graphql`)
 
@@ -255,15 +287,19 @@ type Schema {
 
 ### Operations
 
-| Type | Operation | Scope |
-| --- | --- | --- |
-| Mutation | `createTask` | Current user |
-| Query | `getMyTask` | Current user |
-| Query | `listMyTasks` | Current user |
-| Mutation | `updateMyTask` | Current user |
-| Mutation | `deleteMyTask` | Current user |
-| Query | `getTaskAsAdmin` | Admins only |
-| Query | `listAllTasks` | Admins only |
+
+| Type     | Operation        | Scope        |
+| -------- | ---------------- | ------------ |
+| Mutation | `createTask`     | Current user |
+| Query    | `getMyTask`      | Current user |
+| Query    | `listMyTasks`    | Current user |
+| Mutation | `updateMyTask`   | Current user |
+| Mutation | `deleteMyTask`   | Current user |
+| Query    | `getTaskAsAdmin` | Admins only  |
+| Query    | `listAllTasks`   | Admins only  |
+
+
+
 
 ### Data access flow
 
@@ -279,12 +315,13 @@ DynamoDB Tasks table
 
 ---
 
+
+
 ## IAM role for AppSync
 
 Role name: `AppSyncTaskManagerDynamoDBRole`
 
-<details>
-<summary>Trust policy</summary>
+Trust policy
 
 ```bash
 cat << 'EOF' > appsync-iam-role-trust-policy.json
@@ -303,10 +340,9 @@ cat << 'EOF' > appsync-iam-role-trust-policy.json
 EOF
 ```
 
-</details>
 
-<details>
-<summary>Permission policy (replace <code>TABLE_ARN</code>)</summary>
+
+Permission policy (replace `TABLE_ARN`)
 
 ```bash
 cat << 'EOF' > appsync-dynamodb-policy.json
@@ -346,23 +382,29 @@ aws iam put-role-policy \
   --policy-document file://appsync-dynamodb-policy.json
 ```
 
-</details>
+
 
 ---
+
+
 
 ## Data source
 
 Console: attach DynamoDB as a data source on the API.
 
-| Setting | Value |
-| --- | --- |
-| Data source type | Amazon DynamoDB table |
-| Data source name | `TasksDataSource` |
-| Region | `us-east-1` |
-| Table | `Tasks` |
-| IAM role | `AppSyncTaskManagerDynamoDBRole` (existing role) |
+
+| Setting          | Value                                            |
+| ---------------- | ------------------------------------------------ |
+| Data source type | Amazon DynamoDB table                            |
+| Data source name | `TasksDataSource`                                |
+| Region           | `us-east-1`                                      |
+| Table            | `Tasks`                                          |
+| IAM role         | `AppSyncTaskManagerDynamoDBRole` (existing role) |
+
 
 ---
+
+
 
 ## Resolvers (AppSync JavaScript)
 
@@ -370,30 +412,36 @@ Attach unit resolvers with runtime **APPSYNC_JS** and data source **TasksDataSou
 
 Console path: **Schema → Mutation/Query → operation → Attach**
 
-| Schema field | Resolver file | DynamoDB operation |
-| --- | --- | --- |
-| `Mutation.createTask` | [`dir/appsync/pr2/createTask.js`](./dir/appsync/pr2/createTask.js) | `PutItem` — owner from `ctx.identity.sub` |
-| `Query.getMyTask` | [`dir/appsync/pr2/getMyTask.js`](./dir/appsync/pr2/getMyTask.js) | `GetItem` — key scoped to caller |
-| `Query.listMyTasks` | [`dir/appsync/pr2/listMyTasks.js`](./dir/appsync/pr2/listMyTasks.js) | List caller's tasks |
-| `Mutation.updateMyTask` | [`dir/appsync/pr2/updateTask.js`](./dir/appsync/pr2/updateTask.js) | `UpdateItem` — key scoped to caller |
-| `Mutation.deleteMyTask` | [`dir/appsync/pr2/deleteMyTask.js`](./dir/appsync/pr2/deleteMyTask.js) | `DeleteItem` — key scoped to caller |
-| `Query.getTaskAsAdmin` | [`dir/appsync/pr2/getTaskAsAdmin.js`](./dir/appsync/pr2/getTaskAsAdmin.js) | `GetItem` — any `owner` + `id` |
-| `Query.listAllTasks` | [`dir/appsync/pr2/listAllTasks.js`](./dir/appsync/pr2/listAllTasks.js) | `Scan` — all tasks |
 
-**Admin helper:** [`dir/appsync/pr2/isAdmin.js`](./dir/appsync/pr2/isAdmin.js) — checks `ctx.identity.groups` for membership. Import or inline in admin resolvers.
+| Schema field            | Resolver file                                                              | DynamoDB operation                        |
+| ----------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
+| `Mutation.createTask`   | `[dir/appsync/pr2/createTask.js](./dir/appsync/pr2/createTask.js)`         | `PutItem` — owner from `ctx.identity.sub` |
+| `Query.getMyTask`       | `[dir/appsync/pr2/getMyTask.js](./dir/appsync/pr2/getMyTask.js)`           | `GetItem` — key scoped to caller          |
+| `Query.listMyTasks`     | `[dir/appsync/pr2/listMyTasks.js](./dir/appsync/pr2/listMyTasks.js)`       | List caller's tasks                       |
+| `Mutation.updateMyTask` | `[dir/appsync/pr2/updateTask.js](./dir/appsync/pr2/updateTask.js)`         | `UpdateItem` — key scoped to caller       |
+| `Mutation.deleteMyTask` | `[dir/appsync/pr2/deleteMyTask.js](./dir/appsync/pr2/deleteMyTask.js)`     | `DeleteItem` — key scoped to caller       |
+| `Query.getTaskAsAdmin`  | `[dir/appsync/pr2/getTaskAsAdmin.js](./dir/appsync/pr2/getTaskAsAdmin.js)` | `GetItem` — any `owner` + `id`            |
+| `Query.listAllTasks`    | `[dir/appsync/pr2/listAllTasks.js](./dir/appsync/pr2/listAllTasks.js)`     | `Scan` — all tasks                        |
+
+
+**Admin helper:** `[dir/appsync/pr2/isAdmin.js](./dir/appsync/pr2/isAdmin.js)` — checks `ctx.identity.groups` for membership. Import or inline in admin resolvers.
 
 ### Example: attach `Mutation.createTask`
 
-| Setting | Value |
-| --- | --- |
-| Data source | `TasksDataSource` |
-| Runtime | `APPSYNC_JS` |
-| Resolver type | Unit |
-| Code | `createTask.js` |
+
+| Setting       | Value             |
+| ------------- | ----------------- |
+| Data source   | `TasksDataSource` |
+| Runtime       | `APPSYNC_JS`      |
+| Resolver type | Unit              |
+| Code          | `createTask.js`   |
+
 
 Repeat for each field in the table above.
 
 ---
+
+
 
 ## Admin authorization
 
@@ -409,10 +457,14 @@ Is caller in "Admins"?
    └── No  → util.unauthorized()
 ```
 
-| Caller | Allowed |
-| --- | --- |
+
+| Caller                 | Allowed                          |
+| ---------------------- | -------------------------------- |
 | Admin (`Admins` group) | `getTaskAsAdmin`, `listAllTasks` |
-| Normal user | Own-task operations only |
+| Normal user            | Own-task operations only         |
+
+
+
 
 ### Get admin ID token
 
@@ -428,6 +480,8 @@ ADMIN_AUTH=$(aws cognito-idp admin-initiate-auth \
 export ADMIN_ID_TOKEN=$(echo "$ADMIN_AUTH" \
   | jq -r '.AuthenticationResult.IdToken')
 ```
+
+
 
 ### Admin query example
 
@@ -450,10 +504,14 @@ query {
 
 ---
 
+
+
 ## CLI testing
 
 1. Obtain an ID token from Cognito (user or admin).
 2. POST a GraphQL operation to the AppSync URL with `Authorization: <ID_TOKEN>`.
+
+
 
 ### List my tasks (alice)
 
@@ -472,6 +530,8 @@ curl \
   --data @appsync-query.json
 ```
 
+
+
 ### List all tasks (admin)
 
 ```bash
@@ -489,20 +549,26 @@ curl \
   --data @list-all-query.json
 ```
 
+
+
 ### Console testing
 
 In the AppSync console **Queries** tab, sign in with user credentials and run operations against the schema.
 
 ---
 
+
+
 ## Pagination (extension)
 
 To paginate `listMyTasks`, extend the schema and resolver to accept `limit` and `nextToken`.
 
-| Argument | First page | Next page |
-| --- | --- | --- |
-| `limit` | Page size (e.g. `2`) | Same |
-| `nextToken` | `null` | Token from previous response |
+
+| Argument    | First page           | Next page                    |
+| ----------- | -------------------- | ---------------------------- |
+| `limit`     | Page size (e.g. `2`) | Same                         |
+| `nextToken` | `null`               | Token from previous response |
+
 
 ```graphql
 query {
@@ -524,8 +590,11 @@ Update `listMyTasks` in the schema to return a connection type (`items` + `nextT
 
 ---
 
+
+
 ## Notes
 
 - **Group name casing:** Cognito group is `Admins`. Some resolver files check `'admins'` (lowercase). Align group name checks with the actual Cognito group name or authorization will fail silently.
-- **`listMyTasks` resolver:** Verify the attached code queries by `ctx.identity.sub` (partition key), not a table `Scan` with an admin gate.
+- `listMyTasks` **resolver:** Verify the attached code queries by `ctx.identity.sub` (partition key), not a table `Scan` with an admin gate.
 - **Token type:** AppSync Cognito auth expects the **ID token**, not the access token.
+
