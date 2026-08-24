@@ -11,6 +11,7 @@ export function withBase(path = '') {
 	}
 
 	const suffix = path.startsWith('/') ? path.slice(1) : path;
+	// BASE_URL already includes trailing slash from Astro
 	return `${base}${suffix}`;
 }
 

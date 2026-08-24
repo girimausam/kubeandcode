@@ -1,3 +1,5 @@
+import { joinBase } from './join-base.js';
+
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.avif']);
 const CODE_EXTENSIONS = new Set([
 	'.js',
@@ -71,12 +73,10 @@ export function getShikiLanguage(pathname: string) {
 
 export function toContentAssetUrl(relativePath: string, base: string) {
 	const normalized = relativePath.replace(/^\.\//, '').replace(/\\/g, '/');
-	const prefix = base.endsWith('/') ? base : `${base}/`;
-	return `${prefix}content/${normalized}`;
+	return joinBase(base, `content/${normalized}`);
 }
 
 export function toPostUrl(markdownPath: string, base: string) {
 	const slug = markdownPath.replace(/^\.\//, '').replace(/\.md$/i, '').replace(/\\/g, '/');
-	const prefix = base.endsWith('/') ? base : `${base}/`;
-	return `${prefix}${slug}/`;
+	return joinBase(base, `${slug}/`);
 }

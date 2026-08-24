@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { visit } from 'unist-util-visit';
+import { joinBase } from './join-base.js';
 
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.avif']);
 const CODE_EXTENSIONS = new Set([
@@ -67,13 +68,13 @@ export function remarkContentLinks(options = {}) {
 
 			if (ext === '.md') {
 				const slug = resolved.replace(/\.md$/i, '');
-				node.url = `${base}${slug}/`;
+				node.url = joinBase(base, `${slug}/`);
 				return;
 			}
 
 			if (url.startsWith('./dir/') || url.startsWith('./images/') || resolved.startsWith('dir/') || resolved.startsWith('images/')) {
 				const assetPath = resolved.startsWith('dir/') || resolved.startsWith('images/') ? resolved : url.replace(/^\.\//, '');
-				node.url = `${base}content/${assetPath}`;
+				node.url = joinBase(base, `content/${assetPath}`);
 
 				if (IMAGE_EXTENSIONS.has(ext)) {
 					node.data.hProperties['data-content-preview'] = 'image';
@@ -86,11 +87,11 @@ export function remarkContentLinks(options = {}) {
 
 			// Other relative assets under content (e.g. ./dir/...)
 			if (IMAGE_EXTENSIONS.has(ext)) {
-				node.url = `${base}content/${resolved}`;
+				node.url = joinBase(base, `content/${resolved}`);
 				node.data.hProperties['data-content-preview'] = 'image';
 				node.data.hProperties.className = ['content-preview-link'];
 			} else if (CODE_EXTENSIONS.has(ext)) {
-				node.url = `${base}content/${resolved}`;
+				node.url = joinBase(base, `content/${resolved}`);
 				node.data.hProperties['data-content-preview'] = 'code';
 				node.data.hProperties.className = ['content-preview-link'];
 			}

@@ -18,9 +18,10 @@ function copyAssets(outDir) {
 }
 
 function resolveAssetRequest(url, base) {
-	let pathname = url.split('?')[0];
-	if (base && base !== '/' && pathname.startsWith(base)) {
-		pathname = pathname.slice(base.length);
+	let pathname = decodeURIComponent(url.split('?')[0]);
+	const normalizedBase = base === '/' ? '' : base.endsWith('/') ? base.slice(0, -1) : base;
+	if (normalizedBase && pathname.startsWith(normalizedBase)) {
+		pathname = pathname.slice(normalizedBase.length);
 	}
 	if (!pathname.startsWith('/content/')) return null;
 	const relative = pathname.replace(/^\/content\//, '');
