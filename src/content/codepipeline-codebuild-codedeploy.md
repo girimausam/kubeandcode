@@ -1,5 +1,5 @@
 ---
-title: AWS CI/CD Notes — CodePipeline, CodeBuild & CodeDeploy
+title: AWS CI/CD Notes - CodePipeline, CodeBuild & CodeDeploy
 description: Quick-reference patterns for CodePipeline, CodeBuild, and CodeDeploy setups.
 tags:
   - codepipeline
@@ -14,7 +14,7 @@ tags:
   - cicd
 ---
 
-# AWS CI/CD Notes — CodePipeline, CodeBuild & CodeDeploy
+# AWS CI/CD Notes - CodePipeline, CodeBuild & CodeDeploy
 
 Quick-reference patterns for common CodePipeline setups. Each example lists the stages, what each service does, and the minimum IAM/buildspec pieces.
 
@@ -36,11 +36,11 @@ Source → Build (CodeBuild) → [Manual approval] → Deploy (CodeDeploy) → [
 
 **Typical pipeline stages:**
 
-1. **Source** — CodeCommit, GitHub, or S3 zip
-2. **Build** — CodeBuild project (buildspec.yml)
-3. **Approval** — Manual approval action (optional)
-4. **Deploy** — CodeDeploy application + deployment group
-5. **Notification** — EventBridge rule → SNS on `FAILED` / `SUCCEEDED`
+1. **Source** - CodeCommit, GitHub, or S3 zip
+2. **Build** - CodeBuild project (buildspec.yml)
+3. **Approval** - Manual approval action (optional)
+4. **Deploy** - CodeDeploy application + deployment group
+5. **Notification** - EventBridge rule → SNS on `FAILED` / `SUCCEEDED`
 
 **SNS notification (EventBridge):**
 
@@ -153,7 +153,7 @@ Resources:
         TargetVersion: 2
 ```
 
-Used with SAM/CodeDeploy for blue/green Lambda deploys — traffic shifts from `live` alias current version to target version, with optional pre/post traffic hooks.
+Used with SAM/CodeDeploy for blue/green Lambda deploys - traffic shifts from `live` alias current version to target version, with optional pre/post traffic hooks.
 
 ---
 
@@ -186,7 +186,7 @@ artifacts:
 - **CodeDeploy** uses `appspec.yaml` for Lambda alias traffic shifting (blue/green). See [appspec.yaml](#appspecyaml).
 - Deployment group type: **Lambda**.
 
-**Without CodeDeploy — CloudFormation deploy stage:**
+**Without CodeDeploy - CloudFormation deploy stage:**
 
 ```yaml
 # buildspec.yml (post_build)
@@ -200,7 +200,7 @@ post_build:
 
 CodePipeline deploy stage uses **CloudFormation** action instead of CodeDeploy. Simpler for small functions.
 
-**Without CodeBuild — SAM CLI locally or in CodePipeline source only:**
+**Without CodeBuild - SAM CLI locally or in CodePipeline source only:**
 
 ```bash
 sam build && sam deploy --guided
@@ -218,7 +218,7 @@ Fine for dev. No pipeline; no audit trail of builds.
 
 ---
 
-## 2. Static site — S3 zip → S3 dest → CloudFront invalidation
+## 2. Static site - S3 zip → S3 dest → CloudFront invalidation
 
 ```text
 Source (S3 zip) → Build (unzip + sync) → Deploy (S3 destination) → Invalidate CloudFront
@@ -246,9 +246,9 @@ phases:
 
 **Pipeline stages:**
 
-1. **Source** — S3 bucket `source-bucket`, object key `source.zip` (or trigger on upload)
-2. **Build** — CodeBuild syncs extracted `src/` to `destination-bucket`
-3. **No CodeDeploy** — S3 is the deploy target; buildspec handles it
+1. **Source** - S3 bucket `source-bucket`, object key `source.zip` (or trigger on upload)
+2. **Build** - CodeBuild syncs extracted `src/` to `destination-bucket`
+3. **No CodeDeploy** - S3 is the deploy target; buildspec handles it
 
 **CodeBuild role needs:**
 
@@ -256,7 +256,7 @@ phases:
 - `s3:PutObject`, `s3:DeleteObject`, `s3:ListBucket` on destination bucket
 - `cloudfront:CreateInvalidation` on the distribution
 
-**Variant — no CodeBuild:** Lambda triggered by S3 `ObjectCreated` on the zip, extracts and syncs. Good for small sites; CodeBuild better for larger builds and logs.
+**Variant - no CodeBuild:** Lambda triggered by S3 `ObjectCreated` on the zip, extracts and syncs. Good for small sites; CodeBuild better for larger builds and logs.
 
 ---
 
@@ -327,7 +327,7 @@ See [appspec.yaml](#appspecyaml) for the full EC2 example with lifecycle hooks.
 **CodeDeploy setup:**
 
 1. Create application (compute platform: **EC2 / on-premises**)
-2. Create deployment group — tag filter e.g. `Environment=prod`
+2. Create deployment group - tag filter e.g. `Environment=prod`
 3. Pipeline deploy stage: **CodeDeploy** action
 
 **Without CodeBuild:** push a pre-built zip to S3 as source; CodeDeploy deploys it directly (no compile step).

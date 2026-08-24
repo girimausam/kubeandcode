@@ -1,6 +1,6 @@
 ---
 title: "ShopSphere on Amazon EKS"
-description: "Complete microservices lab on EKS—VPC, Flask backend, ALB ingress patterns, autoscaling, Prometheus, Grafana, GitOps, and secrets."
+description: "Complete microservices lab on EKS-VPC, Flask backend, ALB ingress patterns, autoscaling, Prometheus, Grafana, GitOps, and secrets."
 tags:
   - shopsphere
   - eks
@@ -13,7 +13,7 @@ tags:
   - aws
 ---
 
-> End-to-end guide: build and operate a production-style microservices app on Amazon EKS — VPC, persistence, backend API, ingress, autoscaling, observability, GitOps, and secrets.
+> End-to-end guide: build and operate a production-style microservices app on Amazon EKS - VPC, persistence, backend API, ingress, autoscaling, observability, GitOps, and secrets.
 
 ## Final architecture
 
@@ -2410,7 +2410,7 @@ curl <http://localhost:5000/api/health>
 
 ### Basic ingress (path-based)
 
-Use this as the default ShopSphere ingress — routes `/api` to the backend and `/` to the frontend.
+Use this as the default ShopSphere ingress - routes `/api` to the backend and `/` to the frontend.
 
 ```yaml
 apiVersion: networking.k8s.io/v1

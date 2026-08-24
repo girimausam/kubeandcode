@@ -51,8 +51,8 @@ Decision and troubleshooting notes for pod-level AWS permissions in Amazon EKS.
 
 ### Choose one pattern
 
-- **EKS Pod Identity** — simpler operational model for supported EKS clusters and Linux EC2 worker nodes.
-- **IRSA** — useful for OIDC-based compatibility and established workflows.
+- **EKS Pod Identity** - simpler operational model for supported EKS clusters and Linux EC2 worker nodes.
+- **IRSA** - useful for OIDC-based compatibility and established workflows.
 
 ### Pod Identity trust policy
 

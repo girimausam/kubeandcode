@@ -1,5 +1,5 @@
 ---
-title: "AppSync GraphQL Task Manager — Notes"
+title: "AppSync GraphQL Task Manager - Notes"
 description: "Cognito-authenticated AppSync GraphQL API with DynamoDB, JavaScript resolvers, user-scoped task access, and Admins group authorization."
 tags:
   - appsync
@@ -415,16 +415,16 @@ Console path: **Schema → Mutation/Query → operation → Attach**
 
 | Schema field            | Resolver file                                                              | DynamoDB operation                        |
 | ----------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| `Mutation.createTask`   | `[dir/appsync/pr2/createTask.js](./dir/appsync/pr2/createTask.js)`         | `PutItem` — owner from `ctx.identity.sub` |
-| `Query.getMyTask`       | `[dir/appsync/pr2/getMyTask.js](./dir/appsync/pr2/getMyTask.js)`           | `GetItem` — key scoped to caller          |
+| `Mutation.createTask`   | `[dir/appsync/pr2/createTask.js](./dir/appsync/pr2/createTask.js)`         | `PutItem` - owner from `ctx.identity.sub` |
+| `Query.getMyTask`       | `[dir/appsync/pr2/getMyTask.js](./dir/appsync/pr2/getMyTask.js)`           | `GetItem` - key scoped to caller          |
 | `Query.listMyTasks`     | `[dir/appsync/pr2/listMyTasks.js](./dir/appsync/pr2/listMyTasks.js)`       | List caller's tasks                       |
-| `Mutation.updateMyTask` | `[dir/appsync/pr2/updateTask.js](./dir/appsync/pr2/updateTask.js)`         | `UpdateItem` — key scoped to caller       |
-| `Mutation.deleteMyTask` | `[dir/appsync/pr2/deleteMyTask.js](./dir/appsync/pr2/deleteMyTask.js)`     | `DeleteItem` — key scoped to caller       |
-| `Query.getTaskAsAdmin`  | `[dir/appsync/pr2/getTaskAsAdmin.js](./dir/appsync/pr2/getTaskAsAdmin.js)` | `GetItem` — any `owner` + `id`            |
-| `Query.listAllTasks`    | `[dir/appsync/pr2/listAllTasks.js](./dir/appsync/pr2/listAllTasks.js)`     | `Scan` — all tasks                        |
+| `Mutation.updateMyTask` | `[dir/appsync/pr2/updateTask.js](./dir/appsync/pr2/updateTask.js)`         | `UpdateItem` - key scoped to caller       |
+| `Mutation.deleteMyTask` | `[dir/appsync/pr2/deleteMyTask.js](./dir/appsync/pr2/deleteMyTask.js)`     | `DeleteItem` - key scoped to caller       |
+| `Query.getTaskAsAdmin`  | `[dir/appsync/pr2/getTaskAsAdmin.js](./dir/appsync/pr2/getTaskAsAdmin.js)` | `GetItem` - any `owner` + `id`            |
+| `Query.listAllTasks`    | `[dir/appsync/pr2/listAllTasks.js](./dir/appsync/pr2/listAllTasks.js)`     | `Scan` - all tasks                        |
 
 
-**Admin helper:** `[dir/appsync/pr2/isAdmin.js](./dir/appsync/pr2/isAdmin.js)` — checks `ctx.identity.groups` for membership. Import or inline in admin resolvers.
+**Admin helper:** `[dir/appsync/pr2/isAdmin.js](./dir/appsync/pr2/isAdmin.js)` - checks `ctx.identity.groups` for membership. Import or inline in admin resolvers.
 
 ### Example: attach `Mutation.createTask`
 

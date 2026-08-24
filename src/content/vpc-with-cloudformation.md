@@ -20,7 +20,7 @@ The base template creates:
 - 2 public subnets and 2 private subnets across 2 AZs
 - Internet Gateway and route tables
 
-## Step 1 — Set variables
+## Step 1 - Set variables
 
 ```bash
 export STACK_NAME="lab-vpc-stack"
@@ -35,7 +35,7 @@ export VPC_NAME="lab-vpc"
 export VPC_CIDR="10.0.0.0/16"
 ```
 
-## Step 2 — Add InstanceSG (optional)
+## Step 2 - Add InstanceSG (optional)
 
 Paste into `Resources`, after `PrivateSubnet1BRouteAssociation`:
 
@@ -61,11 +61,11 @@ Add this to `Outputs`:
     Value: !Ref InstanceSG
 ```
 
-## Step 3 — Add NAT Gateway (optional)
+## Step 3 - Add NAT Gateway (optional)
 
-> **Optional.** Skip if private subnets do not need outbound internet. Use **regional** or **zonal** — not both.
+> **Optional.** Skip if private subnets do not need outbound internet. Use **regional** or **zonal** - not both.
 
-### Option A — Regional NAT (single NAT, lower cost)
+### Option A - Regional NAT (single NAT, lower cost)
 
 Paste into `Resources`, after `PrivateSubnet1BRouteAssociation` (or after `InstanceSG` if added):
 
@@ -96,7 +96,7 @@ Paste into `Resources`, after `PrivateSubnet1BRouteAssociation` (or after `Insta
       NatGatewayId: !Ref NatGateway
 ```
 
-### Option B — Zonal NAT (one NAT per AZ, higher availability)
+### Option B - Zonal NAT (one NAT per AZ, higher availability)
 
 Remove `PrivateSubnet1ARouteAssociation` and `PrivateSubnet1BRouteAssociation` from the template, then paste:
 
@@ -180,7 +180,7 @@ Remove `PrivateSubnet1ARouteAssociation` and `PrivateSubnet1BRouteAssociation` f
       SubnetId: !Ref PrivateSubnet1B
 ```
 
-## Step 4 — Deploy the stack
+## Step 4 - Deploy the stack
 
 ```bash
 aws cloudformation deploy \
@@ -193,7 +193,7 @@ aws cloudformation deploy \
     VpcCidr="${VPC_CIDR:-10.0.0.0/16}"
 ```
 
-## Step 5 — Verify outputs (optional)
+## Step 5 - Verify outputs (optional)
 
 ```bash
 aws cloudformation describe-stacks \

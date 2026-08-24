@@ -1,5 +1,5 @@
 ---
-title: Kubernetes on EKS — Core Resource Examples
+title: Kubernetes on EKS - Core Resource Examples
 description: Minimal YAML samples for common Kubernetes resources on EKS.
 tags:
   - eks
@@ -21,7 +21,7 @@ tags:
   - autoscaling
 ---
 
-# Kubernetes on EKS — Core Resource Examples
+# Kubernetes on EKS - Core Resource Examples
 
 Minimal YAML samples for common Kubernetes resources on EKS. All examples use namespace `my-app`.
 
@@ -74,7 +74,7 @@ data:
 
 ## Secret
 
-Sensitive values — base64-encoded in `data`, or plain text in `stringData` (encoded automatically).
+Sensitive values - base64-encoded in `data`, or plain text in `stringData` (encoded automatically).
 
 ```yaml
 # secret.yaml
@@ -93,7 +93,7 @@ stringData:
 
 ## Pod
 
-A single pod. Prefer a **Deployment** for production — it manages replicas and rollouts.
+A single pod. Prefer a **Deployment** for production - it manages replicas and rollouts.
 
 ```yaml
 # pod.yaml
@@ -193,7 +193,7 @@ spec:
 
 ---
 
-## Deployment — EBS, EFS, S3, and Secrets Manager
+## Deployment - EBS, EFS, S3, and Secrets Manager
 
 Each example mounts a different storage backend or secret source. Requires the corresponding CSI driver or add-on on the cluster.
 
@@ -207,7 +207,7 @@ Each example mounts a different storage backend or secret source. Requires the c
 
 ### EBS (block storage)
 
-Requires a `gp3` StorageClass — see [Prometheus with EBS CSI Driver](prometheus-ebs-csi-driver.md).
+Requires a `gp3` StorageClass - see [Prometheus with EBS CSI Driver](prometheus-ebs-csi-driver.md).
 
 ```yaml
 # pvc-ebs.yaml
@@ -397,9 +397,9 @@ Uses the [AWS Secrets and Configuration Provider (ASCP)](https://docs.aws.amazon
 - `eks-pod-identity-agent` add-on
 - [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/) installed with sync enabled: `--set syncSecret.enabled=true`
 - [AWS provider](https://github.com/aws/secrets-store-csi-driver-provider-aws) installed
-- Pod Identity association on `my-app-sa` with `secretsmanager:GetSecretValue` — see [CodeCommit to ArgoCD](codecommit-eks-argocd.md#4-app-iam--secrets-manager)
+- Pod Identity association on `my-app-sa` with `secretsmanager:GetSecretValue` - see [CodeCommit to ArgoCD](codecommit-eks-argocd.md#4-app-iam--secrets-manager)
 
-RDS secrets in Secrets Manager are JSON (`username`, `password`, etc.). Use `jmesPath` to extract keys — `secretObjects.data.objectName` must reference the **objectAlias**, not the secret name.
+RDS secrets in Secrets Manager are JSON (`username`, `password`, etc.). Use `jmesPath` to extract keys - `secretObjects.data.objectName` must reference the **objectAlias**, not the secret name.
 
 ```yaml
 # secretproviderclass.yaml
@@ -420,7 +420,7 @@ spec:
             objectAlias: "db-username"
           - path: "password"
             objectAlias: "db-password"
-  secretObjects:                    # optional — sync to a K8s Secret (needs syncSecret.enabled=true)
+  secretObjects:                    # optional - sync to a K8s Secret (needs syncSecret.enabled=true)
     - secretName: my-app-db-secret
       type: Opaque
       data:
@@ -476,11 +476,11 @@ Verify the mount:
 kubectl exec -it deploy/my-app-sm -n my-app -- cat /mnt/secrets-store/db-password
 ```
 
-**Alternative — SDK in application code:** skip the CSI driver and call `secretsmanager:GetSecretValue` from the app using Pod Identity on `my-app-sa`.
+**Alternative - SDK in application code:** skip the CSI driver and call `secretsmanager:GetSecretValue` from the app using Pod Identity on `my-app-sa`.
 
 ### Parameter Store (ASCP + Pod Identity)
 
-Same [ASCP CSI driver](https://docs.aws.amazon.com/systems-manager/latest/userguide/ascp-pod-identity-integration.html) as Secrets Manager — set `objectType: "ssmparameter"` instead. Pod Identity association on `my-app-sa` needs `ssm:GetParameter` and `ssm:GetParameters` on the parameter ARN.
+Same [ASCP CSI driver](https://docs.aws.amazon.com/systems-manager/latest/userguide/ascp-pod-identity-integration.html) as Secrets Manager - set `objectType: "ssmparameter"` instead. Pod Identity association on `my-app-sa` needs `ssm:GetParameter` and `ssm:GetParameters` on the parameter ARN.
 
 ```bash
 cat <<EOF > my-app-ssm-policy.json
@@ -501,7 +501,7 @@ cat <<EOF > my-app-ssm-policy.json
 EOF
 ```
 
-**String parameter** — value mounts as a file. Use `objectAlias` for a clean filename (slashes in parameter paths are not valid filenames).
+**String parameter** - value mounts as a file. Use `objectAlias` for a clean filename (slashes in parameter paths are not valid filenames).
 
 ```yaml
 # secretproviderclass-ssm.yaml
@@ -531,7 +531,7 @@ spec:
           key: LOG_LEVEL
 ```
 
-**JSON parameter** — use `jmesPath` to extract individual keys (same pattern as Secrets Manager):
+**JSON parameter** - use `jmesPath` to extract individual keys (same pattern as Secrets Manager):
 
 ```yaml
 # secretproviderclass-ssm-json.yaml
@@ -687,7 +687,7 @@ spec:
           averageUtilization: 80
 ```
 
-The target Deployment must define `resources.requests` — HPA compares usage against requests.
+The target Deployment must define `resources.requests` - HPA compares usage against requests.
 
 Verify:
 
@@ -700,13 +700,13 @@ kubectl describe hpa my-app -n my-app
 
 ## VPA (Vertical Pod Autoscaler)
 
-Adjusts pod **CPU/memory requests and limits** based on historical usage. Not included in EKS by default — install the [VPA add-on](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) first:
+Adjusts pod **CPU/memory requests and limits** based on historical usage. Not included in EKS by default - install the [VPA add-on](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) first:
 
 ```bash
 kubectl apply -f https://github.com/kubernetes/autoscaler/releases/latest/download/vertical-pod-autoscaler.yaml
 ```
 
-Do not use VPA and HPA on the same Deployment for CPU — they conflict. Use HPA for replica scaling, or VPA for right-sizing resources.
+Do not use VPA and HPA on the same Deployment for CPU - they conflict. Use HPA for replica scaling, or VPA for right-sizing resources.
 
 ```yaml
 # vpa.yaml

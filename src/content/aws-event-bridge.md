@@ -189,7 +189,7 @@ Use archives to **store** matching events and **replay** them later (debugging, 
 
 **Shortcut:** DynamoDB stream → filter → SQS (no Lambda poller boilerplate).
 
-**Quick example (SAM)** — stream on table, pipe to queue:
+**Quick example (SAM)** - stream on table, pipe to queue:
 
 ```yaml
 OrderPipe:

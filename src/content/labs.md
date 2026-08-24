@@ -195,7 +195,7 @@ aws events put-rule \
   --event-pattern '{"detail":{"registration-type":[{"prefix":{"equals-ignore-case":"single"}}],"device-count":[1]}}'
 ```
 
-### Bulk device — count 1–99 in any region, or any count in `eu-west-1`
+### Bulk device - count 1–99 in any region, or any count in `eu-west-1`
 
 **Requirement:**
 
@@ -241,7 +241,7 @@ aws events put-rule \
   --event-pattern '{"detail":{"registration-type":[{"prefix":{"equals-ignore-case":"bulk"}}],"$or":[{"device-count":[{"numeric":[">=",1,"<=",99]}]},{"region":["eu-west-1"]}]}}'
 ```
 
-### Bulk device — count greater than 100 outside `eu-west-1`
+### Bulk device - count greater than 100 outside `eu-west-1`
 
 **Requirement:**
 

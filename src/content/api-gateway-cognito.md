@@ -82,10 +82,10 @@ Client flow: sign in → get token → `Authorization: Bearer <token>` → API G
 | **Authorization scopes** set on the method | **Access token** | Valid token + at least one matching OAuth scope |
 
 
-- **Access Token** — The standard choice for API authorization. Contains custom scopes (`PetStore/Read`, `PetStore/Write`). However, the Cognito authorizer only accepts access tokens when **OAuth Scopes** are configured on the API method.
-- **ID Token** — Contains user identity claims. When no OAuth Scopes are configured on a method (as in our current setup), the Cognito authorizer treats the supplied token as an identity token.
+- **Access Token** - The standard choice for API authorization. Contains custom scopes (`PetStore/Read`, `PetStore/Write`). However, the Cognito authorizer only accepts access tokens when **OAuth Scopes** are configured on the API method.
+- **ID Token** - Contains user identity claims. When no OAuth Scopes are configured on a method (as in our current setup), the Cognito authorizer treats the supplied token as an identity token.
 
-> The Cognito authorizer's behavior depends on whether **OAuth Scopes** are configured on the API method. With **no scopes** (current setup), the authorizer runs in **identity token mode** — it validates an ID token's signature and issuer, and rejects access tokens. When you add scopes (e.g., `PetStore/Read`), the authorizer switches to **access token mode** — it validates the access token's scopes and rejects ID tokens. See ++[Control access to REST APIs using Amazon Cognito user pools as an authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-integrate-with-cognito.html)++  for details.
+> The Cognito authorizer's behavior depends on whether **OAuth Scopes** are configured on the API method. With **no scopes** (current setup), the authorizer runs in **identity token mode** - it validates an ID token's signature and issuer, and rejects access tokens. When you add scopes (e.g., `PetStore/Read`), the authorizer switches to **access token mode** - it validates the access token's scopes and rejects ID tokens. See ++[Control access to REST APIs using Amazon Cognito user pools as an authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-integrate-with-cognito.html)++  for details.
 
 **Tip:** The REST API console test invoke for a Cognito authorizer requires an **ID token**. To test access-token scope validation, call the deployed API with a real client.
 
@@ -533,7 +533,7 @@ Under `App clients`, select the `Managed Login` app client.
 
 In the `App client` information section, click `Edit`.
 
-Under `Authentication flows`, uncheck `ALLOW_REFRESH_TOKEN_AUTH` — rotation isn't compatible with this auth flow.
+Under `Authentication flows`, uncheck `ALLOW_REFRESH_TOKEN_AUTH` - rotation isn't compatible with this auth flow.
 
 Under Advanced security configurations, check Enable refresh token rotation.
 

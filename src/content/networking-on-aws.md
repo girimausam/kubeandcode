@@ -39,7 +39,7 @@ Runbook for AWS Network Firewall designs, especially centralized inspection with
 
 [**Deploy centralized traffic filtering using AWS Network Firewall | Amazon Web Services**](https://aws.amazon.com/blogs/networking-and-content-delivery/deploy-centralized-traffic-filtering-using-aws-network-firewall/)
 
-![Figure 2 — Network Firewall deployment automation architecture (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2021/06/18/figure2.png)
+![Figure 2 - Network Firewall deployment automation architecture (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2021/06/18/figure2.png)
 
 ---
 
@@ -47,7 +47,7 @@ Runbook for AWS Network Firewall designs, especially centralized inspection with
 
 [**Deployment models for AWS Network Firewall | Amazon Web Services**](https://aws.amazon.com/blogs/networking-and-content-delivery/deployment-models-for-aws-network-firewall/)
 
-![Inspection VPC overview — deployment models (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2020/11/17/inspection-vpc-overview-high-res.png)
+![Inspection VPC overview - deployment models (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2020/11/17/inspection-vpc-overview-high-res.png)
 
 ![North-south central egress model (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2020/11/17/north-south-central-egress-high-res.png)
 
@@ -59,9 +59,9 @@ Runbook for AWS Network Firewall designs, especially centralized inspection with
 
 [**Tutorials: Get started with AWS Transit Gateway - Amazon VPC**](https://docs.aws.amazon.com/vpc/latest/tgw/tgw-getting-started.html#step-test-tgw)
 
-![Figure 3 — Example architecture before solution deployment (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2021/06/18/figure3.png)
+![Figure 3 - Example architecture before solution deployment (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2021/06/18/figure3.png)
 
-![Figure 4 — Example architecture after solution deployment (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2021/06/18/figure4.png)
+![Figure 4 - Example architecture after solution deployment (AWS blog)](https://d2908q01vomqb2.cloudfront.net/5b384ce32d8cdef02bc3a139d4cac0a22bb029e8/2021/06/18/figure4.png)
 
 ---
 
@@ -156,16 +156,16 @@ flowchart TB
 
 **Golden rules**
 
-1. **Symmetric routing** — return path must mirror forward path (especially through firewall + NAT).
-2. **One inspection path per flow** — avoid hairpinning or double-NAT unless designed.
-3. **AZ affinity** — firewall endpoints and NAT in the same AZ as the traffic source when possible.
-4. **TGW route table = segmentation** — separate RTs to block spoke-to-spoke while allowing shared egress.
+1. **Symmetric routing** - return path must mirror forward path (especially through firewall + NAT).
+2. **One inspection path per flow** - avoid hairpinning or double-NAT unless designed.
+3. **AZ affinity** - firewall endpoints and NAT in the same AZ as the traffic source when possible.
+4. **TGW route table = segmentation** - separate RTs to block spoke-to-spoke while allowing shared egress.
 
 ---
 
 ## **Deployment patterns**
 
-### **Pattern 1 — Centralized inspection VPC (hub)**
+### **Pattern 1 - Centralized inspection VPC (hub)**
 
 All internet-bound and (optionally) east-west traffic is steered to a dedicated **inspection VPC** with Network Firewall endpoints, then to NAT/IGW.
 
@@ -180,7 +180,7 @@ All internet-bound and (optionally) east-west traffic is steered to a dedicated�
 
 ---
 
-### **Pattern 2 — Distributed (per-VPC) firewall**
+### **Pattern 2 - Distributed (per-VPC) firewall**
 
 Network Firewall deployed in each VPC; TGW used only for connectivity.
 
@@ -193,7 +193,7 @@ Network Firewall deployed in each VPC; TGW used only for connectivity.
 
 ---
 
-### **Pattern 3 — Egress VPC (TGW + NAT, firewall inline)**
+### **Pattern 3 - Egress VPC (TGW + NAT, firewall inline)**
 
 Spokes send `0.0.0.0/0` (and RFC1918 if needed) to TGW → hub inspection VPC → NAT → IGW.
 
@@ -210,7 +210,7 @@ Spokes send `0.0.0.0/0` (and RFC1918 if needed) to TGW → hub inspection VPC 
 
 ---
 
-### **Pattern 4 — East-west inspection between spokes**
+### **Pattern 4 - East-west inspection between spokes**
 
 Spoke A → TGW → inspection VPC (Network Firewall) → TGW → Spoke B.
 
@@ -291,9 +291,9 @@ Spoke → TGW → Inspection VPC subnet
 
 ## **Hub-and-spoke egress (related concept)**
 
-From your [Hub-and-spoke network](https://www.notion.so/344cd8b2d87880a8b9d4c756a073b946) notes — applies directly when adding a firewall:
+From your [Hub-and-spoke network](https://www.notion.so/344cd8b2d87880a8b9d4c756a073b946) notes - applies directly when adding a firewall:
 
-### **Part 1 — All VPCs communicate; internet only via hub**
+### **Part 1 - All VPCs communicate; internet only via hub**
 
 | Goal | Route pattern |
 | --- | --- |
@@ -303,7 +303,7 @@ From your [Hub-and-spoke network](https://www.notion.so/344cd8b2d87880a8b9d4c75
 
 **With firewall:** insert Network Firewall **between** TGW attachment subnets and NAT for egress; update RTs so traffic hits firewall endpoints first.
 
-### **Part 2 — Spokes isolated (no b ↔ c), shared egress**
+### **Part 2 - Spokes isolated (no b ↔ c), shared egress**
 
 - Separate TGW route tables per spoke (`tgw-rt-b`, `tgw-rt-c`)
 - Hub RT has routes to both; spoke RTs have **no** cross-spoke routes
@@ -331,7 +331,7 @@ From your [Hub-and-spoke network](https://www.notion.so/344cd8b2d87880a8b9d4c75
 
 | # | Check |
 | --- | --- |
-| 1 | Separate TGW route tables — no route between spoke CIDRs |
+| 1 | Separate TGW route tables - no route between spoke CIDRs |
 | 2 | Route propagation disabled or scoped |
 | 3 | Correct association: each attachment → intended RT only |
 
@@ -381,7 +381,7 @@ From your [Hub-and-spoke network](https://www.notion.so/344cd8b2d87880a8b9d4c75
 | Inline traffic inspection (third-party appliances) | [https://docs.aws.amazon.com/prescriptive-guidance/latest/inline-traffic-inspection-third-party-appliances/welcome.html](https://docs.aws.amazon.com/prescriptive-guidance/latest/inline-traffic-inspection-third-party-appliances/welcome.html) |
 | Centralized egress with TGW | [https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/centralized-access-to-the-internet.html](https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/centralized-access-to-the-internet.html) |
 | AWS Security Reference Architecture | [https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/welcome.html](https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/welcome.html) |
-| Well-Architected — Security pillar | [https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html) |
+| Well-Architected - Security pillar | [https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html) |
 
 ### **Blogs (same series as Notion)**
 
@@ -396,7 +396,7 @@ From your [Hub-and-spoke network](https://www.notion.so/344cd8b2d87880a8b9d4c75
 ### **Public architecture diagrams (AWS blogs & documentation)**
 
 
-### **Related (WAF — application layer, from parent page)**
+### **Related (WAF - application layer, from parent page)**
 
 [**AWS WAF for Application Load Balancers**](https://aws.amazon.com/blogs/aws/aws-web-application-firewall-waf-for-application-load-balancers/)
 

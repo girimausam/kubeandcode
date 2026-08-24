@@ -1,5 +1,5 @@
 ---
-title: "AWS Lambda Python Runtime — Notes"
+title: "AWS Lambda Python Runtime - Notes"
 description: "Python Lambda handler patterns, deployment packages, virtual environments, layers, and packaging notes for boto3 and third-party dependencies."
 tags:
   - lambda
@@ -220,7 +220,7 @@ If you build from a venv, paths may look like `python/lib/python3.x/site-package
 
 ### `__pycache__` folders
 
-Do **not** include `__pycache__` directories in deployment packages or layers. AWS documents this as a packaging best practice — see [Using `__pycache__` folders](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-pycache).
+Do **not** include `__pycache__` directories in deployment packages or layers. AWS documents this as a packaging best practice - see [Using `__pycache__` folders](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-pycache).
 
 ### Pure Python vs native wheels
 

@@ -1,6 +1,6 @@
 ---
 title: "Amazon ECR Best Practices for EKS"
-description: "Repository hardening for EKS workloads—scan on push, immutable production tags, and lifecycle policies for cost control."
+description: "Repository hardening for EKS workloads-scan on push, immutable production tags, and lifecycle policies for cost control."
 tags:
   - ecr
   - eks
@@ -15,7 +15,7 @@ Harden Amazon ECR repositories used by EKS workloads with scanning, immutable ta
 
 ## Repository settings
 
-- **Scan on push:** `true` — catch CVEs before images reach the cluster
+- **Scan on push:** `true` - catch CVEs before images reach the cluster
 - **Tags:** `Environment=Prod`, `ManagedBy=Manual` (or your standard tag set)
 - **Tag mutability:** `Immutable` for production repos; `Mutable` only for dev/test if needed
 

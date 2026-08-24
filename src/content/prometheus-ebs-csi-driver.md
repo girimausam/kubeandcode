@@ -14,7 +14,7 @@ tags:
 
 # Prometheus with EBS CSI Driver
 
-EKS clusters often ship with a legacy `gp2` StorageClass using the in-tree `kubernetes.io/aws-ebs` provisioner. On newer Kubernetes versions, volume provisioning is migrated to `ebs.csi.aws.com` — so PVCs stay `Pending` until the AWS EBS CSI driver is installed.
+EKS clusters often ship with a legacy `gp2` StorageClass using the in-tree `kubernetes.io/aws-ebs` provisioner. On newer Kubernetes versions, volume provisioning is migrated to `ebs.csi.aws.com` - so PVCs stay `Pending` until the AWS EBS CSI driver is installed.
 
 ```text
 kubectl get storageclass
@@ -85,7 +85,7 @@ kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-ebs-csi-driver
 
 ## 3. Create a gp3 StorageClass
 
-Do not delete the existing `gp2` StorageClass — existing PVCs may still depend on it.
+Do not delete the existing `gp2` StorageClass - existing PVCs may still depend on it.
 
 Unset `gp2` as the default (if it is):
 

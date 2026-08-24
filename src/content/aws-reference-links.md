@@ -16,7 +16,7 @@ Curated source list for AWS architecture, operational best practices, and diagra
 ## Core references
 
 - [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
-- [AWS Prescriptive Guidance — Cloud Design Patterns](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/welcome.html)
+- [AWS Prescriptive Guidance - Cloud Design Patterns](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/welcome.html)
 - [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/)
 - [AWS Reference Architecture Diagrams](https://aws.amazon.com/architecture/reference-architecture-diagrams/)
 
@@ -30,7 +30,7 @@ Curated source list for AWS architecture, operational best practices, and diagra
 
 Workshop reference for decoupled microservices and catalog service patterns.
 
-- [AWS Workshop Studio — microservices catalog](https://catalog.us-east-1.prod.workshops.aws/workshops/e8738cf6-6eb0-4d1d-9e98-ae240d229535/en-US)
+- [AWS Workshop Studio - microservices catalog](https://catalog.us-east-1.prod.workshops.aws/workshops/e8738cf6-6eb0-4d1d-9e98-ae240d229535/en-US)
 
 **Related guides:** EKS, VPC Lattice, Application Auto Scaling, and RDS patterns covered in this site.
 

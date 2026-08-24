@@ -10,7 +10,7 @@ tags:
   - dynamodb
   - aws
 ---
-> Build and operate an event-driven serverless order pipeline with AWS SAM — Lambda, HTTP API, EventBridge, SQS, DynamoDB, and safe deployments.
+> Build and operate an event-driven serverless order pipeline with AWS SAM - Lambda, HTTP API, EventBridge, SQS, DynamoDB, and safe deployments.
 
 
 ## What you build
@@ -75,7 +75,7 @@ sam validate
 ```yaml
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: Order events — SAM walkthrough
+Description: Order events - SAM walkthrough
 
 Globals:
   Function:
@@ -309,7 +309,7 @@ Producer PutEvents
 ## Commands
 
 ```bash
-## After deploy — put a test event
+## After deploy - put a test event
 aws events put-events --entries '[
   {
     "Source": "app.orders",
@@ -391,7 +391,7 @@ Missing or incorrect **SQS queue policy** allowing `events.amazonaws.com`. The `
 
 ### Events on bus but rule not triggered
 
-`eventPattern` is case-sensitive — `detail-type` must match `DetailType` from `put_events` exactly.
+`eventPattern` is case-sensitive - `detail-type` must match `DetailType` from `put_events` exactly.
 
 ## Phase 05: 05-sqs-lambda-triggers
 
@@ -674,7 +674,7 @@ Use `resolve_s3 = true` in `samconfig.toml` or pass `--resolve-s3` so SAM create
 
 ### `sam local` works, deployed Lambda fails
 
-Missing env vars or IAM policies — compare `.aws-sam/build/template.yaml` synthesized policies with CloudWatch Logs.
+Missing env vars or IAM policies - compare `.aws-sam/build/template.yaml` synthesized policies with CloudWatch Logs.
 
 ## Phase 08: 08-versions-concurrency
 
@@ -729,7 +729,7 @@ ProducerFunction:
       Type: Canary10Percent5Minutes
 ```
 
-> `DeploymentPreference` requires CodeDeploy setup — detailed in Phase 10.
+> `DeploymentPreference` requires CodeDeploy setup - detailed in Phase 10.
 
 ## Verification
 
@@ -747,7 +747,7 @@ aws lambda get-function-concurrency --function-name $FUNC
 
 ### Throttling despite low traffic
 
-Account-level concurrency limit (1000 default) or reserved concurrency on **other** functions can starve this function — review account concurrency dashboard.
+Account-level concurrency limit (1000 default) or reserved concurrency on **other** functions can starve this function - review account concurrency dashboard.
 
 ## Phase 09: 09-application-auto-scaling
 
@@ -763,7 +763,7 @@ CloudWatch metric (CPU, queue depth, RCU)
   → ECS DesiredCount / DynamoDB capacity
 ```
 
-Lambda scales automatically — this phase covers services that sit alongside Lambda (e.g. OrderFlow ECS workers).
+Lambda scales automatically - this phase covers services that sit alongside Lambda (e.g. OrderFlow ECS workers).
 
 ## Commands
 
@@ -861,7 +861,7 @@ Increase `ScaleInCooldown` / `ScaleOutCooldown`. Use target tracking for steady 
 
 ## Objective
 
-Automate Lambda releases with **CodePipeline** and **CodeDeploy canary** traffic shifting on the `prod` alias — no instant 100% cutover.
+Automate Lambda releases with **CodePipeline** and **CodeDeploy canary** traffic shifting on the `prod` alias - no instant 100% cutover.
 
 ## Architecture
 
@@ -972,7 +972,7 @@ Pre-traffic hook Lambda failing or CloudWatch alarm in `Alarms` list breaching. 
 
 ### Rollback occurred
 
-CodeDeploy reverted `prod` alias to previous version — inspect deployment events and fix failing version before retry.
+CodeDeploy reverted `prod` alias to previous version - inspect deployment events and fix failing version before retry.
 
 ## Phase 11: 11-observability-operations
 

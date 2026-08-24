@@ -41,8 +41,8 @@ app-repo/              manifest-repo/
 
 Create two repos in CodeCommit:
 
-- `app-repo` — application source + Dockerfile + buildspec
-- `manifest-repo` — Kubernetes manifests (Deployment, ConfigMap)
+- `app-repo` - application source + Dockerfile + buildspec
+- `manifest-repo` - Kubernetes manifests (Deployment, ConfigMap)
 
 Clone locally:
 
@@ -131,7 +131,7 @@ data:
     stream_name = <firehose-stream>
 ```
 
-## 4. App IAM — Secrets Manager
+## 4. App IAM - Secrets Manager
 
 The Secrets Manager policy belongs on the **application** service account (`my-app-sa`), not Argo CD.
 
@@ -316,9 +316,9 @@ Create a CodePipeline with:
 
 ## 7. Connect Argo CD to manifest-repo
 
-Argo CD only needs access to `manifest-repo` to sync Kubernetes manifests. Two options below — use **direct auth** unless Pod Identity is preferred.
+Argo CD only needs access to `manifest-repo` to sync Kubernetes manifests. Two options below - use **direct auth** unless Pod Identity is preferred.
 
-### Option A — Direct auth (HTTPS credentials)
+### Option A - Direct auth (HTTPS credentials)
 
 Generate HTTPS git credentials: IAM user → CodeCommit → Clone URL → HTTPS.
 
@@ -369,7 +369,7 @@ kubectl apply -f argocd-repo-secret.yaml
 kubectl apply -f argocd-application.yaml
 ```
 
-### Option B — Pod Identity (no git credentials in secret)
+### Option B - Pod Identity (no git credentials in secret)
 
 Requires the EKS Pod Identity agent add-on.
 

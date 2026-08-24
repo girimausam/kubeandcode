@@ -85,14 +85,14 @@ eksctl create cluster \
 ### Option B: tag existing subnets for ALB discovery
 
 ```bash
-## Public subnets — internet-facing ALBs
+## Public subnets - internet-facing ALBs
 aws ec2 create-tags \
   --resources subnet-PUBLIC1 subnet-PUBLIC2 \
   --tags \
     Key=kubernetes.io/cluster/orderflow-cluster,Value=shared \
     Key=kubernetes.io/role/elb,Value=1
 
-## Private subnets — internal load balancers
+## Private subnets - internal load balancers
 aws ec2 create-tags \
   --resources subnet-PRIVATE1 subnet-PRIVATE2 \
   --tags \
@@ -248,7 +248,7 @@ EKS Pod Identity
   → PVC → EBS volume (when workloads request storage)
 ```
 
-OrderFlow persists orders in **RDS**, not cluster volumes — but gp3 remains useful for temp/cache volumes and mirrors ShopSphere storage patterns.
+OrderFlow persists orders in **RDS**, not cluster volumes - but gp3 remains useful for temp/cache volumes and mirrors ShopSphere storage patterns.
 
 ## Commands
 
@@ -445,7 +445,7 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
 
 ## Manifests
 
-No Ingress yet — that is Phase 07. Confirm the controller Deployment references the IRSA service account.
+No Ingress yet - that is Phase 07. Confirm the controller Deployment references the IRSA service account.
 
 ## Verification
 
@@ -640,7 +640,7 @@ spec:
                   number: 80
 ```
 
-When the frontend is deployed, add a second path rule for `/` static content and `/api/*` to the API — mirror [ShopSphere ingress](/shopsphere-on-eks/#phase-09-09-ingress-configuration).
+When the frontend is deployed, add a second path rule for `/` static content and `/api/*` to the API - mirror [ShopSphere ingress](/shopsphere-on-eks/#phase-09-09-ingress-configuration).
 
 ## Verification
 
@@ -730,7 +730,7 @@ kubectl delete pod postgres-client -n orderflow
 
 ## Manifests
 
-RDS is provisioned via AWS API/Console — no Kubernetes manifests. Record endpoint and port for the ConfigMap in Phase 10:
+RDS is provisioned via AWS API/Console - no Kubernetes manifests. Record endpoint and port for the ConfigMap in Phase 10:
 
 ```
 DB_HOST=orderflow-db.xxxx.us-east-1.rds.amazonaws.com
@@ -763,7 +763,7 @@ Check NACLs and that the client pod runs in the **orderflow** namespace with net
 
 ## Objective
 
-Grant the API pods permission to read the **RDS master secret** from Secrets Manager using **IRSA** — no long-lived AWS keys or Kubernetes secret objects in Git.
+Grant the API pods permission to read the **RDS master secret** from Secrets Manager using **IRSA** - no long-lived AWS keys or Kubernetes secret objects in Git.
 
 ## Architecture
 
@@ -975,7 +975,7 @@ Add `?sslmode=require` to the SQLAlchemy URL or set `sslmode` in the Postgres dr
 
 ### Unique violation on order_id
 
-Expected if re-posting the same `order_id` — return HTTP 409 in production.
+Expected if re-posting the same `order_id` - return HTTP 409 in production.
 
 ## Phase 11: 11-sqs-integration
 
@@ -987,8 +987,8 @@ Create **orderflow-orders** (SQS) and extend the API so every successful `POST /
 
 ```
 POST /orders
-  → INSERT orders (RDS) — synchronous
-  → SendMessage (SQS orderflow-orders) — synchronous
+  → INSERT orders (RDS) - synchronous
+  → SendMessage (SQS orderflow-orders) - synchronous
   → HTTP 201 to client
   → Worker consumes later (Phase 13)
 ```
@@ -1078,7 +1078,7 @@ aws sqs receive-message --queue-url $QUEUE_URL --max-number-of-messages 1
 
 - API role missing `sqs:SendMessage`.
 - Wrong `SQS_QUEUE_URL` in ConfigMap (region/account mismatch).
-- API returns 201 but enqueue runs after failed commit — check transaction order in code.
+- API returns 201 but enqueue runs after failed commit - check transaction order in code.
 
 ### Duplicate messages on client retry
 
@@ -1088,7 +1088,7 @@ Use a deduplication id or idempotency key on `order_id` if clients may retry POS
 
 ## Objective
 
-Create **orderflow-notifications** (SNS) and **orderflow-events** (DynamoDB) — the worker publishes notifications and stores processed events (Phase 13).
+Create **orderflow-notifications** (SNS) and **orderflow-events** (DynamoDB) - the worker publishes notifications and stores processed events (Phase 13).
 
 ## Architecture
 
@@ -1128,7 +1128,7 @@ aws dynamodb create-table \
 aws dynamodb wait table-exists --table-name orderflow-events
 ```
 
-### Worker IAM policy (preview — applied in Phase 13)
+### Worker IAM policy (preview - applied in Phase 13)
 
 ```json
 {
@@ -1349,13 +1349,13 @@ while True:
 
 ### Messages reappear after processing
 
-DeleteMessage failing — check `sqs:DeleteMessage` on the queue ARN. Visibility timeout may be too short if processing exceeds 60s.
+DeleteMessage failing - check `sqs:DeleteMessage` on the queue ARN. Visibility timeout may be too short if processing exceeds 60s.
 
 ### Worker idle, queue depth grows
 
 - Wrong queue URL in Deployment env.
 - IRSA role not attached to `orderflow-worker` service account.
-- Worker image crash — `kubectl logs` for stack traces.
+- Worker image crash - `kubectl logs` for stack traces.
 
 ## Phase 14: 14-cloudwatch-observability
 
@@ -1427,7 +1427,7 @@ aws logs describe-log-groups \
 
 - Add-on pods not Running on all nodes.
 - IAM permissions for the add-on service account missing (check EKS add-on status).
-- Wrong log group region — match cluster Region.
+- Wrong log group region - match cluster Region.
 
 ### High log volume cost
 
@@ -1479,7 +1479,7 @@ GitHub push
   → EKS rollout (orderflow-api, orderflow-worker)
 ```
 
-**Tag strategy:** immutable git SHA tags — never promote `latest` to production.
+**Tag strategy:** immutable git SHA tags - never promote `latest` to production.
 
 Reference: [AWS Lambda CI/CD](/blog/posts/aws-lambda-cicd) for CodeDeploy patterns; adapt to EKS rollouts with `kubectl rollout status`.
 
@@ -1506,7 +1506,7 @@ events.put_events(
 )
 ```
 
-Downstream rules can fan out to audit Lambdas, analytics, or cross-account buses — see [Lambda event pipeline](/blog/examples/lambda-event-pipeline).
+Downstream rules can fan out to audit Lambdas, analytics, or cross-account buses - see [Lambda event pipeline](/blog/examples/lambda-event-pipeline).
 
 ## Verification checklist (full stack)
 

@@ -16,11 +16,11 @@ Install [Karpenter](https://karpenter.sh/) on an **existing** Amazon EKS cluster
 ## Prerequisites
 
 - `aws`, `kubectl`, `eksctl`, and `helm` installed and on your `PATH`
-- `envsubst` (Git Bash / WSL on Windows, or the `gettext` package on Linux/macOS) — only needed for the bash steps
+- `envsubst` (Git Bash / WSL on Windows, or the `gettext` package on Linux/macOS) - only needed for the bash steps
 - Credentials with permission to create IAM roles/policies, tag EC2 resources, and administer the cluster
 - The cluster already exists and `kubectl` can already reach it
 
-> If your cluster was **not** created by you or is older, don't assume its IAM auth setup — step #4 below detects it for you before you touch anything.
+> If your cluster was **not** created by you or is older, don't assume its IAM auth setup - step #4 below detects it for you before you touch anything.
 
 
 
@@ -58,7 +58,7 @@ export ALIAS_VERSION="$(aws ssm get-parameter --name "/aws/service/eks/optimized
 
 ### #3 - Associate an OIDC provider
 
-The Karpenter controller authenticates via IRSA, which needs an IAM OIDC provider on the cluster. Existing clusters often don't have one yet — check first, don't assume:
+The Karpenter controller authenticates via IRSA, which needs an IAM OIDC provider on the cluster. Existing clusters often don't have one yet - check first, don't assume:
 
 
 
@@ -113,7 +113,7 @@ aws iam attach-role-policy --role-name "KarpenterNodeRole-${CLUSTER_NAME}" \
 
 ### #5 - Authorize the node role to join the cluster
 
-**This is the step that breaks most often on existing clusters.** `eksctl create iamidentitymapping` only works against the legacy `aws-auth` ConfigMap. Since EKS added **access entries**, most clusters created or upgraded in the last couple of years default to `API` or `API_AND_CONFIG_MAP` authentication mode — and on `API`-only clusters, ConfigMap-based mapping fails outright. Check the mode first, then use the matching command:
+**This is the step that breaks most often on existing clusters.** `eksctl create iamidentitymapping` only works against the legacy `aws-auth` ConfigMap. Since EKS added **access entries**, most clusters created or upgraded in the last couple of years default to `API` or `API_AND_CONFIG_MAP` authentication mode - and on `API`-only clusters, ConfigMap-based mapping fails outright. Check the mode first, then use the matching command:
 
 
 
@@ -132,7 +132,7 @@ if [ "${AUTH_MODE}" = "CONFIG_MAP" ]; then
     --group system:bootstrappers \
     --group system:nodes
 else
-  # API or API_AND_CONFIG_MAP (current default) — use an access entry instead.
+  # API or API_AND_CONFIG_MAP (current default) - use an access entry instead.
   # EC2_LINUX is a special node type: it wires up bootstrap auth automatically,
   # no access policy association needed.
   aws eks create-access-entry \
@@ -144,7 +144,7 @@ fi
 
 
 
-If you get `ResourceInUseException: The specified access entry already exists`, the role is already authorized — safe to ignore.
+If you get `ResourceInUseException: The specified access entry already exists`, the role is already authorized - safe to ignore.
 
 ### #6 - Create Karpenter controller IAM role
 
@@ -368,7 +368,7 @@ aws cloudformation deploy \
 
 ### #9 - Render the Karpenter manifest
 
-`helm template` against the OCI registry prints `Pulled:` / `Digest:` lines ahead of the YAML, which corrupts `karpenter.yaml` if left in — strip them before writing the file:
+`helm template` against the OCI registry prints `Pulled:` / `Digest:` lines ahead of the YAML, which corrupts `karpenter.yaml` if left in - strip them before writing the file:
 
 ```bash
 helm registry logout public.ecr.aws

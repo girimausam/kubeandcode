@@ -29,7 +29,7 @@ Day-2 checklist for connectivity, backups, SSL, and performance triage on Amazon
 
 ### Connectivity checklist
 
-- **Publicly accessible** alone is not enough — verify subnet routes, security groups, and NACL return traffic.
+- **Publicly accessible** alone is not enough - verify subnet routes, security groups, and NACL return traffic.
 - Prefer **private subnets** with inbound rules from the application security group only.
 - Confirm **SSL** requirements and engine-specific parameters such as `rds.force_ssl` when enforced.
 
@@ -127,7 +127,7 @@ ALTER TABLE vpc_flow_logs ADD IF NOT EXISTS
   LOCATION 's3://DOC-EXAMPLE-BUCKET/AWSLogs/123456789012/vpcflowlogs/us-east-1/2026/06/01/';
 ```
 
-### Example query — top talkers by bytes
+### Example query - top talkers by bytes
 
 ```sql
 SELECT srcaddr, dstaddr, SUM(bytes) AS total_bytes

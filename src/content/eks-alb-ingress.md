@@ -70,7 +70,7 @@ aws ec2 create-tags \
 ```
 
 > Note: if the cluster/VPC was created with `eksctl`, these tags are usually
-> applied automatically — check before re-tagging.
+> applied automatically - check before re-tagging.
 
 ---
 
@@ -281,9 +281,9 @@ metadata:
 ## Gotchas / Things I forgot before
 
 - `target-type: ip` requires pods to have routable VPC IPs (default with the
-  VPC CNI) — no extra config needed on standard EKS.
+  VPC CNI) - no extra config needed on standard EKS.
 - Dualstack (IPv6) only works with `target-type: ip`.
-- Subnet tags are how the controller *discovers* subnets automatically — if
+- Subnet tags are how the controller *discovers* subnets automatically - if
   they're missing/wrong, the ALB either fails to provision or lands in the
   wrong subnets.
 - `kubernetes.io/ingress.class: alb` is the old annotation-based way to pick
@@ -296,7 +296,7 @@ metadata:
 
 Assumes `kube-prometheus-stack` installed in the `prometheus` namespace
 (services `prometheus-grafana` on port 80 and
-`prometheus-kube-prometheus-prometheus` on port 9090 — check your actual
+`prometheus-kube-prometheus-prometheus` on port 9090 - check your actual
 service names with `kubectl get svc -n monitoring`).
 
 ```yaml
@@ -358,7 +358,7 @@ curl -v http://alb-153229186.us-east-1.elb.amazonaws.com/grafana/
 ```
 
 > Gotcha: Grafana's default service port is `80` (proxies to container port
-> `3000`) — don't point the Ingress at `3000` directly unless you changed
+> `3000`) - don't point the Ingress at `3000` directly unless you changed
 > the Service to expose it that way.
 
 ### 5.2 Ingress ( ArgoCD )
@@ -397,7 +397,7 @@ spec:
 
 > Gotcha: if you run `argocd-server` with `--insecure` (TLS terminated at
 > the ALB instead), switch `backend-protocol` to `HTTP` and target port
-> `80` instead — otherwise the ALB will fail health checks trying HTTPS
+> `80` instead - otherwise the ALB will fail health checks trying HTTPS
 > against a plaintext backend.
 
 ---
@@ -406,7 +406,7 @@ spec:
 
 By default every `Ingress` resource provisions its **own** ALB. That gets
 expensive/messy fast if you have several apps (Grafana, Prometheus,
-ArgoCD, …) each wanting their own ingress — you end up paying for and
+ArgoCD, …) each wanting their own ingress - you end up paying for and
 managing N load balancers.
 
 `IngressGroup` lets multiple `Ingress` resources share a single ALB. The
@@ -479,9 +479,9 @@ ALB named after the group.
 > Gotchas:
 > - Annotations like `load-balancer-name`, `scheme`, `ip-address-type`,
 >   `certificate-arn`, etc. must be **consistent** across all Ingresses in
->   the group — the controller merges them, and conflicts cause errors.
+>   the group - the controller merges them, and conflicts cause errors.
 > - Deleting one Ingress in the group only removes its rules from the
->   shared ALB, not the whole ALB — it stays up as long as at least one
+>   shared ALB, not the whole ALB - it stays up as long as at least one
 >   Ingress in the group exists.
 > - Group name is cluster-scoped, not namespace-scoped, so it's fine (and
 >   expected) for member Ingresses to live in different namespaces, as in

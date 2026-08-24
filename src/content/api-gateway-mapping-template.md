@@ -1,6 +1,6 @@
 ---
 title: "API Gateway Mapping Templates for DynamoDB"
-description: "Velocity Template Language (VTL) examples for API Gateway proxy integrations with DynamoDB—PutItem, GetItem, and custom JSON responses."
+description: "Velocity Template Language (VTL) examples for API Gateway proxy integrations with DynamoDB-PutItem, GetItem, and custom JSON responses."
 tags:
   - api-gateway
   - dynamodb
@@ -29,7 +29,7 @@ Use API Gateway as a proxy to DynamoDB with **Velocity Template Language (VTL)**
 
 **Partition key:** `userId` (String)
 
-## Create user — `PUT /users`
+## Create user - `PUT /users`
 
 ### Request
 
@@ -71,7 +71,7 @@ DynamoDB `PutItem` returns `{}`. Return a friendly message to the client:
 }
 ```
 
-## Get user — `GET /users/{id}`
+## Get user - `GET /users/{id}`
 
 ### Request
 
@@ -126,7 +126,7 @@ Flatten DynamoDB attribute types into plain JSON:
 }
 ```
 
-## List users — `GET /users`
+## List users - `GET /users`
 
 ### Request
 
@@ -233,9 +233,9 @@ $output
 
 | Route | DynamoDB action | Path param | Key mapping |
 | --- | --- | --- | --- |
-| `PUT /users` | `PutItem` | — | Body → `Item` attributes |
+| `PUT /users` | `PutItem` | - | Body → `Item` attributes |
 | `GET /users/{id}` | `GetItem` | `id` | `$input.params('id')` |
-| `GET /users` | `Scan` | — | Table name only |
+| `GET /users` | `Scan` | - | Table name only |
 
 **DynamoDB type suffixes:** `S` = String, `N` = Number, `B` = Binary. VTL maps client JSON into these typed attributes on the way in, and flattens them on the way out.
 

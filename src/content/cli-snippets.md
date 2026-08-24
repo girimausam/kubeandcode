@@ -54,8 +54,8 @@ aws ecr get-login-password --region <region> | \
 
 ## Cross-links
 
-- [Kubernetes on AWS](/blog/kubernetes-on-aws) — EKS operations runbook
-- [ShopSphere on Amazon EKS](/shopsphere-on-eks/) — full walkthrough with Pod Identity
+- [Kubernetes on AWS](/blog/kubernetes-on-aws) - EKS operations runbook
+- [ShopSphere on Amazon EKS](/shopsphere-on-eks/) - full walkthrough with Pod Identity
 
 ## FSx and EBS setup
 

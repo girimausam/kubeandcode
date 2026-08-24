@@ -34,7 +34,7 @@ Developer → CodeCommit → CodePipeline → CodeBuild
 
 ## Why use CodeDeploy with Lambda?
 
-**Without CodeDeploy:** code push updates Lambda and routes 100% traffic immediately — bad deployments affect all users and rollback is manual.
+**Without CodeDeploy:** code push updates Lambda and routes 100% traffic immediately - bad deployments affect all users and rollback is manual.
 
 **With CodeDeploy:** traffic shifts gradually (e.g. 10% → 50% → 100% over 10 minutes). Health check failures trigger automatic rollback.
 
@@ -137,9 +137,9 @@ For production, `Canary10Percent5Minutes` is a sensible default.
 ## Pipeline stages
 
 ```text
-Stage 1 — Source:  CodeCommit
-Stage 2 — Build:   CodeBuild
-Stage 3 — Deploy:  CodeDeploy Lambda
+Stage 1 - Source:  CodeCommit
+Stage 2 - Build:   CodeBuild
+Stage 3 - Deploy:  CodeDeploy Lambda
 ```
 
 ## Optional validation hook

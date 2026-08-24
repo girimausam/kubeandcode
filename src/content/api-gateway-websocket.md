@@ -1,5 +1,5 @@
 ---
-title: "API Gateway WebSocket API — Notes"
+title: "API Gateway WebSocket API - Notes"
 description: "WebSocket route keys ($connect, $disconnect, $default), MOCK integration setup, CLI inspection commands, and Lambda handler patterns for custom routes."
 tags:
   - api-gateway
@@ -55,7 +55,7 @@ aws apigatewayv2 get-integration --api-id sjzk7q0onf --integration-id d4macp0 --
 | Custom routes | Yes | Yes | Yes | Yes |
 | `$default` | Depends on integration | Depends on integration | Depends on integration | Yes |
 
-On **`$connect`**, use query string parameters and headers for auth tokens (for example `?token=...`). The WebSocket handshake is an HTTP upgrade request, not an application message — do not expect a JSON body from the client at connect time.
+On **`$connect`**, use query string parameters and headers for auth tokens (for example `?token=...`). The WebSocket handshake is an HTTP upgrade request, not an application message - do not expect a JSON body from the client at connect time.
 
 On **custom route keys** (anything other than `$connect` / `$disconnect`), the Lambda event includes `body` and full `requestContext`.
 
@@ -87,14 +87,14 @@ Example request template (console often uses `application/json` as the template 
 | Setting | Value |
 | --- | --- |
 | Response key | `/200/` (matches `statusCode: 200` from the request template) |
-| Template selection expression | Optional — only needed when you define response templates |
+| Template selection expression | Optional - only needed when you define response templates |
 
 ![MOCK integration response](./images/apigateway-websocket-mock-integration-response.png)
 
 **Notes**
 
 - Response key `/200/` corresponds to `statusCode` **200** in the integration request template.
-- For `$connect`, the client does not receive a normal HTTP response body, but the integration response is still required for MOCK integrations — otherwise the handshake fails.
+- For `$connect`, the client does not receive a normal HTTP response body, but the integration response is still required for MOCK integrations - otherwise the handshake fails.
 - To return errors from MOCK, add another request template value (for example `{"statusCode": 400}`) and a matching integration response key `/400/`.
 
 Example CLI integration payload:
@@ -111,7 +111,7 @@ Example CLI integration payload:
 
 ---
 
-## Lambda handler — custom `message` route
+## Lambda handler - custom `message` route
 
 Example for a custom route that reads `queryStringParameters`, validates a token, and returns `connectionId` / `routeKey`.
 
@@ -166,12 +166,12 @@ def lambda_handler(event, context):
 | --- | --- |
 | 500 on WebSocket connect with MOCK | Missing integration request template or integration response key `/200/` |
 | Route not invoked | `routeSelectionExpression` does not match client message (check `action` field in body) |
-| Token not found in Lambda | Token sent in connect URL query string — only available on `$connect`, not later messages unless client resends |
+| Token not found in Lambda | Token sent in connect URL query string - only available on `$connect`, not later messages unless client resends |
 | Cannot message client | Missing `execute-api:ManageConnections` on the Lambda role for `post_to_connection` |
 
 ---
 
 ## Related notes
 
-- [API Gateway with Cognito](/api-gateway-cognito/) — REST/HTTP auth patterns
-- [Lambda Python runtime](/lambda-runtime-python/) — packaging and handler basics
+- [API Gateway with Cognito](/api-gateway-cognito/) - REST/HTTP auth patterns
+- [Lambda Python runtime](/lambda-runtime-python/) - packaging and handler basics

@@ -29,7 +29,7 @@ kubectl get pods -A
 ```bash
 aws iam list-open-id-connect-providers
 
-## API — Secrets Manager + RDS access
+## API - Secrets Manager + RDS access
 eksctl create iamserviceaccount \
   --cluster orderflow-cluster \
   --namespace orderflow \
@@ -37,7 +37,7 @@ eksctl create iamserviceaccount \
   --attach-policy-arn arn:aws:iam::ACCOUNT_ID:policy/OrderFlowApiPolicy \
   --approve
 
-## Worker — SQS, SNS, DynamoDB
+## Worker - SQS, SNS, DynamoDB
 eksctl create iamserviceaccount \
   --cluster orderflow-cluster \
   --namespace orderflow \
