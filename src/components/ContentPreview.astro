@@ -1,0 +1,280 @@
+<div id="content-preview-modal" class="content-preview" hidden>
+	<div class="content-preview-backdrop" data-content-preview-close></div>
+	<div
+		class="content-preview-dialog"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="content-preview-title"
+	>
+		<header class="content-preview-header">
+			<h2 id="content-preview-title" class="content-preview-title"></h2>
+			<div class="content-preview-actions">
+				<button type="button" class="content-preview-copy" data-content-preview-copy hidden>Copy</button>
+				<button type="button" class="content-preview-close" data-content-preview-close aria-label="Close preview">
+					Close
+				</button>
+			</div>
+		</header>
+		<div class="content-preview-body thin-scrollbar" id="content-preview-body"></div>
+	</div>
+</div>
+
+<script>
+	import { codeToHtml } from 'shiki';
+	import { getShikiLanguage } from '../utils/content-assets';
+
+	const modal = document.getElementById('content-preview-modal');
+	const titleEl = document.getElementById('content-preview-title');
+	const bodyEl = document.getElementById('content-preview-body');
+	const copyBtn = document.querySelector('[data-content-preview-copy]');
+
+	let rawText = '';
+
+	const getTheme = () => (document.documentElement.dataset.theme === 'dark' ? 'min-dark' : 'min-light');
+
+	const getFileName = (url: string) => {
+		try {
+			return decodeURIComponent(new URL(url, window.location.origin).pathname.split('/').pop() ?? 'file');
+		} catch {
+			return url.split('/').pop() ?? 'file';
+		}
+	};
+
+	const closeModal = () => {
+		if (!modal) return;
+		modal.hidden = true;
+		document.body.classList.remove('content-preview-open');
+		if (bodyEl) bodyEl.innerHTML = '';
+		rawText = '';
+		copyBtn?.setAttribute('hidden', 'true');
+	};
+
+	const openModal = async (url: string, kind: string) => {
+		if (!modal || !titleEl || !bodyEl) return;
+
+		const fileName = getFileName(url);
+		titleEl.textContent = fileName;
+		bodyEl.innerHTML = '<p class="content-preview-loading">Loading…</p>';
+		modal.hidden = false;
+		document.body.classList.add('content-preview-open');
+
+		try {
+			const response = await fetch(url);
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+			if (kind === 'image') {
+				copyBtn?.setAttribute('hidden', 'true');
+				const blob = await response.blob();
+				const objectUrl = URL.createObjectURL(blob);
+				bodyEl.innerHTML = `<img class="content-preview-image" src="${objectUrl}" alt="${fileName}" />`;
+				return;
+			}
+
+			rawText = await response.text();
+			const lang = getShikiLanguage(fileName);
+			const html = await codeToHtml(rawText, {
+				lang,
+				theme: getTheme(),
+			});
+
+			bodyEl.innerHTML = `<div class="content-preview-code">${html}</div>`;
+			copyBtn?.removeAttribute('hidden');
+		} catch (error) {
+			bodyEl.innerHTML = `<p class="content-preview-error">Could not load <code>${fileName}</code>. ${error instanceof Error ? error.message : 'Unknown error'}</p>`;
+			copyBtn?.setAttribute('hidden', 'true');
+		}
+	};
+
+	const onProseClick = (event: Event) => {
+		const target = (event.target as Element | null)?.closest('a[data-content-preview]');
+		if (!target || !(target instanceof HTMLAnchorElement)) return;
+
+		event.preventDefault();
+		const kind = target.dataset.contentPreview ?? 'code';
+		openModal(target.href, kind);
+	};
+
+	const bind = () => {
+		document.querySelectorAll('.prose').forEach((prose) => {
+			prose.removeEventListener('click', onProseClick);
+			prose.addEventListener('click', onProseClick);
+		});
+	};
+
+	copyBtn?.addEventListener('click', async () => {
+		if (!rawText) return;
+		try {
+			await navigator.clipboard.writeText(rawText);
+			copyBtn.textContent = 'Copied';
+			copyBtn.classList.add('is-copied');
+			window.setTimeout(() => {
+				copyBtn.textContent = 'Copy';
+				copyBtn.classList.remove('is-copied');
+			}, 2000);
+		} catch {
+			copyBtn.textContent = 'Failed';
+			window.setTimeout(() => {
+				copyBtn.textContent = 'Copy';
+			}, 2000);
+		}
+	});
+
+	document.querySelectorAll('[data-content-preview-close]').forEach((el) => {
+		el.addEventListener('click', closeModal);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && modal && !modal.hidden) closeModal();
+	});
+
+	bind();
+	document.addEventListener('astro:page-load', bind);
+</script>
+
+<style>
+	.content-preview {
+		position: fixed;
+		inset: 0;
+		z-index: 60;
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+		padding: 0;
+	}
+
+	.content-preview[hidden] {
+		display: none;
+	}
+
+	.content-preview-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.5);
+	}
+
+	.content-preview-dialog {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		width: min(100%, 56rem);
+		max-height: min(92vh, 100%);
+		margin: 0;
+		border: 1px solid var(--border);
+		border-radius: 0.75rem 0.75rem 0 0;
+		background: var(--bg);
+		color: var(--text);
+		box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+	}
+
+	.content-preview-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.85rem 1rem;
+		border-bottom: 1px solid var(--border);
+		flex-shrink: 0;
+	}
+
+	.content-preview-title {
+		margin: 0;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		font-family: var(--font-mono);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		min-width: 0;
+	}
+
+	.content-preview-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-shrink: 0;
+	}
+
+	.content-preview-copy,
+	.content-preview-close {
+		padding: 0.35rem 0.65rem;
+		border: 1px solid var(--border);
+		border-radius: 0.35rem;
+		background: var(--bg-subtle);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		cursor: pointer;
+	}
+
+	.content-preview-copy:hover,
+	.content-preview-close:hover,
+	.content-preview-copy.is-copied {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.content-preview-body {
+		overflow: auto;
+		padding: 0;
+		min-height: 0;
+		flex: 1;
+	}
+
+	.content-preview-code {
+		margin: 0;
+	}
+
+	.content-preview-code :global(pre),
+	.content-preview-code :global(pre.shiki) {
+		margin: 0 !important;
+		padding: 1rem;
+		overflow-x: auto;
+		border: 0;
+		border-radius: 0;
+		background: var(--code-bg) !important;
+		font-size: var(--text-sm);
+		line-height: 1.5;
+	}
+
+	.content-preview-loading,
+	.content-preview-error {
+		margin: 0;
+		padding: 1rem;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+
+	.content-preview-image {
+		display: block;
+		max-width: 100%;
+		height: auto;
+		margin: 0 auto;
+		padding: 1rem;
+		border-radius: 0;
+	}
+
+	.content-preview-code :global(code) {
+		font-family: var(--font-mono);
+		background: transparent;
+	}
+
+	:global(body.content-preview-open) {
+		overflow: hidden;
+	}
+
+	:global(.prose a.content-preview-link) {
+		text-decoration-style: dashed;
+	}
+
+	@media (min-width: 40rem) {
+		.content-preview {
+			align-items: center;
+			/* padding: 1.5rem; */
+		}
+
+		.content-preview-dialog {
+			border-radius: 0.75rem;
+			max-height: min(85vh, 100%);
+		}
+	}
+</style>

@@ -223,6 +223,21 @@ Downstream rules (notifications, analytics, workflows) subscribe to the `TicketS
 
 ---
 
+## Test IAM auth
+
+[`dir/appsync/pr4/test_iam.py`](./dir/appsync/pr4/test_iam.py) signs and POSTs the `updateTicketStatus` mutation to AppSync using **SigV4** IAM credentials (not a Cognito JWT).
+Run it after setting `TICKET_API_URL`, `TICKET_ID`, and `AWS_REGION` to verify the IAM-only pipeline returns the updated ticket.
+
+Links to `./dir/...` and `./images/...` open in a **preview modal** (syntax-highlighted code or image). Links to other `.md` posts navigate normally.
+
+```bash
+export TICKET_API_URL=https://<api-id>.appsync-api.<region>.amazonaws.com/graphql
+export TICKET_ID=<existing-ticket-id>
+export AWS_REGION=us-east-1
+
+python src/content/dir/appsync/pr4/test_iam.py
+```
+
 ## Inspect the pipeline resolver
 
 ```bash
