@@ -10,7 +10,7 @@ tags:
   - lambda
   - eventbridge
   - aws
-  - notes
+  
 date: 2026-08-24
 ---
 

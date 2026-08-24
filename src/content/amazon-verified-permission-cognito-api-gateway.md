@@ -8,7 +8,7 @@ tags:
   - cognito
   - cedar
   - aws
-  - notes
+  
 date: 2026-08-24
 ---
 

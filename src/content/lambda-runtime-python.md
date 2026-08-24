@@ -1,5 +1,5 @@
 ---
-title: "AWS Lambda Python Runtime - Notes"
+title: "AWS Lambda Python Runtime "
 description: "Python Lambda handler patterns, deployment packages, virtual environments, layers, and packaging notes for boto3 and third-party dependencies."
 tags:
   - lambda
@@ -7,7 +7,7 @@ tags:
   - boto3
   - serverless
   - aws
-  - notes
+  
 date: 2026-08-20
 ---
 

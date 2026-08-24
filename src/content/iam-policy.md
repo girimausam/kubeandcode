@@ -1,5 +1,5 @@
 ---
-title: "IAM Policy Conditions - Notes"
+title: "IAM Policy Conditions "
 description: "Common IAM policy condition keys and copy-paste examples for S3 encryption, date/time, tags, IP, MFA, region, and other scenarios."
 tags:
   - iam

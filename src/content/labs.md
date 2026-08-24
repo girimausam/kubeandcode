@@ -10,7 +10,7 @@ tags:
   - sqs
   - lambda
   - backup
-  - notes
+  
   - jam
   - jams
 date: 2026-08-20

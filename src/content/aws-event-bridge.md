@@ -1,11 +1,11 @@
 ---
-title: "Amazon EventBridge - Notes"
+title: "Amazon EventBridge "
 description: "EventBridge rules, event patterns, input transformers, archive/replay, pipes, scheduler, and DLQs."
 tags:
 - eventbridge
 - serverless
 - aws
-- notes
+
 - sqs
 - dynamodb
 ---

@@ -1,5 +1,5 @@
 ---
-title: "AppSync GraphQL Task Manager - Notes"
+title: "AppSync GraphQL Task Manager "
 description: "Cognito-authenticated AppSync GraphQL API with DynamoDB, JavaScript resolvers, user-scoped task access, and Admins group authorization."
 tags:
   - appsync

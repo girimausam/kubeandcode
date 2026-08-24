@@ -3,7 +3,7 @@ title: "EKS Notes"
 description: "EKS Notes"
 tags: 
     - eks
-    - notes
+    
     - aws
 ---
 

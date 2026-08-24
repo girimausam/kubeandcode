@@ -1,5 +1,5 @@
 ---
-title: "AppSync Real-time Collaboration - Notes"
+title: "AppSync Real-time Collaboration "
 description: "Multi-user project tasks with Cognito auth, DynamoDB single-table design, pipeline resolvers with membership checks, and GraphQL subscriptions for live updates."
 tags:
   - appsync
@@ -8,7 +8,7 @@ tags:
   - dynamodb
   - subscriptions
   - aws
-  - notes
+  
 date: 2026-08-23
 ---
 

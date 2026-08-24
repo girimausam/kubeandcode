@@ -1,12 +1,12 @@
 ---
-title: "API Gateway WebSocket API - Notes"
+title: "API Gateway WebSocket API "
 description: "WebSocket route keys ($connect, $disconnect, $default), MOCK integration setup, CLI inspection commands, and Lambda handler patterns for custom routes."
 tags:
   - api-gateway
   - websocket
   - lambda
   - aws
-  - notes
+  
 date: 2026-08-21
 ---
 
