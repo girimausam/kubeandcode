@@ -1,5 +1,5 @@
 ---
-title: "Amazon Verified Permissions — Cognito Groups & API Gateway"
+title: "Amazon Verified Permissions - Cognito Groups & API Gateway"
 description: "Group-based API access with Amazon Verified Permissions, Cognito User Pool groups, Cedar policies, and API Gateway authorizers."
 tags:
   - avp
@@ -31,7 +31,7 @@ Reference: [Amazon Verified Permissions](https://docs.aws.amazon.com/verifiedper
 | User | Group |
 | --- | --- |
 | `admin@example.com` | `admins` |
-| `alice@example.com` | — |
+| `alice@example.com` | - |
 | `bob@example.com` | `employee` |
 
 Groups: `admins`, `employee`
@@ -74,7 +74,7 @@ Create actions that map to API Gateway operations:
 | `get /private/admins` | `User` | `Application` |
 | `get /private/employees` | `User` | `Application` |
 
-Example action: **post /private** — applies to principal type `User`, resource type `Application`.
+Example action: **post /private** - applies to principal type `User`, resource type `Application`.
 
 Replace `us-east-1_du9KuRt50` in policies below with your User Pool ID.
 
@@ -82,7 +82,7 @@ Replace `us-east-1_du9KuRt50` in policies below with your User Pool ID.
 
 Console: **AVP → Policy store → Policies → Create policy**
 
-#### Policy 1 — Users outside `admins` and `employee`
+#### Policy 1 - Users outside `admins` and `employee`
 
 Allow `GET` and `POST` on `/private` when the principal is in neither group.
 
@@ -101,7 +101,7 @@ when {
 };
 ```
 
-#### Policy 2 — Users in `admins`
+#### Policy 2 - Users in `admins`
 
 Allow `GET` on `/private/admins` and `/private/employees`.
 
@@ -173,7 +173,7 @@ Test each user (`admin@example.com`, `alice@example.com`, `bob@example.com`) aga
 
 ## Notes
 
-- **Policy 2 label in raw notes** said "employee" but the Cedar policy uses the `admins` group — the policy above matches the Cedar snippet.
+- **Policy 2 label in raw notes** said "employee" but the Cedar policy uses the `admins` group - the policy above matches the Cedar snippet.
 - **Group ARN format:** `cognitoauth::UserGroup::"<region>_<userPoolId>|<groupName>"`.
 - **Action names** must match the schema action strings exactly (method + path).
 - Replace `ClientId`, User Pool ID, and passwords with your environment values before testing.
