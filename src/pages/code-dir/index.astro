@@ -7,52 +7,42 @@ const files = Object.keys(import.meta.glob('../../content/dir/**/*'))
 	.filter(isTextFile);
 const tree = pathsToTree(files);
 const fileBase = withBase('content/dir/');
-const home = withBase();
 ---
 
 <!doctype html>
-<html lang="en" class="wait">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>404</title>
+		<title>dir</title>
 		<link rel="icon" type="image/svg+xml" href={withBase('favicon.svg')} />
 		<script is:inline>
 			(function () {
-				var k = 'code-dir-hits';
-				var n = Number(sessionStorage.getItem(k) || 0) + 1;
-				sessionStorage.setItem(k, String(n));
 				var theme =
 					localStorage.getItem('theme') ||
 					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 				document.documentElement.dataset.theme = theme;
-				// 3 refreshes after first 404: loads 1–3 stay 404, load 4 opens
-				if (n > 3) {
-					document.documentElement.className = 'open';
-					document.title = 'dir';
-				} else {
-					document.documentElement.className = 'locked';
-					document.title = '404';
-				}
 			})();
 		</script>
-		<style>
+		<style is:global>
 			:root {
-				--bg: #fafafa;
+				--bg: #f4f5f7;
 				--panel: #fff;
-				--text: #1a1a1a;
-				--muted: #737373;
-				--line: #e5e5e5;
+				--text: #1c1d21;
+				--muted: #6b7280;
+				--line: #e5e7eb;
 				--on: #e8eef8;
-				--mono: ui-monospace, 'IBM Plex Mono', Menlo, monospace;
+				--hover: #f3f4f6;
+				--mono: ui-monospace, 'IBM Plex Mono', Menlo, Consolas, monospace;
 			}
 			:root[data-theme='dark'] {
-				--bg: #0e0e0e;
-				--panel: #141414;
-				--text: #ececec;
-				--muted: #8a8a8a;
-				--line: #2a2a2a;
-				--on: #1c2430;
+				--bg: #0c0d10;
+				--panel: #14151a;
+				--text: #eceef2;
+				--muted: #9ca3af;
+				--line: #2a2c33;
+				--on: #243044;
+				--hover: #1c1e26;
 			}
 			* {
 				box-sizing: border-box;
@@ -65,92 +55,121 @@ const home = withBase();
 				color: var(--text);
 				font: 13px/1.4 ui-sans-serif, system-ui, sans-serif;
 			}
-			html.wait .nf,
-			html.wait .browser {
-				visibility: hidden;
-			}
-			html.locked .browser,
-			html.open .nf {
-				display: none;
-			}
-			.nf {
-				min-height: 100%;
-				display: grid;
-				place-content: center;
-				text-align: center;
-				gap: 0.35rem;
-			}
-			.nf h1 {
-				margin: 0;
-				font-size: 1.25rem;
-			}
-			.nf p {
-				margin: 0;
-				color: var(--muted);
-			}
-			.nf a {
-				color: inherit;
-			}
 			.browser {
 				height: 100%;
 				display: grid;
-				grid-template-rows: 2rem 1fr;
+				grid-template-rows: 2.5rem 1fr;
 			}
 			.bar {
 				display: flex;
 				align-items: center;
-				gap: 0.75rem;
-				padding: 0 0.6rem;
+				gap: 0.65rem;
+				padding: 0 0.75rem;
 				border-bottom: 1px solid var(--line);
 				background: var(--panel);
-				font-family: var(--mono);
 				font-size: 12px;
 			}
 			.bar b {
-				font-weight: 600;
+				font-weight: 650;
+				letter-spacing: -0.02em;
 			}
-			.bar span {
+			.crumb {
+				min-width: 0;
+				flex: 1;
 				color: var(--muted);
+				font-family: var(--mono);
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
 			.bar button {
-				margin-left: auto;
-				border: 0;
-				background: none;
-				color: var(--muted);
+				flex-shrink: 0;
+				border: 1px solid var(--line);
+				border-radius: 6px;
+				background: var(--bg);
+				color: var(--text);
 				cursor: pointer;
 				font: inherit;
+				padding: 0.2rem 0.55rem;
+			}
+			.bar button:hover {
+				background: var(--hover);
 			}
 			.split {
 				display: grid;
-				grid-template-columns: 16rem 1fr;
+				grid-template-columns: minmax(14rem, var(--tree-w, 18rem)) 6px 1fr;
 				min-height: 0;
 			}
 			.tree {
+				min-width: 14rem;
 				overflow: auto;
-				border-right: 1px solid var(--line);
 				background: var(--panel);
-				padding: 0.4rem 0;
+				padding: 0.45rem 0.35rem 0.75rem;
+			}
+			.gutter {
+				cursor: col-resize;
+				background: var(--line);
+			}
+			.gutter:hover,
+			.gutter.drag {
+				background: var(--muted);
 			}
 			.tree details {
-				padding-left: 0.65rem;
+				padding-left: 0.15rem;
+			}
+			.tree .kids {
+				margin-left: 0.55rem;
+				padding-left: 0.45rem;
+				border-left: 1px solid var(--line);
 			}
 			.tree summary,
 			.tree .file {
-				display: block;
+				appearance: none;
+				-webkit-appearance: none;
+				display: flex;
+				align-items: center;
+				gap: 0.4rem;
 				width: 100%;
+				box-sizing: border-box;
+				margin: 0;
 				text-align: left;
+				text-decoration: none;
 				border: 0;
-				background: none;
+				border-radius: 4px;
+				background: transparent;
 				color: var(--text);
-				font: 12px/1.6 var(--mono);
-				padding: 0.05rem 0.5rem;
+				font: 12px/1.45 var(--mono);
+				padding: 0.16rem 0.4rem 0.16rem 0.2rem;
 				cursor: pointer;
 			}
 			.tree summary {
 				color: var(--muted);
+				list-style: none;
+			}
+			.tree summary::-webkit-details-marker {
+				display: none;
+			}
+			.tree summary::before {
+				content: '▸';
+				display: inline-block;
+				width: 0.85rem;
+				color: var(--muted);
+				font-size: 10px;
+			}
+			.tree details[open] > summary::before {
+				content: '▾';
+			}
+			.tree .file::before {
+				content: '';
+				width: 0.55rem;
+				height: 0.55rem;
+				border-radius: 2px;
+				background: var(--line);
+				flex-shrink: 0;
+			}
+			.tree summary:hover,
+			.tree .file:hover {
+				background: var(--hover);
 			}
 			.tree .file.on {
 				background: var(--on);
@@ -159,61 +178,87 @@ const home = withBase();
 				overflow: auto;
 				background: var(--bg);
 			}
-			.pane :global(pre) {
+			.hint {
+				padding: 1.25rem 1rem;
+				color: var(--muted);
+				font-family: var(--mono);
+				font-size: 12px;
+			}
+			.pane pre {
 				margin: 0;
-				padding: 0.75rem 1rem;
-				font: 12px/1.5 var(--mono);
+				padding: 1rem 1.1rem;
+				font: 12.5px/1.55 var(--mono);
 				background: transparent !important;
 			}
-			.pane :global(code) {
+			.pane code {
 				font-family: inherit;
 			}
 			.raw {
 				margin: 0;
-				padding: 0.75rem 1rem;
+				padding: 1rem 1.1rem;
 				white-space: pre;
-				font: 12px/1.5 var(--mono);
+				font: 12.5px/1.55 var(--mono);
 			}
 			@media (max-width: 720px) {
 				.split {
 					grid-template-columns: 1fr;
-					grid-template-rows: 30vh 1fr;
+					grid-template-rows: minmax(10rem, 32vh) 0 1fr;
+				}
+				.gutter {
+					display: none;
+					cursor: default;
 				}
 			}
 		</style>
 	</head>
 	<body>
-		<div class="nf">
-			<h1>404</h1>
-			<p>Not found</p>
-			<p><a href={home}>Home</a></p>
-		</div>
 		<div class="browser">
 			<div class="bar">
 				<b>dir</b>
-				<span data-path-label></span>
-				<button type="button" data-theme>theme</button>
+				<span class="crumb" data-path-label>src/content/dir</span>
+				<button type="button" data-theme-toggle>Theme</button>
 			</div>
 			<div class="split">
 				<nav class="tree" data-tree></nav>
-				<div class="pane" data-view></div>
+				<div class="gutter" data-gutter></div>
+				<div class="pane" data-view><p class="hint">Select a file</p></div>
 			</div>
 		</div>
 		<script>
-			document.querySelector('[data-theme]')?.addEventListener('click', () => {
+			document.querySelector('[data-theme-toggle]')?.addEventListener('click', (event) => {
+				event.stopPropagation();
 				const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
 				document.documentElement.dataset.theme = next;
 				localStorage.setItem('theme', next);
+			});
+
+			const split = document.querySelector('.split');
+			const gutter = document.querySelector('[data-gutter]');
+			const minW = 224;
+			let drag = false;
+			gutter?.addEventListener('pointerdown', (e) => {
+				drag = true;
+				gutter.classList.add('drag');
+				gutter.setPointerCapture(e.pointerId);
+			});
+			gutter?.addEventListener('pointermove', (e) => {
+				if (!drag || !split) return;
+				const left = split.getBoundingClientRect().left;
+				const max = Math.min(split.clientWidth * 0.7, split.clientWidth - 160);
+				const w = Math.min(max, Math.max(minW, e.clientX - left));
+				split.style.setProperty('--tree-w', `${w}px`);
+			});
+			gutter?.addEventListener('pointerup', () => {
+				drag = false;
+				gutter?.classList.remove('drag');
 			});
 		</script>
 		<script define:vars={{ payload: { tree, files, fileBase } }}>
 			window.__CODE_DIR = payload;
 		</script>
 		<script>
-			if (document.documentElement.classList.contains('open')) {
-				const { initCodeDir } = await import('../../scripts/code-dir-app');
-				initCodeDir(window.__CODE_DIR);
-			}
+			const { initCodeDir } = await import('../../scripts/code-dir-app');
+			initCodeDir(window.__CODE_DIR);
 		</script>
 	</body>
 </html>

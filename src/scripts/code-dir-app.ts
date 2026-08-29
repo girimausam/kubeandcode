@@ -24,7 +24,7 @@ function renderTree(nodes: DirNode[], depth = 0): string {
 					<div class="kids">${renderTree(n.children, depth + 1)}</div>
 				</details>`;
 			}
-			return `<button type="button" class="file" data-path="${escapeAttr(n.path!)}">${escapeHtml(n.name)}</button>`;
+			return `<a class="file" href="#${escapeAttr(encodeURIComponent(n.path!))}" data-path="${escapeAttr(n.path!)}">${escapeHtml(n.name)}</a>`;
 		})
 		.join('');
 }
@@ -82,15 +82,18 @@ export function initCodeDir(opts: CodeDirPayload) {
 	}
 
 	treeEl.addEventListener('click', (e) => {
-		const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.file');
-		if (!btn?.dataset.path) return;
-		void openPath(btn.dataset.path);
+		const file = (e.target as HTMLElement).closest<HTMLElement>('.file');
+		if (!file?.dataset.path) return;
+		e.preventDefault();
+		void openPath(file.dataset.path);
 	});
 
 	const fromHash = decodeURIComponent(location.hash.replace(/^#/, ''));
 	if (fromHash && fileSet.has(fromHash)) void openPath(fromHash);
 
-	new MutationObserver(() => {
+	new MutationObserver((records) => {
+		const themeChanged = records.some((r) => r.attributeName === 'data-theme');
+		if (!themeChanged) return;
 		highlightCache.clear();
 		const p = pathEl.textContent;
 		if (p && fileSet.has(p)) void openPath(p);
