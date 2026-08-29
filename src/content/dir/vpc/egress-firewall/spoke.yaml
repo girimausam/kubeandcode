@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Spoke VPC with private workloads and TGW attachment (deploy after tgw; reuse per spoke)
+
+Parameters:
+  TgwStackName:
+    Type: String
+    Default: egress-fw-tgw
+    Description: CloudFormation stack name that exported the Transit Gateway
+
+  VpcName:
+    Type: String
+    Default: spoke-a-vpc
+
+  VpcCidr:
+    Type: String
+    Default: 10.0.0.0/16
+
+  PrivateSubnetACidr:
+    Type: String
+    Default: 10.0.11.0/24
+
+  PrivateSubnetBCidr:
+    Type: String
+    Default: 10.0.12.0/24
+
+  TgwSubnetACidr:
+    Type: String
+    Default: 10.0.21.0/28
+
+  TgwSubnetBCidr:
+    Type: String
+    Default: 10.0.22.0/28
+
+Resources:
+  SpokeVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Ref VpcName
+
+  SpokePrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SpokeVpc
+      CidrBlock: !Ref PrivateSubnetACidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-private-subnet-a'
+
+  SpokePrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SpokeVpc
+      CidrBlock: !Ref PrivateSubnetBCidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-private-subnet-b'
+
+  SpokeTgwSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SpokeVpc
+      CidrBlock: !Ref TgwSubnetACidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-subnet-a'
+
+  SpokeTgwSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SpokeVpc
+      CidrBlock: !Ref TgwSubnetBCidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-subnet-b'
+
+  SpokePrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref SpokeVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-private-rt'
+
+  SpokePrivateDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref SpokePrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayId:
+        Fn::ImportValue: !Sub '${TgwStackName}-TGW-ID'
+
+  SpokePrivateSubnetARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref SpokePrivateRouteTable
+      SubnetId: !Ref SpokePrivateSubnetA
+
+  SpokePrivateSubnetBRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref SpokePrivateRouteTable
+      SubnetId: !Ref SpokePrivateSubnetB
+
+  SpokeTgwAttachment:
+    Type: AWS::EC2::TransitGatewayVpcAttachment
+    Properties:
+      TransitGatewayId:
+        Fn::ImportValue: !Sub '${TgwStackName}-TGW-ID'
+      VpcId: !Ref SpokeVpc
+      SubnetIds:
+        - !Ref SpokeTgwSubnetA
+        - !Ref SpokeTgwSubnetB
+      Options:
+        DnsSupport: enable
+        ApplianceModeSupport: disable
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-attachment'
+
+  SpokeTgwRouteTableAssociation:
+    Type: AWS::EC2::TransitGatewayRouteTableAssociation
+    Properties:
+      TransitGatewayAttachmentId: !Ref SpokeTgwAttachment
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-SPOKE-RT'
+
+Outputs:
+  VpcId:
+    Value: !Ref SpokeVpc
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC-ID'
+
+  VpcCidr:
+    Value: !Ref VpcCidr
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC-CIDR'
+
+  TgwAttachmentId:
+    Value: !Ref SpokeTgwAttachment
+    Export:
+      Name: !Sub '${AWS::StackName}-TGW-ATTACHMENT-ID'

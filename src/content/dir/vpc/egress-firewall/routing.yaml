@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: TGW routes and propagations — deploy last after tgw, inspection, egress, and spoke stacks
+
+Parameters:
+  TgwStackName:
+    Type: String
+    Default: egress-fw-tgw
+
+  InspectionStackName:
+    Type: String
+    Default: egress-fw-inspection
+
+  EgressStackName:
+    Type: String
+    Default: egress-fw-egress
+
+  SpokeAStackName:
+    Type: String
+    Default: egress-fw-spoke-a
+
+  SpokeBStackName:
+    Type: String
+    Default: egress-fw-spoke-b
+
+  SpokeSupernetCidr:
+    Type: String
+    Default: 10.0.0.0/8
+    Description: Summarized CIDR for spoke VPCs (return path via TGW from egress public subnets)
+
+Resources:
+  EgressPublicRouteToSpokes:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Fn::ImportValue: !Sub '${EgressStackName}-PUBLIC-RT-ID'
+      DestinationCidrBlock: !Ref SpokeSupernetCidr
+      TransitGatewayId:
+        Fn::ImportValue: !Sub '${TgwStackName}-TGW-ID'
+
+  SpokeDefaultRoute:
+    Type: AWS::EC2::TransitGatewayRoute
+    Properties:
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-SPOKE-RT'
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayAttachmentId:
+        Fn::ImportValue: !Sub '${InspectionStackName}-TGW-ATTACHMENT-ID'
+
+  BlockSpokeA:
+    Type: AWS::EC2::TransitGatewayRoute
+    Properties:
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-SPOKE-RT'
+      DestinationCidrBlock:
+        Fn::ImportValue: !Sub '${SpokeAStackName}-VPC-CIDR'
+      Blackhole: true
+
+  BlockSpokeB:
+    Type: AWS::EC2::TransitGatewayRoute
+    Properties:
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-SPOKE-RT'
+      DestinationCidrBlock:
+        Fn::ImportValue: !Sub '${SpokeBStackName}-VPC-CIDR'
+      Blackhole: true
+
+  InspectionDefaultRoute:
+    Type: AWS::EC2::TransitGatewayRoute
+    Properties:
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-INSPECTION-RT'
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayAttachmentId:
+        Fn::ImportValue: !Sub '${EgressStackName}-TGW-ATTACHMENT-ID'
+
+  SpokeAPropagationToInspection:
+    Type: AWS::EC2::TransitGatewayRouteTablePropagation
+    Properties:
+      TransitGatewayAttachmentId:
+        Fn::ImportValue: !Sub '${SpokeAStackName}-TGW-ATTACHMENT-ID'
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-INSPECTION-RT'
+
+  SpokeBPropagationToInspection:
+    Type: AWS::EC2::TransitGatewayRouteTablePropagation
+    Properties:
+      TransitGatewayAttachmentId:
+        Fn::ImportValue: !Sub '${SpokeBStackName}-TGW-ATTACHMENT-ID'
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-INSPECTION-RT'
+
+  SpokeAPropagationToEgress:
+    Type: AWS::EC2::TransitGatewayRouteTablePropagation
+    Properties:
+      TransitGatewayAttachmentId:
+        Fn::ImportValue: !Sub '${SpokeAStackName}-TGW-ATTACHMENT-ID'
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-EGRESS-RT'
+
+  SpokeBPropagationToEgress:
+    Type: AWS::EC2::TransitGatewayRouteTablePropagation
+    Properties:
+      TransitGatewayAttachmentId:
+        Fn::ImportValue: !Sub '${SpokeBStackName}-TGW-ATTACHMENT-ID'
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-EGRESS-RT'

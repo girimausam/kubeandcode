@@ -1,0 +1,273 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Inspection VPC with AWS Network Firewall and TGW attachment (deploy after tgw)
+
+Parameters:
+  TgwStackName:
+    Type: String
+    Default: egress-fw-tgw
+    Description: CloudFormation stack name that exported the Transit Gateway
+
+  VpcName:
+    Type: String
+    Default: inspection-vpc
+
+  VpcCidr:
+    Type: String
+    Default: 10.3.0.0/16
+
+  TgwSubnetACidr:
+    Type: String
+    Default: 10.3.0.0/24
+
+  TgwSubnetBCidr:
+    Type: String
+    Default: 10.3.1.0/24
+
+  FirewallSubnetACidr:
+    Type: String
+    Default: 10.3.10.0/24
+
+  FirewallSubnetBCidr:
+    Type: String
+    Default: 10.3.11.0/24
+
+Resources:
+  InspectionVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Ref VpcName
+
+# Subnet
+
+  InspectionTgwSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref InspectionVpc
+      CidrBlock: !Ref TgwSubnetACidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-subnet-a'
+
+  InspectionTgwSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref InspectionVpc
+      CidrBlock: !Ref TgwSubnetBCidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-subnet-b'
+
+  InspectionFirewallSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref InspectionVpc
+      CidrBlock: !Ref FirewallSubnetACidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-firewall-subnet-a'
+
+  InspectionFirewallSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref InspectionVpc
+      CidrBlock: !Ref FirewallSubnetBCidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-firewall-subnet-b'
+
+# Firewall
+
+  # Firewall Rule Group
+
+  InspectionFirewallRuleGroup:
+    Type: AWS::NetworkFirewall::RuleGroup
+    Properties:
+      Capacity: 100
+      RuleGroupName: !Sub '${VpcName}-rule-group'
+      Type: STATEFUL
+      RuleGroup:
+        RulesSource:
+          RulesSourceList:
+            GeneratedRulesType: ALLOWLIST
+            Targets:
+              - .amazonaws.com
+            TargetTypes:
+              - TLS_SNI
+
+  # Firewall Policy
+
+  InspectionFirewallPolicy:
+    Type: AWS::NetworkFirewall::FirewallPolicy
+    Properties:
+      FirewallPolicyName: !Sub '${VpcName}-firewall-policy'
+      FirewallPolicy:
+        StatelessDefaultActions:
+          - aws:forward_to_sfe
+        StatelessFragmentDefaultActions:
+          - aws:forward_to_sfe
+        StatefulRuleGroupReferences:
+          - ResourceArn: !Ref InspectionFirewallRuleGroup
+
+  # Firewall
+
+  InspectionNetworkFirewall:
+    Type: AWS::NetworkFirewall::Firewall
+    DependsOn: InspectionFirewallPolicy
+    Properties:
+      FirewallName: !Sub '${VpcName}-network-firewall'
+      FirewallPolicyArn: !Ref InspectionFirewallPolicy
+      VpcId: !Ref InspectionVpc
+      SubnetMappings:
+        - SubnetId: !Ref InspectionFirewallSubnetA
+        - SubnetId: !Ref InspectionFirewallSubnetB
+      DeleteProtection: false
+      FirewallPolicyChangeProtection: false
+      SubnetChangeProtection: false
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-network-firewall'
+
+# TGW Attachment
+
+  InspectionTgwAttachment:
+    Type: AWS::EC2::TransitGatewayVpcAttachment
+    Properties:
+      TransitGatewayId:
+        Fn::ImportValue: !Sub '${TgwStackName}-TGW-ID'
+      VpcId: !Ref InspectionVpc
+      SubnetIds:
+        - !Ref InspectionTgwSubnetA
+        - !Ref InspectionTgwSubnetB
+      Options:
+        ApplianceModeSupport: enable
+        DnsSupport: enable
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-attachment'
+
+  InspectionTgwRouteTableAssociation:
+    Type: AWS::EC2::TransitGatewayRouteTableAssociation
+    Properties:
+      TransitGatewayAttachmentId: !Ref InspectionTgwAttachment
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-INSPECTION-RT'
+
+  # TGW Route Table and Route
+
+  InspectionTgwRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref InspectionVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-rt-a'
+
+  InspectionTgwRouteTableB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref InspectionVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-rt-b'
+
+  InspectionTgwRouteToFirewallA:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref InspectionTgwRouteTableA
+      DestinationCidrBlock: 0.0.0.0/0
+      VpcEndpointId: !Select [0, !GetAtt InspectionNetworkFirewall.EndpointIds]
+
+  InspectionTgwRouteToFirewallB:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref InspectionTgwRouteTableB
+      DestinationCidrBlock: 0.0.0.0/0
+      VpcEndpointId: !Select [1, !GetAtt InspectionNetworkFirewall.EndpointIds]
+
+  InspectionTgwSubnetARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref InspectionTgwRouteTableA
+      SubnetId: !Ref InspectionTgwSubnetA
+
+  InspectionTgwSubnetBRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref InspectionTgwRouteTableB
+      SubnetId: !Ref InspectionTgwSubnetB
+
+  # Firewall Route Table and Route 
+
+  InspectionFirewallRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref InspectionVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-firewall-rt-a'
+
+  InspectionFirewallRouteTableB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref InspectionVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-firewall-rt-b'
+
+  InspectionFirewallRouteToTgwA:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref InspectionFirewallRouteTableA
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayId:
+        Fn::ImportValue: !Sub '${TgwStackName}-TGW-ID'
+
+  InspectionFirewallRouteToTgwB:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref InspectionFirewallRouteTableB
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayId:
+        Fn::ImportValue: !Sub '${TgwStackName}-TGW-ID'
+
+  InspectionFirewallSubnetARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref InspectionFirewallRouteTableA
+      SubnetId: !Ref InspectionFirewallSubnetA
+
+  InspectionFirewallSubnetBRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref InspectionFirewallRouteTableB
+      SubnetId: !Ref InspectionFirewallSubnetB
+
+Outputs:
+  VpcId:
+    Value: !Ref InspectionVpc
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC-ID'
+
+  TgwAttachmentId:
+    Value: !Ref InspectionTgwAttachment
+    Export:
+      Name: !Sub '${AWS::StackName}-TGW-ATTACHMENT-ID'
+
+  NetworkFirewallId:
+    Value: !Ref InspectionNetworkFirewall
+    Export:
+      Name: !Sub '${AWS::StackName}-NF-ID'
+
+  NetworkFirewallArn:
+    Value: !GetAtt InspectionNetworkFirewall.FirewallArn
+    Export:
+      Name: !Sub '${AWS::StackName}-NF-ARN'

@@ -1,0 +1,240 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Centralized egress VPC with NAT Gateway and TGW attachment (deploy after tgw)
+
+Parameters:
+  TgwStackName:
+    Type: String
+    Default: egress-fw-tgw
+    Description: CloudFormation stack name that exported the Transit Gateway
+
+  VpcName:
+    Type: String
+    Default: egress-vpc
+
+  VpcCidr:
+    Type: String
+    Default: 192.168.0.0/16
+
+  PublicSubnetACidr:
+    Type: String
+    Default: 192.168.0.0/24
+
+  PublicSubnetBCidr:
+    Type: String
+    Default: 192.168.1.0/24
+
+  TgwSubnetACidr:
+    Type: String
+    Default: 192.168.10.0/24
+
+  TgwSubnetBCidr:
+    Type: String
+    Default: 192.168.11.0/24
+
+Resources:
+  EgressVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref VpcName
+
+  EgressIgw:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-igw'
+
+  EgressIgwAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref EgressVpc
+      InternetGatewayId: !Ref EgressIgw
+
+# Subnets
+
+  EgressPublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref EgressVpc
+      CidrBlock: !Ref PublicSubnetACidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-public-subnet-a'
+
+  EgressPublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref EgressVpc
+      CidrBlock: !Ref PublicSubnetBCidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-public-subnet-b'
+
+  EgressTgwSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref EgressVpc
+      CidrBlock: !Ref TgwSubnetACidr
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-subnet-a'
+
+  EgressTgwSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref EgressVpc
+      CidrBlock: !Ref TgwSubnetBCidr
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-subnet-b'
+
+# NAT
+
+  EgressNatEipA:
+    Type: AWS::EC2::EIP
+    DependsOn: EgressIgwAttachment
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-nat-eip-a'
+
+  EgressNatGatewayA:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EgressNatEipA.AllocationId
+      SubnetId: !Ref EgressPublicSubnetA
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-nat-a'
+
+# Route Table and Route
+
+  EgressPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref EgressVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-public-rt'
+
+  EgressPublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: EgressIgwAttachment
+    Properties:
+      RouteTableId: !Ref EgressPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref EgressIgw
+
+  EgressPublicSubnetARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref EgressPublicRouteTable
+      SubnetId: !Ref EgressPublicSubnetA
+
+  EgressPublicSubnetBRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref EgressPublicRouteTable
+      SubnetId: !Ref EgressPublicSubnetB
+
+# TGW Route Table
+
+  EgressTgwRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref EgressVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-rt-a'
+
+  EgressTgwRouteTableB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref EgressVpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-rt-b'
+
+  EgressTgwDefaultRouteA:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref EgressTgwRouteTableA
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref EgressNatGatewayA
+
+  EgressTgwDefaultRouteB:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref EgressTgwRouteTableB
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref EgressNatGatewayA
+
+  EgressTgwSubnetARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref EgressTgwRouteTableA
+      SubnetId: !Ref EgressTgwSubnetA
+
+  EgressTgwSubnetBRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref EgressTgwRouteTableB
+      SubnetId: !Ref EgressTgwSubnetB
+
+# TGW Attachment
+
+  EgressTgwAttachment:
+    Type: AWS::EC2::TransitGatewayVpcAttachment
+    Properties:
+      TransitGatewayId:
+        Fn::ImportValue: !Sub '${TgwStackName}-TGW-ID'
+      VpcId: !Ref EgressVpc
+      SubnetIds:
+        - !Ref EgressTgwSubnetA
+        - !Ref EgressTgwSubnetB
+      Options:
+        DnsSupport: enable
+        ApplianceModeSupport: disable
+      Tags:
+        - Key: Name
+          Value: !Sub '${VpcName}-tgw-attachment'
+
+  EgressTgwRouteTableAssociation:
+    Type: AWS::EC2::TransitGatewayRouteTableAssociation
+    Properties:
+      TransitGatewayAttachmentId: !Ref EgressTgwAttachment
+      TransitGatewayRouteTableId:
+        Fn::ImportValue: !Sub '${TgwStackName}-EGRESS-RT'
+
+Outputs:
+  VpcId:
+    Value: !Ref EgressVpc
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC-ID'
+
+  TgwAttachmentId:
+    Value: !Ref EgressTgwAttachment
+    Export:
+      Name: !Sub '${AWS::StackName}-TGW-ATTACHMENT-ID'
+
+  NatGatewayId:
+    Value: !Ref EgressNatGatewayA
+    Export:
+      Name: !Sub '${AWS::StackName}-NAT-GW-ID'
+
+  PublicRouteTableId:
+    Value: !Ref EgressPublicRouteTable
+    Export:
+      Name: !Sub '${AWS::StackName}-PUBLIC-RT-ID'
