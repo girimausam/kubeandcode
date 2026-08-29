@@ -375,3 +375,205 @@ aws events put-targets \
 
 **Restore:** EC2 terminated → EventBridge Rule 2 → Recover Lambda → retrieve from vault → new EC2  
 `1 → 5 → 3 → 6 → 1`
+
+
+---
+
+## Windows / RDP and IMDS
+
+Symptom: Windows instance cannot reach IMDS at `169.254.169.254`.
+
+Gateway IP is the subnet default route for `0.0.0.0` in `route print`. Prefer [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).
+
+```powershell
+route print
+route DELETE 169.254.169.254
+route -p ADD 169.254.169.254 MASK 255.255.255.255 <SUBNET_GATEWAY_IP>
+
+iwr -Uri 'http://169.254.169.254/latest/meta-data/'
+
+netsh winhttp reset proxy
+W32tm /resync /force
+Restart-Service AmazonSSMAgent
+```
+
+Always restart the SSM agent after network/proxy changes: `Restart-Service AmazonSSMAgent`.
+
+---
+
+## Systems Manager (SSM)
+
+RDP down, SSM up (or SSM instead of RDP): agent on the AMI, instance role `AmazonSSMManagedInstanceCore`, outbound **TCP 443** via NAT or Interface endpoints.
+
+SSM agent **offline**: missing role, no path to SSM APIs, no VPC endpoints on a private subnet, SG/NACL blocking 443.
+
+| Need | What |
+| --- | --- |
+| Role | `AmazonSSMManagedInstanceCore` on the instance |
+| Endpoints | `ssm`, `ec2messages`, `ssmmessages` in `com.amazonaws.<region>.*` |
+| Endpoint SG | Inbound **443** from instance SG / VPC CIDR |
+| Placement | Endpoints in the instance’s subnets (or routed to them) |
+
+Template: [`dir/ssm-vpc-endpoint.yaml`](./dir/ssm-vpc-endpoint.yaml)
+
+---
+
+## CloudWatch Agent
+
+Instance role: `CloudWatchAgentServerPolicy`. [IAM](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/create-iam-roles-for-cloudwatch-agent.html) · [Install](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-on-EC2-Instance.html)
+
+Linux (AL2 / yum):
+
+```bash
+sudo yum install amazon-cloudwatch-agent
+cd /opt/aws/amazon-cloudwatch-agent/bin
+sudo ./amazon-cloudwatch-agent-ctl -a start -m ec2 -c default -s
+```
+
+Windows: install from the same install doc; start the **Amazon CloudWatch Agent** service.
+
+---
+
+## ACM Private CA
+
+CA chain (trust store):
+
+```bash
+aws acm-pca get-certificate-authority-certificate \
+  --certificate-authority-arn arn:aws:acm-pca:<region>:<account-id>:certificate-authority/<ca-id> \
+  --output text > ca_certificate.pem
+```
+
+Issued cert:
+
+```bash
+aws acm-pca get-certificate \
+  --certificate-authority-arn "<CA_ARN>" \
+  --certificate-arn "<CERT_ARN>" \
+  --query 'Certificate' --output text > cert.pem
+```
+
+Chain for that cert: `--query 'CertificateChain'` → `cert_chain.pem`.
+
+[get-certificate-authority-certificate](https://docs.aws.amazon.com/cli/latest/reference/acm-pca/get-certificate-authority-certificate.html) · [get-certificate](https://docs.aws.amazon.com/cli/latest/reference/acm-pca/get-certificate.html)
+
+---
+
+## AWS Config (Guard)
+
+SG open to the world (`0.0.0.0/0` / `::/0`). Managed check for CodeBuild plaintext AWS creds in env: [`codebuild-project-envvar-awscred-check`](https://docs.aws.amazon.com/config/latest/developerguide/codebuild-project-envvar-awscred-check.html).
+
+<details>
+<summary>Guard rules (lab)</summary>
+
+```guard
+rule check_ip_protocol_and_port_range_validity
+{
+    let any_ip_permissions = this.configuration.ipPermissions[
+        some ipv4Ranges[*].cidrIp == "0.0.0.0/0" or
+        some ipv6Ranges[*].cidrIpv6 == "::/0"
+        ipProtocol != "udp"
+    ]
+
+    when %any_ip_permissions !empty
+    {
+        %any_ip_permissions {
+            this.ipProtocol != "-1"
+            this.InputParameters.TcpBlockedPorts[*] {
+                this.fromPort > this or
+                this.toPort < this
+                <<
+                    result: NON_COMPLIANT
+                    message: Blocked TCP port was allowed in range
+                >>
+            }
+        }
+    }
+}
+
+rule ipv4_unrestricted_inbound when this.configuration.ipPermissions[*].ipv4Ranges !empty {
+    this.configuration.ipPermissions[*].ipv4Ranges[*].cidrIp != "0.0.0.0/0"
+    <<
+        result: NON_COMPLIANT
+        message: IPv4 Source address cannot be 0.0.0.0/0
+    >>
+}
+
+rule ipv6_unrestricted_inbound when this.configuration.ipPermissions[*].ipv6Ranges !empty {
+    this.configuration.ipPermissions[*].ipv6Ranges[*].cidrIpv6 != "::/0"
+    <<
+        result: NON_COMPLIANT
+        message: IPv6 Source address cannot be ::/0
+    >>
+}
+```
+
+</details>
+
+---
+
+## Traffic mirroring
+
+VXLAN to the target: target SG inbound **UDP 4789**. Session Manager → monitor host:
+
+```bash
+sudo tcpdump -lnvX icmp
+```
+
+---
+
+## KMS grant (CodeBuild)
+
+```bash
+aws kms create-grant \
+  --key-id KEY_ARN \
+  --grantee-principal arn:aws:iam::ACCOUNT_ID:role/locksmith-codebuild-role \
+  --operations Decrypt GenerateDataKey \
+  --name locksmith-codebuild-s3-access \
+  --region us-east-1
+```
+
+---
+
+## DynamoDB (boto3)
+
+```python
+from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.types import TypeDeserializer
+
+d = TypeDeserializer()
+item = {k: d.deserialize(value=v) for k, v in raw.items()}
+
+results = dynamo_table.query(KeyConditionExpression=Key("CustID").eq(cust_id))
+row = results["Items"][0] if results["Items"] else None
+
+dynamo_table.put_item(Item=cust_profile)
+```
+
+---
+
+## FSx ONTAP and EBS
+
+FSx SG: inbound **NFS 2049** from the EC2 SG.
+
+```bash
+sudo mkdir -p /mnt/fsx
+sudo mount -t nfs -o nfsvers=4.1 <fsx-dns-name>:/vol1 /mnt/fsx
+```
+
+EBS: attach volume, `lsblk` for the device (often `/dev/nvme1n1`, not `/dev/sdf`). `mkfs` **wipes** the volume.
+
+```bash
+lsblk
+sudo mkfs.ext4 /dev/nvme1n1
+sudo mkdir -p /mnt/ebs
+sudo mount /dev/nvme1n1 /mnt/ebs
+```
+
+Copy FSx → EBS: `sudo rsync -av /mnt/fsx/ /mnt/ebs/`
+
+---
+
+## Redshift COPY (JSON)
+
+[COPY JSON examples (`auto ignorecase`)](https://docs.aws.amazon.com/redshift/latest/dg/r_COPY_command_examples.html#copy-from-json-examples-using-auto-ignorecase)

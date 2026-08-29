@@ -80,7 +80,7 @@ Default association and propagation are **off** ([`tgw.yaml`](./dir/vpc/egress-f
 
 ## Appliance mode
 
-![Single-AZ vs multi-AZ](./anfw-single-az-deployment-diagram-high-res-1-1024x808.png)
+![Single-AZ vs multi-AZ](./images/anfw-single-az-deployment-diagram.png)
 
 Firewall state is per endpoint. If TGW sends the forward flow to AZ-a and the return to AZ-b, the session breaks. **Appliance mode** on the **inspection** VPC attachment pins both directions of a flow to one AZ.
 

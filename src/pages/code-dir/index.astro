@@ -1,0 +1,219 @@
+---
+import { isTextFile, pathsToTree } from '../../utils/code-dir';
+import { withBase } from '../../utils/url';
+
+const files = Object.keys(import.meta.glob('../../content/dir/**/*'))
+	.map((key) => key.replace('../../content/dir/', ''))
+	.filter(isTextFile);
+const tree = pathsToTree(files);
+const fileBase = withBase('content/dir/');
+const home = withBase();
+---
+
+<!doctype html>
+<html lang="en" class="wait">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>404</title>
+		<link rel="icon" type="image/svg+xml" href={withBase('favicon.svg')} />
+		<script is:inline>
+			(function () {
+				var k = 'code-dir-hits';
+				var n = Number(sessionStorage.getItem(k) || 0) + 1;
+				sessionStorage.setItem(k, String(n));
+				var theme =
+					localStorage.getItem('theme') ||
+					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+				document.documentElement.dataset.theme = theme;
+				// 3 refreshes after first 404: loads 1–3 stay 404, load 4 opens
+				if (n > 3) {
+					document.documentElement.className = 'open';
+					document.title = 'dir';
+				} else {
+					document.documentElement.className = 'locked';
+					document.title = '404';
+				}
+			})();
+		</script>
+		<style>
+			:root {
+				--bg: #fafafa;
+				--panel: #fff;
+				--text: #1a1a1a;
+				--muted: #737373;
+				--line: #e5e5e5;
+				--on: #e8eef8;
+				--mono: ui-monospace, 'IBM Plex Mono', Menlo, monospace;
+			}
+			:root[data-theme='dark'] {
+				--bg: #0e0e0e;
+				--panel: #141414;
+				--text: #ececec;
+				--muted: #8a8a8a;
+				--line: #2a2a2a;
+				--on: #1c2430;
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+				height: 100%;
+				background: var(--bg);
+				color: var(--text);
+				font: 13px/1.4 ui-sans-serif, system-ui, sans-serif;
+			}
+			html.wait .nf,
+			html.wait .browser {
+				visibility: hidden;
+			}
+			html.locked .browser,
+			html.open .nf {
+				display: none;
+			}
+			.nf {
+				min-height: 100%;
+				display: grid;
+				place-content: center;
+				text-align: center;
+				gap: 0.35rem;
+			}
+			.nf h1 {
+				margin: 0;
+				font-size: 1.25rem;
+			}
+			.nf p {
+				margin: 0;
+				color: var(--muted);
+			}
+			.nf a {
+				color: inherit;
+			}
+			.browser {
+				height: 100%;
+				display: grid;
+				grid-template-rows: 2rem 1fr;
+			}
+			.bar {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				padding: 0 0.6rem;
+				border-bottom: 1px solid var(--line);
+				background: var(--panel);
+				font-family: var(--mono);
+				font-size: 12px;
+			}
+			.bar b {
+				font-weight: 600;
+			}
+			.bar span {
+				color: var(--muted);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.bar button {
+				margin-left: auto;
+				border: 0;
+				background: none;
+				color: var(--muted);
+				cursor: pointer;
+				font: inherit;
+			}
+			.split {
+				display: grid;
+				grid-template-columns: 16rem 1fr;
+				min-height: 0;
+			}
+			.tree {
+				overflow: auto;
+				border-right: 1px solid var(--line);
+				background: var(--panel);
+				padding: 0.4rem 0;
+			}
+			.tree details {
+				padding-left: 0.65rem;
+			}
+			.tree summary,
+			.tree .file {
+				display: block;
+				width: 100%;
+				text-align: left;
+				border: 0;
+				background: none;
+				color: var(--text);
+				font: 12px/1.6 var(--mono);
+				padding: 0.05rem 0.5rem;
+				cursor: pointer;
+			}
+			.tree summary {
+				color: var(--muted);
+			}
+			.tree .file.on {
+				background: var(--on);
+			}
+			.pane {
+				overflow: auto;
+				background: var(--bg);
+			}
+			.pane :global(pre) {
+				margin: 0;
+				padding: 0.75rem 1rem;
+				font: 12px/1.5 var(--mono);
+				background: transparent !important;
+			}
+			.pane :global(code) {
+				font-family: inherit;
+			}
+			.raw {
+				margin: 0;
+				padding: 0.75rem 1rem;
+				white-space: pre;
+				font: 12px/1.5 var(--mono);
+			}
+			@media (max-width: 720px) {
+				.split {
+					grid-template-columns: 1fr;
+					grid-template-rows: 30vh 1fr;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="nf">
+			<h1>404</h1>
+			<p>Not found</p>
+			<p><a href={home}>Home</a></p>
+		</div>
+		<div class="browser">
+			<div class="bar">
+				<b>dir</b>
+				<span data-path-label></span>
+				<button type="button" data-theme>theme</button>
+			</div>
+			<div class="split">
+				<nav class="tree" data-tree></nav>
+				<div class="pane" data-view></div>
+			</div>
+		</div>
+		<script>
+			document.querySelector('[data-theme]')?.addEventListener('click', () => {
+				const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+				document.documentElement.dataset.theme = next;
+				localStorage.setItem('theme', next);
+			});
+		</script>
+		<script define:vars={{ payload: { tree, files, fileBase } }}>
+			window.__CODE_DIR = payload;
+		</script>
+		<script>
+			if (document.documentElement.classList.contains('open')) {
+				const { initCodeDir } = await import('../../scripts/code-dir-app');
+				initCodeDir(window.__CODE_DIR);
+			}
+		</script>
+	</body>
+</html>
