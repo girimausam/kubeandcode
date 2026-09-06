@@ -1,6 +1,6 @@
 ---
 title: "Lab"
-description: "Lab walkthrough notes for RDS audit logs, CloudWatch export, EventBridge rules and pipes, FIFO SQS pipelines, AWS Backup, and related IAM policies."
+description: "Lab notes: RDS logs, EventBridge, Backup, SSM, jam EKS incident fixes."
 tags:
   - aws
   - labs
@@ -10,9 +10,8 @@ tags:
   - sqs
   - lambda
   - backup
-  
   - jam
-  - jams
+  - eks
 date: 2026-08-20
 ---
 
@@ -58,11 +57,11 @@ Replace bucket name, account IDs, Region, and log group ARN.
       "Principal": { "Service": "logs.us-east-1.amazonaws.com" },
       "Condition": {
         "StringEquals": {
-          "aws:SourceAccount": ["123456789012", "111122223333"]
+          "aws:SourceAccount": ["<ACCOUNT_ID>"]
         },
         "ArnLike": {
           "aws:SourceArn": [
-            "arn:aws:logs:us-west-2:712746466936:log-group:/aws/rds/instance/jam-db-instance/audit:*"
+            "arn:aws:logs:<REGION>:<ACCOUNT_ID>:log-group:/aws/rds/instance/<DB_INSTANCE>/audit:*"
           ]
         }
       }
@@ -76,11 +75,11 @@ Replace bucket name, account IDs, Region, and log group ARN.
       "Condition": {
         "StringEquals": {
           "s3:x-amz-acl": "bucket-owner-full-control",
-          "aws:SourceAccount": ["123456789012", "111122223333"]
+          "aws:SourceAccount": ["<ACCOUNT_ID>"]
         },
         "ArnLike": {
           "aws:SourceArn": [
-            "arn:aws:logs:us-west-2:712746466936:log-group:/aws/rds/instance/jam-db-instance/audit:*"
+            "arn:aws:logs:<REGION>:<ACCOUNT_ID>:log-group:/aws/rds/instance/<DB_INSTANCE>/audit:*"
           ]
         }
       }
@@ -365,7 +364,7 @@ aws events put-rule \
 ```bash
 aws events put-targets \
   --rule "xyz-auto-recover-rule" \
-  --targets "Id"="1","Arn"="arn:aws:lambda:ap-northeast-1:300457517613:function:xyz-auto-recover"
+  --targets "Id"="1","Arn"="arn:aws:lambda:<REGION>:<ACCOUNT_ID>:function:xyz-auto-recover"
 ```
 
 ### Flows (lab step numbers)
@@ -577,3 +576,83 @@ Copy FSx → EBS: `sudo rsync -av /mnt/fsx/ /mnt/ebs/`
 ## Redshift COPY (JSON)
 
 [COPY JSON examples (`auto ignorecase`)](https://docs.aws.amazon.com/redshift/latest/dg/r_COPY_command_examples.html#copy-from-json-examples-using-auto-ignorecase)
+
+---
+
+## Jam EKS (`app` ns)
+
+Cluster: `jam-eks-cluster`. Four breaks. DNS ok ≠ traffic ok ≠ IAM ok.
+
+### 1. Frontend CrashLoop → bad `DATABASE_HOST`
+
+Cause: env `DATABASE_HOST=wrong-db-host` → hostname no resolve → exit 1.
+
+```bash
+kubectl set env deployment/frontend-app DATABASE_HOST=database-service -n app
+kubectl rollout status deployment/frontend-app -n app
+```
+
+### 2. Service 0 endpoints → selector mismatch
+
+Cause: Service `backend-api-svc` selector `app: backend`. Pods = `app: backend-api`.
+
+```bash
+kubectl patch svc backend-api-svc -n app --type=json \
+  -p='[{"op":"replace","path":"/spec/selector","value":{"app":"backend-api"}}]'
+kubectl get endpoints backend-api-svc -n app
+```
+
+Expect: pod IPs under `ENDPOINTS`.
+
+### 3. DNS ok, wget hang → NetworkPolicy
+
+Cause: `backend-network-policy` on `app: backend-api`. Ingress only from `app: admin-panel`. Frontend = `app: frontend` → drop.
+
+```bash
+kubectl patch networkpolicy backend-network-policy -n app --type=json \
+  -p='[{"op":"add","path":"/spec/ingress/1","value":{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}}],"ports":[{"port":8080,"protocol":"TCP"}]}}]'
+
+FE=$(kubectl get pod -n app -l app=frontend -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n app "$FE" -- wget -T 5 -qO- http://backend-api-svc.app.svc.cluster.local:8080
+```
+
+Expect: `catalog: 42 products ready`.
+
+### 4. S3 `AccessDenied` → IRSA `sub` wrong SA
+
+Cause: role `jam-eks-backend-pod-role` trust `sub` = `system:serviceaccount:app:backend`. Pods use SA `backend-api`. STS no match.
+
+```bash
+aws eks describe-cluster --name jam-eks-cluster --query "cluster.identity.oidc.issuer" --output text
+```
+
+```bash
+aws iam update-assume-role-policy \
+  --role-name jam-eks-backend-pod-role \
+  --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/oidc.eks.<REGION>.amazonaws.com/id/<OIDC_ID>"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+          "StringEquals": {
+            "oidc.eks.<REGION>.amazonaws.com/id/<OIDC_ID>:aud": "sts.amazonaws.com",
+            "oidc.eks.<REGION>.amazonaws.com/id/<OIDC_ID>:sub": "system:serviceaccount:app:backend-api"
+          }
+        }
+      }
+    ]
+  }'
+```
+
+No restart. Config-loader retry ~30s.
+
+```bash
+kubectl logs -n app -l app=backend-api --tail=20
+```
+
+Expect: `[config-loader] SUCCESS`.

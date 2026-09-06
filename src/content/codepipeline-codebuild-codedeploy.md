@@ -272,6 +272,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - REPO_URI=<ecr-repo>
       - aws ecr get-login-password | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
   build:
@@ -280,7 +281,7 @@ phases:
       - docker push <ecr-repo>:$IMAGE_TAG
   post_build:
     commands:
-      - printf '{"ImageURI":"<ecr-repo>:%s"}' $IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"<container name ecs taskdef>","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
   files:
     - imagedefinitions.json
