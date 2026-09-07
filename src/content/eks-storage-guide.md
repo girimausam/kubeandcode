@@ -338,7 +338,7 @@ spec:
 
 Create the access point in AWS (Terraform/CLI). Point a **PersistentVolume** at `FileSystemId::AccessPointId` (double colon required; middle field is optional subpath). Reclaim `Retain`.
 
-Do **not** use StorageClass `efs-sc` with `provisioningMode: efs-ap` for this PVC — that class creates a **new** AP. Use a class with no `efs-ap` parameters and bind with `volumeName`. Skip `volumeName` on a dynamic class → new AP, not yours.
+Do **not** use StorageClass `efs-sc` with `provisioningMode: efs-ap` for this PVC - that class creates a **new** AP. Use a class with no `efs-ap` parameters and bind with `volumeName`. Skip `volumeName` on a dynamic class → new AP, not yours.
 
 Tighten IAM with `elasticfilesystem:AccessPointArn` when apps share one filesystem.
 

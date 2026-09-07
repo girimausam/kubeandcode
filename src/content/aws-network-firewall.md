@@ -1,6 +1,6 @@
 ---
 title: "AWS Network Firewall"
-description: "Rule groups, policies, endpoints, stateless vs stateful processing, domain lists, Suricata, TLS inspection, managed rules, and logging — with the centralized TGW lab as the multi-VPC pattern."
+description: "Rule groups, policies, endpoints, stateless vs stateful processing, domain lists, Suricata, TLS inspection, managed rules, and logging - with the centralized TGW lab as the multi-VPC pattern."
 tags:
   - network-firewall
   - vpc
@@ -30,9 +30,9 @@ Create empty **firewall subnets** (one AZ each). Put no workloads there. Extra e
 
 [Policy processing](https://docs.aws.amazon.com/network-firewall/latest/developerguide/firewall-policy-processing.html):
 
-1. **Stateless** engine — rule groups by priority (lowest first). Match → drop, pass (skip stateful), or **forward to stateful**.
+1. **Stateless** engine - rule groups by priority (lowest first). Match → drop, pass (skip stateful), or **forward to stateful**.
 2. If **no** stateless match: **stateless default** (full packet vs UDP fragment). Default must be **forward to stateful** if you want Suricata/domain lists at all. Other protocols’ fragments are dropped.
-3. **Stateful** engine (Suricata) — flow-aware. Logs apply here only.
+3. **Stateful** engine (Suricata) - flow-aware. Logs apply here only.
 
 **Stateful rule order** on the policy:
 
@@ -56,7 +56,7 @@ Unlike security groups, the stateful engine’s action-order default is **allow*
 
 SNI/Host can be spoofed; pair with IP rules if that matters. Domain lists do **not** decrypt TLS.
 
-Lab allowlist (CloudFormation): [`inspection.yaml`](./dir/vpc/egress-firewall/inspection.yaml) — `ALLOWLIST` + `TLS_SNI` + `.amazonaws.com`.
+Lab allowlist (CloudFormation): [`inspection.yaml`](./dir/vpc/egress-firewall/inspection.yaml) - `ALLOWLIST` + `TLS_SNI` + `.amazonaws.com`.
 
 Workshop-style Suricata (HTTP host, TLS SNI, then drop other established TCP):
 
@@ -94,7 +94,7 @@ After decrypt, HTTP keywords apply; most TLS keywords except `tls.sni` do not ma
 
 Firewall does nothing until route tables send traffic through the endpoint **and back**. Typical single-VPC internet path: workload subnet `0.0.0.0/0` → `vpce`; IGW/NAT edge RT for the workload CIDR → same `vpce`; firewall subnet RT → IGW/NAT and `local`.
 
-Steer **both directions** if you need both inspected. Use the endpoint in the **same AZ** as the workload. Multi-AZ stateful inspection behind Transit Gateway: **appliance mode** on the inspection attachment — [egress + TGW lab](./vpc-egress-tgw-firewall.md).
+Steer **both directions** if you need both inspected. Use the endpoint in the **same AZ** as the workload. Multi-AZ stateful inspection behind Transit Gateway: **appliance mode** on the inspection attachment - [egress + TGW lab](./vpc-egress-tgw-firewall.md).
 
 **Models:** firewall in each VPC (distributed) vs inspection VPC on TGW (centralized). Same policy object; different routing.
 

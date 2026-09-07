@@ -1,5 +1,5 @@
 ---
-title: "Cloud design patterns — plain English"
+title: "Cloud design patterns - plain English"
 description: "AWS Prescriptive Guidance modernization patterns, explained simply, with official diagrams."
 tags:
   - architecture
@@ -186,7 +186,7 @@ Do not rewrite the whole tree. Put a **proxy** in front. Route one URL to a new 
 
 ![Strangler](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/images/guide-img/48f618e4-d8ad-490f-982b-7b304dbf76c9/images/4334547f-fd23-48fc-8dbb-acbca43b1b5b.png)
 
-**AWS:** API Gateway, ALB, CloudFront — path or host to Lambda/ECS vs the old app. Use with ACL. [Guide](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/strangler-fig.html)
+**AWS:** API Gateway, ALB, CloudFront - path or host to Lambda/ECS vs the old app. Use with ACL. [Guide](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/strangler-fig.html)
 
 ---
 

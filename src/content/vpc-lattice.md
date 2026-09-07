@@ -13,7 +13,7 @@ date: 2026-08-27
 
 ## Overview
 
-Amazon **VPC Lattice** provides application-layer connectivity between services across VPCs and accounts. This lab exposes one Lattice service with two backends — an EC2 Flask app and a Lambda function — then routes by path prefix and weighted default action.
+Amazon **VPC Lattice** provides application-layer connectivity between services across VPCs and accounts. This lab exposes one Lattice service with two backends - an EC2 Flask app and a Lambda function - then routes by path prefix and weighted default action.
 
 ![VPC Lattice logical architecture](./images/vpc-lattice-logical-architecture.png)
 
@@ -102,7 +102,7 @@ Create two target groups in VPC Lattice:
 | Target group | Type | Protocol / port | Target |
 | --- | --- | --- | --- |
 | `instance-lattice-tg` | Instance | HTTP / `8080` | EC2 instance running Flask |
-| `lambda-lattice-tg` | Lambda function | — | Configured Lambda function |
+| `lambda-lattice-tg` | Lambda function | - | Configured Lambda function |
 
 ---
 
@@ -148,7 +148,7 @@ Create an **HTTP** listener on port **80** (or **HTTPS** on **443**) with:
 
 1. Create or select a **service network**.
 2. Associate the Lattice **service** created above.
-3. **Associate a VPC** — choose the VPC where your client EC2 instance lives.
+3. **Associate a VPC** - choose the VPC where your client EC2 instance lives.
 4. Attach a **security group** to the service network VPC association:
    - Inbound: allow HTTP **80** / HTTPS **443** from the VPC CIDR.
 5. Copy the **service domain name** from the service association details, for example:
@@ -182,4 +182,4 @@ Replace `${LATTICE_SERVICE_DOMAIN}` with the domain name from the service networ
 
 - [VPC Lattice service networks](https://docs.aws.amazon.com/vpc-lattice/latest/ug/service-networks.html)
 - [VPC Lattice use cases (PDF)](https://docs.aws.amazon.com/pdfs/architecture-diagrams/latest/amazon-vpc-lattice-use-cases/amazon-vpc-lattice-use-cases.pdf)
-- [Networking on AWS — VPC Lattice](./networking-on-aws.md#vpc-lattice)
+- [Networking on AWS - VPC Lattice](./networking-on-aws.md#vpc-lattice)

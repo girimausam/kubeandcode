@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: TGW routes and propagations — deploy last after tgw, inspection, egress, and spoke stacks
+Description: TGW routes and propagations - deploy last after tgw, inspection, egress, and spoke stacks
 
 Parameters:
   TgwStackName:

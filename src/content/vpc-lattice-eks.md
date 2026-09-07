@@ -152,10 +152,10 @@ spec:
 <details>
 <summary>parentRefs, hostnames, rules, backendRefs</summary>
 
-- **parentRefs** — which Gateway. `sectionName` binds one listener; omit → try all listeners. `namespace` required for cross-ns attach; Gateway `allowedRoutes` must allow it.
-- **hostnames** — must overlap Gateway listener hostname (same or more specific, e.g. `app.example.com` under `*.example.com`). No overlap → not accepted. Gateway has no hostname → this field is the Host filter.
-- **rules.matches** — path / header / method. Omit matches → `/`.
-- **backendRefs** — Kubernetes Service + port. Controller → Lattice target group, registers pod IPs.
+- **parentRefs** - which Gateway. `sectionName` binds one listener; omit → try all listeners. `namespace` required for cross-ns attach; Gateway `allowedRoutes` must allow it.
+- **hostnames** - must overlap Gateway listener hostname (same or more specific, e.g. `app.example.com` under `*.example.com`). No overlap → not accepted. Gateway has no hostname → this field is the Host filter.
+- **rules.matches** - path / header / method. Omit matches → `/`.
+- **backendRefs** - Kubernetes Service + port. Controller → Lattice target group, registers pod IPs.
 </details>
 
 ---

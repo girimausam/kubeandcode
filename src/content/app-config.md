@@ -17,7 +17,7 @@ links:
     url: https://docs.aws.amazon.com/appconfig/latest/userguide/appconfig-creating-deployment-strategy.html
 ---
 
-# AWS AppConfig — Freeform
+# AWS AppConfig - Freeform
 
 Order: **Application** → **Environment** (`dev` / `prod`) → **Configuration profile** (`AWS.Freeform`) → **Hosted version** → **Start deployment**.
 
@@ -97,7 +97,7 @@ Run **before** a version can deploy. Fail → no targets change.
 Need draft-07 → Lambda validator, not inline schema.
 
 <details>
-<summary>JSON Schema (draft-04) — PORT / LOG_LEVEL / ENABLED</summary>
+<summary>JSON Schema (draft-04) - PORT / LOG_LEVEL / ENABLED</summary>
 
 ```json
 {

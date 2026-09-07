@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Transit Gateway core — spoke, inspection, and egress route tables (deploy first)
+Description: Transit Gateway core - spoke, inspection, and egress route tables (deploy first)
 
 Parameters:
   TgwName:

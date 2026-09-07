@@ -131,7 +131,7 @@ If you skip the controller: IP target group HTTP **8080** in VPC-A, Lattice serv
 ## 6. EC2 Customer Service (VPC-B)
 
 1. Associate VPC-B with `lattice-sn` (association SG: inbound **80** from VPC-B CIDR).
-2. Instance in a private subnet. [`user-data.sh`](./dir/vpc/vpc-lattice-networking/ec2-customer-service/user-data.sh) runs uvicorn **8080**. App: [`ec2-customer-service/app.py`](./dir/vpc/vpc-lattice-networking/ec2-customer-service/app.py) — `GET /customers/{id}`.
+2. Instance in a private subnet. [`user-data.sh`](./dir/vpc/vpc-lattice-networking/ec2-customer-service/user-data.sh) runs uvicorn **8080**. App: [`ec2-customer-service/app.py`](./dir/vpc/vpc-lattice-networking/ec2-customer-service/app.py) - `GET /customers/{id}`.
 3. Instance target group HTTP **8080**. Lattice service `customer-service`, listener HTTP **80**. Associate with `lattice-sn`.
 4. Instance SG: inbound **8080** from the Lattice prefix list.
 
