@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-efs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany       # <- this the key diff vs EBS's ReadWriteOnce
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 5Gi

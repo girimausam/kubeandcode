@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-app-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce      # EBS limit — one pod only
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 4Gi

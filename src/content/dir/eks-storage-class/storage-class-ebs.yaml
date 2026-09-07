@@ -1,0 +1,8 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com   # tells k8s use EBS CSI driver
+volumeBindingMode: WaitForFirstConsumer   # wait til pod scheduled, so volume created in right AZ
+parameters:
+  type: gp3
