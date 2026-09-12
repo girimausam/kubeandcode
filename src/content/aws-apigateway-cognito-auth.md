@@ -7,7 +7,7 @@ tags:
   - cognito
   - user pools
   - identity pools
-  - api gateway
+  - api-gateway
   - oauth
   - iam
 ---

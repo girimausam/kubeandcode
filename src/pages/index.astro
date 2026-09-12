@@ -6,7 +6,7 @@ import TagList from '../components/TagList.astro';
 import { getAllTags } from '../utils/posts';
 
 const posts = (await getCollection('posts')).sort(
-	(a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0)
+  (a, b) => (a.data.title ?? '').localeCompare(b.data.title ?? '')
 );
 
 const initialTags = [...new Set(Astro.url.searchParams.getAll('tag'))];

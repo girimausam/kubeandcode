@@ -137,7 +137,7 @@ const { tags, totalCount, initialTags = [] } = Astro.props;
 	.tags-header {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: end;
 		margin-bottom: 0.5rem;
 		font-size: var(--text-xs);
 		font-weight: 500;
@@ -155,8 +155,9 @@ const { tags, totalCount, initialTags = [] } = Astro.props;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.25rem;
-		max-height: 15rem;
+		max-height: 85svh;
 		overflow-y: auto;
+		justify-content: end;
 	}
 
 	.tag-pill {

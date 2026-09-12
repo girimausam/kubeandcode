@@ -11,7 +11,7 @@ const { post } = Astro.props;
 const href = withBase(`${post.id}/`);
 ---
 
-<article class="post-card" data-post-tags={post.data.tags.join(',')}>
+<article class="post-card" data-post-tags={post.data.tags.join(',')} onclick={`window.location.href = '${href}'`}>
 	<h2>
 		<a href={href}>{post.data.title}</a>
 	</h2>
@@ -23,13 +23,18 @@ const href = withBase(`${post.id}/`);
 
 <style>
 	.post-card {
-		padding: 1.25rem 0;
+		padding: 1rem;
+		/* border-radius: 0.5rem; */
 		border-bottom: 1px solid var(--border);
 	}
 
-	.post-card:first-child {
-		padding-top: 0;
+	.post-card:hover {
+		background: var(--bg-subtle);
 	}
+
+	/* .post-card:first-child {
+		padding-top: 0;
+	} */
 
 	h2 {
 		margin: 0;
@@ -39,7 +44,7 @@ const href = withBase(`${post.id}/`);
 	}
 
 	p {
-		margin: 0.5rem 0 0;
+		margin: 0;
 		color: var(--text-muted);
 	}
 
