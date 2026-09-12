@@ -1,5 +1,5 @@
 ---
-title: "VPC Lattice on EKS (Gateway API)"
+title: "VPC Lattice on EKS with Gateway API"
 description: "Install AWS Gateway API Controller, then Gateway + HTTPRoute + TargetGroupPolicy for VPC Lattice."
 tags:
   - vpc-lattice
@@ -13,7 +13,7 @@ date: 2026-09-05
 
 Gateway API objects → AWS Gateway API Controller → VPC Lattice service + target groups. Order: kubeconfig → OIDC/IAM → CRDs → controller → GatewayClass → Gateway → HTTPRoute → TargetGroupPolicy.
 
-Docs: [controller deploy](https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/) · [Gateway API CRDs](https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api) · app-networking lab: [VPC Lattice application networking](/vpc-lattice-application-networking/)
+Docs: [controller deploy](https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/) · [Gateway API CRDs](https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api) · app-networking lab: [VPC Lattice application networking](/aws-vpc-lattice-application-networking/)
 
 ---
 

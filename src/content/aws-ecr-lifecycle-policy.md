@@ -1,5 +1,5 @@
 ---
-title: "Amazon ECR repository settings and lifecycle policy"
+title: "Amazon ECR: Repository Settings and Lifecycle Policy"
 description: "Scan on push, tag mutability, resource tags, and a lifecycle policy that expires untagged, branch, and excess production images - with prefix rules split (ECR matches all prefixes on a rule)."
 tags:
   - ecr
@@ -135,4 +135,4 @@ aws ecr put-lifecycle-policy \
 - [Policy properties](https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_parameters.html)
 - [Tag immutability](https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-tag-mutability.html)
 - [Enhanced scanning](https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-scanning-enhanced.html)
-- [EKS-oriented notes](./eks-ecr-best-practices.md)
+- [EKS-oriented notes](/eks-ecr-best-practices/)

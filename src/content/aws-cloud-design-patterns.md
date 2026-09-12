@@ -1,5 +1,5 @@
 ---
-title: "Cloud design patterns - plain English"
+title: "Cloud Design Patterns in Plain English"
 description: "AWS Prescriptive Guidance modernization patterns, explained simply, with official diagrams."
 tags:
   - architecture

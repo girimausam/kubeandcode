@@ -1,5 +1,5 @@
 ---
-title: VPC with CloudFormation
+title: "Build an AWS VPC with CloudFormation"
 description: Deploy a lab VPC with public and private subnets using CloudFormation.
 tags:
   - vpc

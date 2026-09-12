@@ -1,5 +1,5 @@
 ---
-title: "Centralized egress with Transit Gateway and Network Firewall"
+title: "Centralized Egress with Transit Gateway and Network Firewall"
 description: "Inspect spoke internet traffic in a dedicated inspection VPC, then NAT out from an egress VPC. CloudFormation order, TGW association vs propagation, appliance mode, and the templates in dir/vpc/egress-firewall."
 tags:
   - vpc

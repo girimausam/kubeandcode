@@ -1,5 +1,5 @@
 ---
-title: VPC
+title: "Amazon VPC Transit Gateway (Reference Links)"
 description: VPC Transit Gateway
 tags:
     - vpc

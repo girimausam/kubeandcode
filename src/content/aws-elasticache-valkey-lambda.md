@@ -1,5 +1,5 @@
 ---
-title: "ElastiCache for Valkey - Lambda Caching Pattern"
+title: "ElastiCache for Valkey: Lambda Caching Pattern"
 description: "Cache-aside with Lambda, ElastiCache for Valkey, and DynamoDB - VPC setup, TLS client, TTL keys, invalidation, and advanced caching patterns."
 tags:
   - elasticache

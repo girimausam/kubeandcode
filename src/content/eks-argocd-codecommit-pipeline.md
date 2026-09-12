@@ -1,5 +1,5 @@
 ---
-title: CodeCommit to ArgoCD Pipeline on EKS
+title: "EKS GitOps: CodeCommit to Argo CD"
 description: End-to-end GitOps from CodeCommit through CodePipeline to Argo CD on EKS.
 tags:
   - eks

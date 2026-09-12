@@ -1,5 +1,5 @@
 ---
-title: "AWS best practices (scratch)"
+title: "AWS Checklist: AppConfig Schema and S3 Bucket Hygiene"
 description: "Short checklist: AppConfig JSON schema, S3 lifecycle / CRR / versioning / tags."
 tags:
   - aws

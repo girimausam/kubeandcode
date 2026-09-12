@@ -1,5 +1,5 @@
 ---
-title: "VPC Lattice - Application Networking"
+title: "VPC Lattice Application Networking"
 description: "Order-management lab: ECS then service network, Lattice services, security groups, EKS in VPC-A, EC2/Lambda, and RDS/private resources via resource configurations."
 tags:
   - vpc-lattice

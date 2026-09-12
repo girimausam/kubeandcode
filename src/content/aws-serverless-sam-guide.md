@@ -1,5 +1,5 @@
 ---
-title: "Serverless on AWS with SAM"
+title: "Serverless on AWS with AWS SAM"
 description: "11-phase walkthrough building an event-driven order pipeline with SAM, Lambda, HTTP API, EventBridge, SQS, and DynamoDB."
 tags:
   - serverless
@@ -165,7 +165,7 @@ ProducerFunction:
           EventBusName: default
 ```
 
-### Handler (from [Lambda event pipeline](/blog/examples/lambda-event-pipeline))
+### Handler (from [Lambda event pipeline](/aws-lambda-event-pipeline))
 
 ```python
 import json
@@ -816,7 +816,7 @@ aws application-autoscaling put-scaling-policy \
 
 ### ECS SQS backlog scaling (`ecs-sqs-scaling.json`)
 
-Full file: [Serverless snippets](/blog/examples/serverless-snippets).
+Full file: [Serverless snippets](/aws-serverless-sam-snippets).
 
 ```json
 {
@@ -947,7 +947,7 @@ artifacts:
     - appspec.yml
 ```
 
-Full pipeline steps: [AWS Lambda CI/CD post](/blog/posts/aws-lambda-cicd).
+Full pipeline steps: [AWS Lambda CI/CD post](/aws-lambda-codepipeline-codedeploy).
 
 ## Verification
 

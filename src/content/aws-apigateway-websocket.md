@@ -1,5 +1,5 @@
 ---
-title: "API Gateway WebSocket API "
+title: "API Gateway WebSocket APIs"
 description: "WebSocket route keys ($connect, $disconnect, $default), MOCK integration setup, CLI inspection commands, and Lambda handler patterns for custom routes."
 tags:
   - api-gateway
@@ -173,5 +173,5 @@ def lambda_handler(event, context):
 
 ## Related notes
 
-- [API Gateway with Cognito](/api-gateway-cognito/) - REST/HTTP auth patterns
-- [Lambda Python runtime](/lambda-runtime-python/) - packaging and handler basics
+- [API Gateway with Cognito](/aws-apigateway-cognito-auth/) - REST/HTTP auth patterns
+- [Lambda Python runtime](/aws-lambda-python-runtime/) - packaging and handler basics

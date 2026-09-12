@@ -1,5 +1,5 @@
 ---
-title: "AppSync Ticket API - Multi-Auth & EventBridge"
+title: "AppSync Ticket API: Multi-Auth and EventBridge"
 description: "Support ticket API with Cognito and IAM auth, Lambda-backed createTicket, DynamoDB pipeline for updateTicketStatus, and EventBridge event publishing."
 tags:
   - appsync

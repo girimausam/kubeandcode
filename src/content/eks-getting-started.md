@@ -1,5 +1,5 @@
 ---
-title: Getting Started with EKS
+title: "Getting Started with Amazon EKS"
 description: Initial EKS cluster setup including IAM roles, nodes, CNI, and ECR.
 tags:
   - eks

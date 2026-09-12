@@ -1,5 +1,5 @@
 ---
-title: "What Is a vCPU on AWS?"
+title: "What Is a vCPU on Amazon EC2?"
 description: "How virtual CPUs map to physical cores on Intel, AMD, and Graviton instances-and how vCPU limits affect EC2 capacity."
 tags:
   - ec2

@@ -1,5 +1,5 @@
 ---
-title: Prometheus Alerts with SNS and SQS
+title: "Prometheus Alerts with SNS and SQS"
 description: Wire Prometheus Alertmanager to SNS and SQS on EKS.
 tags:
   - eks

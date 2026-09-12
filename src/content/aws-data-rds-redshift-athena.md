@@ -1,5 +1,5 @@
 ---
-title: "Data on AWS: RDS, Redshift, and Athena"
+title: "AWS Data Services: RDS, Redshift, and Athena"
 description: "Operational runbooks for Amazon RDS day-2 checks, Redshift COPY loads from S3, and Athena tables for VPC Flow Logs forensics."
 tags:
   - rds
@@ -90,7 +90,7 @@ Replace `FORMAT AS JSON 'auto'` with `CSV`, `PARQUET`, or other formats as neede
 
 ## Athena forensics
 
-Query **VPC Flow Logs** (and similar log data) in S3 with Amazon Athena. For full OrderFlow query samples, see [OrderFlow snippets](/orderflow-snippets/).
+Query **VPC Flow Logs** (and similar log data) in S3 with Amazon Athena. For full OrderFlow query samples, see [OrderFlow snippets](/eks-orderflow-cli-snippets/).
 
 ### VPC Flow Logs external table
 

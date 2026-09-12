@@ -56,9 +56,9 @@ Reusable template for AWS CloudOps practice: build, break, diagnose, document, a
 
 ## Cross-links
 
-- [Kubernetes on AWS](/blog/kubernetes-on-aws)
-- [Networking on AWS](/blog/networking-on-aws)
-- [Data on AWS](/blog/data-on-aws)
+- [Kubernetes on AWS](/eks-cluster-operations-runbook)
+- [Networking on AWS](/aws-networking-overview)
+- [Data on AWS](/aws-data-rds-redshift-athena)
 
 ## WAF reference
 

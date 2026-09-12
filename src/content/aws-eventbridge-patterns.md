@@ -1,5 +1,5 @@
 ---
-title: "Amazon EventBridge "
+title: "Amazon EventBridge Integration Patterns"
 description: "EventBridge rules, event patterns, input transformers, archive/replay, pipes, scheduler, and DLQs."
 tags:
 - eventbridge
@@ -25,7 +25,7 @@ EventBridge is the **event bus** layer: producers publish events; **rules** matc
 | **DLQ (SQS)**         | Capture events a target failed to process                                                  |
 
 
-See also: [Lambda event pipeline](/lambda-event-pipeline/) and [serverless order pipeline](/serverless-on-aws/) for end-to-end examples.
+See also: [Lambda event pipeline](/aws-lambda-event-pipeline/) and [serverless order pipeline](/aws-serverless-sam-guide/) for end-to-end examples.
 
 ---
 

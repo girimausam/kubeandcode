@@ -1,5 +1,5 @@
 ---
-title: EKS + AWS Load Balancer Controller (ALB Ingress)
+title: "EKS ALB Ingress with AWS Load Balancer Controller"
 description: Expose services on EKS via the AWS Load Balancer Controller and ALB Ingress.
 tags:
   - eks

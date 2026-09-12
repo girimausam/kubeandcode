@@ -1,5 +1,5 @@
 ---
-title: "IAM Policy Conditions "
+title: "IAM Policy Conditions Reference"
 description: "Common IAM policy condition keys and copy-paste examples for S3 encryption, date/time, tags, IP, MFA, region, and other scenarios."
 tags:
   - iam
@@ -20,7 +20,7 @@ IAM policies evaluate **Effect**, **Action**, **Resource**, and optionally **Con
 2. **Allow** applies only if no matching Deny exists.
 3. Default is implicit deny.
 
-See also the broader [IAM Policy Examples and Triage Guide](/iam-policies) for trust policies, SCPs, boundaries, and service-specific blocks.
+See also the broader [IAM Policy Examples and Triage Guide](/aws-iam-policies-triage/) for trust policies, SCPs, boundaries, and service-specific blocks.
 
 ## Condition operators (quick reference)
 

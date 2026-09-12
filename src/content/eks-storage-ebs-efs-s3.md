@@ -1,5 +1,5 @@
 ---
-title: "EKS storage guide (EBS, EFS, S3)"
+title: "Amazon EKS Storage: EBS, EFS, and S3"
 description: "Daily playbook for persistent storage on Amazon EKS: pick EBS vs EFS vs S3, install CSI add-ons, copy-paste StorageClass/PVC/PV, and avoid common bind and permission failures."
 tags:
   - eks

@@ -1,5 +1,5 @@
 ---
-title: Karpenter Setup on EKS
+title: "Install Karpenter on Amazon EKS"
 description: Install Karpenter on an existing EKS cluster for node autoscaling.
 tags:
   - eks

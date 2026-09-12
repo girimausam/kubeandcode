@@ -1,5 +1,5 @@
 ---
-title: "Argo CD on Amazon EKS"
+title: "Install Argo CD on Amazon EKS"
 description: "Install Argo CD on EKS, expose the server with a LoadBalancer, retrieve the admin password, and log in from the CLI."
 tags:
   - eks

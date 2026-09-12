@@ -1,5 +1,5 @@
 ---
-title: "DynamoDB Accelerator (DAX) - Use and Integrate"
+title: "DynamoDB Accelerator (DAX): Use and Integrate"
 description: "Swap the DynamoDB client for a DAX client: cluster in a VPC, IAM, Lambda packaging, item vs query cache, write-through, and when to call DynamoDB directly for strong reads."
 tags:
   - dynamodb

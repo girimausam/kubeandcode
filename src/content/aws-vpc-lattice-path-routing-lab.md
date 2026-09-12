@@ -1,5 +1,5 @@
 ---
-title: "VPC Lattice - Path-Based Routing Lab"
+title: "VPC Lattice Path-Based Routing Lab"
 description: "Hands-on VPC Lattice setup with EC2 and Lambda backends, target groups, path-based routing, weighted default action, and service network VPC association."
 tags:
   - vpc-lattice

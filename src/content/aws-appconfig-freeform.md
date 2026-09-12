@@ -1,5 +1,5 @@
 ---
-title: "AWS AppConfig (Freeform)"
+title: "AWS AppConfig: Freeform Configuration"
 description: "Daily playbook: Freeform profile, JSON Schema validators, hosted versions, deployment (release) with bake-time rollback."
 tags:
   - appconfig

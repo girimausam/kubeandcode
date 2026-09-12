@@ -1,5 +1,5 @@
 ---
-title: "Amazon Kinesis Streams and Analytics"
+title: "Amazon Kinesis Data Streams and Analytics"
 description: "Reference videos and AWS resources for Kinesis Data Streams, producer/consumer patterns, and Kinesis Data Analytics."
 tags:
   - kinesis

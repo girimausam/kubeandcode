@@ -1,5 +1,5 @@
 ---
-title: "AWS Lambda Python Runtime "
+title: "AWS Lambda Python Runtime and Packaging"
 description: "Python Lambda handler patterns, deployment packages, virtual environments, layers, and packaging notes for boto3 and third-party dependencies."
 tags:
   - lambda

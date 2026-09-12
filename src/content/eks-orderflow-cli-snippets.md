@@ -1,5 +1,5 @@
 ---
-title: "OrderFlow CLI and Operations Snippets"
+title: "OrderFlow: CLI and Operations Snippets"
 description: "Copy-paste EKS, IRSA, RDS, SQS, ingress, and add-on commands for the OrderFlow migration project."
 tags:
   - orderflow
@@ -11,7 +11,7 @@ tags:
   - snippets
   - aws
 ---
-Copy-paste commands for [OrderFlow on AWS](/blog/orderflow-aws). The guide covers architecture and decisions; this page holds operational snippets.
+Copy-paste commands for [OrderFlow on AWS](/eks-orderflow-migration-guide). The guide covers architecture and decisions; this page holds operational snippets.
 
 ## EKS cluster and nodes
 

@@ -1,5 +1,5 @@
 ---
-title: "EKS Notes"
+title: "EKS Workloads Quick Reference"
 description: "EKS Notes"
 tags: 
     - eks

@@ -1,5 +1,5 @@
 ---
-title: "OrderFlow: EKS Migration to Managed AWS Services"
+title: "OrderFlow: Migrate Workloads to Amazon EKS"
 description: "Phase-by-phase migration from in-cluster PostgreSQL to RDS, Secrets Manager, SQS, SNS, and DynamoDB on Amazon EKS."
 tags:
   - orderflow
@@ -640,7 +640,7 @@ spec:
                   number: 80
 ```
 
-When the frontend is deployed, add a second path rule for `/` static content and `/api/*` to the API - mirror [ShopSphere ingress](/shopsphere-on-eks/#phase-09-09-ingress-configuration).
+When the frontend is deployed, add a second path rule for `/` static content and `/api/*` to the API - mirror [ShopSphere ingress](/eks-shopsphere-walkthrough/#phase-09-09-ingress-configuration).
 
 ## Verification
 
@@ -1481,7 +1481,7 @@ GitHub push
 
 **Tag strategy:** immutable git SHA tags - never promote `latest` to production.
 
-Reference: [AWS Lambda CI/CD](/blog/posts/aws-lambda-cicd) for CodeDeploy patterns; adapt to EKS rollouts with `kubectl rollout status`.
+Reference: [AWS Lambda CI/CD](/aws-lambda-codepipeline-codedeploy) for CodeDeploy patterns; adapt to EKS rollouts with `kubectl rollout status`.
 
 ## EventBridge integration
 
@@ -1506,7 +1506,7 @@ events.put_events(
 )
 ```
 
-Downstream rules can fan out to audit Lambdas, analytics, or cross-account buses - see [Lambda event pipeline](/blog/examples/lambda-event-pipeline).
+Downstream rules can fan out to audit Lambdas, analytics, or cross-account buses - see [Lambda event pipeline](/aws-lambda-event-pipeline).
 
 ## Verification checklist (full stack)
 

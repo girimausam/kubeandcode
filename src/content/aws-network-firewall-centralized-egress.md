@@ -1,5 +1,5 @@
 ---
-title: "AWS Network Firewall"
+title: "AWS Network Firewall for Centralized Egress"
 description: "Rule groups, policies, endpoints, stateless vs stateful processing, domain lists, Suricata, TLS inspection, managed rules, and logging - with the centralized TGW lab as the multi-VPC pattern."
 tags:
   - network-firewall

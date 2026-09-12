@@ -1,5 +1,5 @@
 ---
-title: Monitoring with Grafana and Prometheus
+title: "Monitoring with Grafana and Prometheus"
 description: Set up Grafana and Prometheus on EKS with CloudWatch observability.
 tags:
   - eks

@@ -1,5 +1,5 @@
 ---
-title: "AppSync Real-time Collaboration "
+title: "AppSync Real-Time Collaboration"
 description: "Multi-user project tasks with Cognito auth, DynamoDB single-table design, pipeline resolvers with membership checks, and GraphQL subscriptions for live updates."
 tags:
   - appsync

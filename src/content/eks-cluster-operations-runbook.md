@@ -1,5 +1,5 @@
 ---
-title: "Kubernetes on AWS (EKS Runbook)"
+title: "Amazon EKS Cluster Operations Runbook"
 description: "EKS version guidance, access entries, Pod Identity vs IRSA, and day-2 cluster operations for Amazon EKS."
 tags:
   - eks
@@ -10,7 +10,7 @@ tags:
 ---
 ## Overview
 
-Reference runbook for Amazon EKS cluster operations, workload identity, and deployment patterns. For a full end-to-end walkthrough, follow [ShopSphere on Amazon EKS](/shopsphere-on-eks/).
+Reference runbook for Amazon EKS cluster operations, workload identity, and deployment patterns. For a full end-to-end walkthrough, follow [ShopSphere on Amazon EKS](/eks-shopsphere-walkthrough/).
 
 ## EKS operations
 
@@ -84,9 +84,9 @@ Decision and troubleshooting notes for pod-level AWS permissions in Amazon EKS.
 
 For a complete deployment tutorial (ECR, HPA, ALB controller, ingress), use the ShopSphere walkthrough:
 
-- [Infrastructure setup](/shopsphere-on-eks/#phase-01-01-infrastructure-setup)
-- [Application deployment](/shopsphere-on-eks/#phase-05-05-application-deployment)
-- [Ingress configuration](/shopsphere-on-eks/#phase-09-09-ingress-configuration)
+- [Infrastructure setup](/eks-shopsphere-walkthrough/#phase-01-01-infrastructure-setup)
+- [Application deployment](/eks-shopsphere-walkthrough/#phase-05-05-application-deployment)
+- [Ingress configuration](/eks-shopsphere-walkthrough/#phase-09-09-ingress-configuration)
 
 **Quick reference links:**
 

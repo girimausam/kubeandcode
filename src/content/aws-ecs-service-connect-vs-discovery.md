@@ -1,3 +1,16 @@
+---
+title: "ECS Service Connect vs Cloud Map Service Discovery"
+description: "When to use Service Connect vs Cloud Map, wiring, and common failure modes on ECS."
+tags:
+  - ecs
+  - service-connect
+  - cloud-map
+  - service-discovery
+  - aws
+  - notes
+date: 2026-09-12
+---
+
 # ECS Service Connect vs Service Discovery: A Practical Guide
 
 When you run multiple services on Amazon ECS, they need a way to find each other. AWS offers two related but different mechanisms: **ECS Service Connect** and **ECS Service Discovery** (Cloud Map). They look similar in the console, but they solve different problems and fail in different ways.

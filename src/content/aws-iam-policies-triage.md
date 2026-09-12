@@ -1,5 +1,5 @@
 ---
-title: "IAM Policy Examples and Triage Guide"
+title: "IAM Policies: Examples and Triage Guide"
 description: "Copy-paste trust, identity, resource, boundary, SCP, session, and VPC endpoint policies with a rapid troubleshooting checklist."
 tags:
   - iam

@@ -1,5 +1,5 @@
 ---
-title: Kyverno Setup on EKS
+title: "Install Kyverno on Amazon EKS"
 description: Install and configure Kyverno policy engine on Amazon EKS.
 tags:
   - eks

@@ -1,5 +1,5 @@
 ---
-title: KeyCloak Cognito Auth
+title: "Amazon Cognito and Keycloak Federation"
 description: KeyCloak Cognito Auth
 tags:
  - keycloak

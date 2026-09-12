@@ -1,5 +1,5 @@
 ---
-title: "IAM Policies & Roles - Identity, Resource, and VPC Endpoints"
+title: "IAM Roles, Policies, and VPC Endpoints"
 description: "Identity and resource-based IAM policies, cross-account AssumeRole, sts:AssumeRole allow/deny patterns, and VPC endpoint policies for S3 and DynamoDB."
 tags:
   - iam
@@ -28,7 +28,7 @@ AWS authorization uses several policy types that work together. An **identity-ba
 | **VPC endpoint**   | Gateway / Interface endpoint             | What can pass through this endpoint? |
 
 
-See also: [IAM Policy Examples and Triage Guide](/iam-policies/) for SCPs, boundaries, and troubleshooting.
+See also: [IAM Policy Examples and Triage Guide](/aws-iam-policies-triage/) for SCPs, boundaries, and troubleshooting.
 
 ---
 
@@ -344,7 +344,7 @@ Use the same **ArnEquals** / **PrincipalAccount** condition patterns as the S3 e
 
 Drop these into any statement's `"Condition"` key. Pair with your own `Effect`, `Action`, `Resource`, and `Principal`.
 
-See also: [IAM Policy Conditions](/iam-policy/) for full statements and operator reference.
+See also: [IAM Policy Conditions](/aws-iam-policy-conditions/) for full statements and operator reference.
 
 ### Principal and account
 

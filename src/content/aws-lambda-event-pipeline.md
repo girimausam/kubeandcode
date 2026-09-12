@@ -1,5 +1,5 @@
 ---
-title: "Lambda Event-Driven Pipeline"
+title: "Lambda Event-Driven Pipeline Patterns"
 description: "EventBridge, SQS, DynamoDB, and RDS event pipeline patterns."
 categories:
   - Lambda

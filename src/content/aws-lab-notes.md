@@ -1,5 +1,5 @@
 ---
-title: "Lab"
+title: "AWS Lab Notes: EventBridge, RDS, Backup, and JAM"
 description: "Lab notes: RDS logs, EventBridge, Backup, SSM, jam EKS incident fixes."
 tags:
   - aws
@@ -98,7 +98,7 @@ Point-to-point pipe from DynamoDB streams to SQS without a custom poller Lambda.
 
 ![Serverless order fulfillment workflow (payment queue and Step Functions)](./images/serverless-order-fulfillment-workflow.png)
 
-See also: [EventBridge notes](/aws-event-bridge/) for pipes, filters, and IAM.
+See also: [EventBridge notes](/aws-eventbridge-patterns/) for pipes, filters, and IAM.
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Kubernetes on EKS - Core Resource Examples
+title: "EKS Kubernetes Resource YAML Examples"
 description: Minimal YAML samples for common Kubernetes resources on EKS.
 tags:
   - eks

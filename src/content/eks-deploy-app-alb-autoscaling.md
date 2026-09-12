@@ -1,5 +1,5 @@
 ---
-title: "EKS application deployment"
+title: "Deploy an Application on EKS with ALB and Autoscaling"
 description: "ECR push, eksctl cluster, Deployment, HPA, Cluster Autoscaler, AWS Load Balancer Controller, and ALB Ingress."
 tags:
   - eks

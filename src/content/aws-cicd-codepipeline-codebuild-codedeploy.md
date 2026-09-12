@@ -1,5 +1,5 @@
 ---
-title: AWS CI/CD Notes - CodePipeline, CodeBuild & CodeDeploy
+title: "AWS CI/CD: CodePipeline, CodeBuild, and CodeDeploy"
 description: Quick-reference patterns for CodePipeline, CodeBuild, and CodeDeploy setups.
 tags:
   - codepipeline
