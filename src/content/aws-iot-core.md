@@ -24,7 +24,7 @@ links:
 
 **Device path:** register **Thing** → create **X.509 cert** → **IoT policy** on cert → MQTT over TLS to **data endpoint** → **topics** → optional **Rules** → Lambda / DynamoDB / SQS / Timestream.
 
-**Cloud path:** IAM principal calls **`iot-data`** API (`Publish`, `UpdateThingShadow`) — not the same auth as devices.
+**Cloud path:** IAM principal calls **`iot-data`** API (`Publish`, `UpdateThingShadow`) - not the same auth as devices.
 
 Use **Data-ATS** endpoint (`…-ats.iot.<region>.amazonaws.com`, port **8883**). Thing name = MQTT **client ID** when policy scopes `client/${iot:Connection.Thing.ThingName}`.
 

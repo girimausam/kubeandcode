@@ -9,13 +9,13 @@ tags:
   - oidc
   - rds
 links:
-  - title: AWS workshop — third-party IdP authentication
+  - title: AWS workshop - third-party IdP authentication
     url: https://catalog.workshops.aws/workshops/137bc34c-33d9-43a8-bf8f-2d4f6c22c333/en-US/60-third-party-idp-authentication
-  - title: Cognito — OIDC identity providers
+  - title: Cognito - OIDC identity providers
     url: https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-oidc-idp.html
-  - title: Keycloak — Configuring the database
+  - title: Keycloak - Configuring the database
     url: https://www.keycloak.org/server/db
-  - title: Keycloak — Securing applications and services
+  - title: Keycloak - Securing applications and services
     url: https://www.keycloak.org/docs/latest/securing_apps/
   - title: Amazon RDS for PostgreSQL
     url: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html
@@ -44,13 +44,13 @@ links:
 | Piece | Role |
 | --- | --- |
 | **Keycloak (EKS)** | Corporate IdP UI + OIDC endpoints behind **ALB + HTTPS** |
-| **Amazon RDS (PostgreSQL)** | Durable store for Keycloak data (users, realms, clients) — **only Keycloak talks to RDS** |
+| **Amazon RDS (PostgreSQL)** | Durable store for Keycloak data (users, realms, clients) - **only Keycloak talks to RDS** |
 | **Cognito User Pool** | OAuth/OIDC front door for *your* app; federates to Keycloak |
 | **App client** | OAuth client registered in Cognito (callback URLs, secrets) |
 | **Hosted UI** | Cognito login page with “Sign in with Keycloak” button |
 | **EKS app workload** | Validates **Cognito** JWT (JWKS). Does **not** query RDS for login |
 
-**Pods:** Human login goes Browser → Cognito → Keycloak. Pods trust **Cognito JWKS** only. For machine identity (no human), use a **separate** Cognito app client (client credentials) or **IRSA** for AWS APIs — Keycloak federation is for people, not kube ServiceAccounts.
+**Pods:** Human login goes Browser → Cognito → Keycloak. Pods trust **Cognito JWKS** only. For machine identity (no human), use a **separate** Cognito app client (client credentials) or **IRSA** for AWS APIs - Keycloak federation is for people, not kube ServiceAccounts.
 
 ---
 
@@ -82,7 +82,7 @@ Think of Keycloak like a mini “company login server.”
 
 ---
 
-## Part 1 — Keycloak on EKS + Amazon RDS
+## Part 1 - Keycloak on EKS + Amazon RDS
 
 **Order:** RDS PostgreSQL (private) → store DB password in Secrets Manager → deploy Keycloak on **same VPC** as EKS → **ALB Ingress** + ACM → public hostname → Cognito OIDC issuer URL.
 
@@ -103,7 +103,7 @@ Internet ──► ALB (ACM cert) ──► Keycloak Deployment (namespace keycl
 
 ---
 
-### Step 1 — Create RDS PostgreSQL (console)
+### Step 1 - Create RDS PostgreSQL (console)
 
 1. **RDS** → **Create database** → **Standard create** → **PostgreSQL**.
 2. **Templates:** Dev/Test for lab, Production for real use.
@@ -128,7 +128,7 @@ Internet ──► ALB (ACM cert) ──► Keycloak Deployment (namespace keycl
 | RDS outbound | Default (or restrict to Keycloak SG only) |
 
 <details>
-<summary>AWS CLI — RDS PostgreSQL instance (minimal lab)</summary>
+<summary>AWS CLI - RDS PostgreSQL instance (minimal lab)</summary>
 
 ```bash
 export AWS_REGION=us-east-1
@@ -166,7 +166,7 @@ aws rds describe-db-instances \
 </details>
 
 <details>
-<summary>SQL — optional separate app user (if master user is postgres)</summary>
+<summary>SQL - optional separate app user (if master user is postgres)</summary>
 
 Connect from a bastion or `kubectl run` psql pod in the VPC:
 
@@ -182,14 +182,14 @@ Keycloak creates its own tables on first start (`start` / `start-optimized`).
 
 ---
 
-### Step 2 — Store DB password for Kubernetes
+### Step 2 - Store DB password for Kubernetes
 
 **Console:** **Secrets Manager** → **Store a new secret** → **Credentials for Amazon RDS database** → select `keycloak-db` → secret name `keycloak/rds`.
 
 **In cluster:** sync with [External Secrets Operator](https://external-secrets.io/) or create a Secret manually before Helm install.
 
 <details>
-<summary>kubectl — DB secret (manual)</summary>
+<summary>kubectl - DB secret (manual)</summary>
 
 ```bash
 kubectl create namespace keycloak
@@ -203,7 +203,7 @@ kubectl create secret generic keycloak-db \
 
 ---
 
-### Step 3 — Deploy Keycloak on EKS (Helm + ALB)
+### Step 3 - Deploy Keycloak on EKS (Helm + ALB)
 
 Prerequisites: [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/) on the cluster, **public** subnets tagged for ALB, **ACM certificate** for `auth.example.com`.
 
@@ -213,7 +213,7 @@ Prerequisites: [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/
 4. Wait for Ingress → ALB → target healthy → `https://auth.example.com` loads admin console.
 
 <details>
-<summary>Helm — Bitnami Keycloak + external RDS + ALB Ingress</summary>
+<summary>Helm - Bitnami Keycloak + external RDS + ALB Ingress</summary>
 
 ```bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -249,7 +249,7 @@ Route 53 (or your DNS): **CNAME** `auth.example.com` → ALB DNS name from `kube
 </details>
 
 <details>
-<summary>Manifest — official Keycloak image + env (RDS + hostname)</summary>
+<summary>Manifest - official Keycloak image + env (RDS + hostname)</summary>
 
 ```yaml
 apiVersion: apps/v1
@@ -308,7 +308,7 @@ Pair with Service + ALB Ingress (same annotations as Helm example). Run **at lea
 
 ---
 
-### Step 4 — Keycloak admin UI (realm bootstrap)
+### Step 4 - Keycloak admin UI (realm bootstrap)
 
 1. Open `https://auth.example.com/admin`.
 2. Login with bootstrap admin user.
@@ -322,7 +322,7 @@ https://auth.example.com/realms/corp
 Use that exact value later in Cognito **Issuer URL** (Part 4).
 
 <details>
-<summary>Local Docker only — UI practice without EKS (not for Cognito federation)</summary>
+<summary>Local Docker only - UI practice without EKS (not for Cognito federation)</summary>
 
 ```bash
 docker run -d --name keycloak -p 8080:8080 \
@@ -337,11 +337,11 @@ docker run -d --name keycloak -p 8080:8080 \
 
 ---
 
-## Part 2 — Keycloak setup for Cognito
+## Part 2 - Keycloak setup for Cognito
 
 Do these **inside realm `corp`**, before touching AWS.
 
-### Step A — Create OIDC client for Cognito
+### Step A - Create OIDC client for Cognito
 
 1. **Clients** → **Create client**.
 2. **General settings**
@@ -356,7 +356,7 @@ Do these **inside realm `corp`**, before touching AWS.
    - Web origins: `+` (allow redirect origin) or your Cognito domain origin
 5. **Save** → open client → **Credentials** tab → copy **Client secret** (needed in Cognito).
 
-### Step B — Test user
+### Step B - Test user
 
 1. **Users** → **Create new user**
    - Username: `alice`
@@ -364,7 +364,7 @@ Do these **inside realm `corp`**, before touching AWS.
    - Email verified: **On**
 2. **Credentials** tab → **Set password** → temporary **Off** → password e.g. `Alice-Dev-123`.
 
-### Step C — Issuer URL (write this down)
+### Step C - Issuer URL (write this down)
 
 **Realm settings** → **OpenID Endpoint Configuration** → note **issuer** (no trailing slash):
 
@@ -375,7 +375,7 @@ https://auth.example.com/realms/corp
 Must match what browsers and Cognito fetch from `/.well-known/openid-configuration` on your **ALB hostname** (Part 1).
 
 <details>
-<summary>Keycloak Admin CLI (kcadm) — create client + user</summary>
+<summary>Keycloak Admin CLI (kcadm) - create client + user</summary>
 
 ```bash
 # Inside Keycloak container or with kcadm on PATH
@@ -403,22 +403,22 @@ Must match what browsers and Cognito fetch from `/.well-known/openid-configurati
 
 ---
 
-## Part 3 — Cognito User Pool + Hosted UI
+## Part 3 - Cognito User Pool + Hosted UI
 
 Region example: `us-east-1`. Replace `ACCOUNT`, `REGION`, and names.
 
-### Step 1 — User pool
+### Step 1 - User pool
 
 1. **Amazon Cognito** → **User pools** → **Create user pool**.
 2. **Sign-in experience**
    - Cognito user pool sign-in: **Email** or **Username** (pick one; federation still works).
    - Federated sign-in: leave defaults.
-3. **Security** — MFA off for lab.
-4. **Sign-up** — disable self-registration if this pool is employees-only.
-5. **Required attributes** — enable **email** if you map email from Keycloak.
+3. **Security** - MFA off for lab.
+4. **Sign-up** - disable self-registration if this pool is employees-only.
+5. **Required attributes** - enable **email** if you map email from Keycloak.
 6. Name pool e.g. `corp-federated` → create.
 
-### Step 2 — Domain (Hosted UI)
+### Step 2 - Domain (Hosted UI)
 
 1. Pool → **App integration** → **Domain**.
 2. **Cognito domain** → prefix e.g. `corp-kc-demo` (must be unique).
@@ -428,7 +428,7 @@ Region example: `us-east-1`. Replace `ACCOUNT`, `REGION`, and names.
 https://corp-kc-demo.auth.us-east-1.amazoncognito.com
 ```
 
-### Step 3 — App client (your SPA or test app)
+### Step 3 - App client (your SPA or test app)
 
 1. **App integration** → **App clients** → **Create app client**.
 2. Name: `web-spa`.
@@ -439,14 +439,14 @@ https://corp-kc-demo.auth.us-east-1.amazoncognito.com
 7. **OpenID Connect scopes:** `openid`, `email`, `profile` (and custom resource scopes later if needed).
 8. Save **Client ID** (and secret if confidential).
 
-### Step 4 — Hosted UI identity provider list
+### Step 4 - Hosted UI identity provider list
 
 1. **App integration** → **App client** → **Edit hosted UI**.
 2. **Identity providers:** enable **Cognito user pool** (optional) and your Keycloak provider (next section).
 3. **OAuth 2.0 grant types** and scopes aligned with step 3.
 
 <details>
-<summary>AWS CLI — user pool, domain, app client</summary>
+<summary>AWS CLI - user pool, domain, app client</summary>
 
 ```bash
 export AWS_REGION=us-east-1
@@ -480,7 +480,7 @@ echo "POOL_ID=$POOL_ID CLIENT_ID=$CLIENT_ID"
 
 ---
 
-## Part 4 — Wire Keycloak as Cognito OIDC IdP
+## Part 4 - Wire Keycloak as Cognito OIDC IdP
 
 ### Console
 
@@ -519,7 +519,7 @@ https://corp-kc-demo.auth.us-east-1.amazoncognito.com/oauth2/idpresponse
 No trailing slash. Multiple pools → one URI per pool domain.
 
 <details>
-<summary>AWS CLI — create OIDC IdP + enable on app client</summary>
+<summary>AWS CLI - create OIDC IdP + enable on app client</summary>
 
 ```bash
 export POOL_ID=us-east-1_XXXXXXXXX
@@ -553,7 +553,7 @@ aws cognito-idp update-user-pool-client \
 
 ---
 
-## Part 5 — End-to-end test (browser)
+## Part 5 - End-to-end test (browser)
 
 ### Hosted UI URL template
 
@@ -582,7 +582,7 @@ https://<domain>.auth.<region>.amazoncognito.com/oauth2/authorize
 Cognito **creates a shadow user** in the pool (federated profile). Later tokens use Cognito signing keys even though password lives in Keycloak.
 
 <details>
-<summary>curl — token exchange (confidential client + secret)</summary>
+<summary>curl - token exchange (confidential client + secret)</summary>
 
 ```bash
 export DOMAIN='corp-kc-demo.auth.us-east-1.amazoncognito.com'
@@ -604,13 +604,13 @@ curl -sS -X POST "https://${DOMAIN}/oauth2/token" \
 
 ---
 
-## Part 6 — How EKS pods use this
+## Part 6 - How EKS pods use this
 
 Keycloak usually runs in namespace `keycloak` on the **same cluster** as your apps, but a **different** Deployment. App pods talk to **Cognito JWKS**; only Keycloak pods open **JDBC to RDS**.
 
 Separate three cases. Mixing them causes “why is my pod calling Keycloak?” confusion.
 
-### Case A — User-facing API in a pod (most common)
+### Case A - User-facing API in a pod (most common)
 
 ```text
 User browser ──► Cognito (+ Keycloak login once) ──► access_token (Cognito)
@@ -624,10 +624,10 @@ User browser ──► Cognito (+ Keycloak login once) ──► access_token (C
 | Check `iss`, `exp`, `aud`/`client_id`, scopes | Mount Keycloak admin password in the pod |
 | Cache JWKS from `https://cognito-idp.<region>.amazonaws.com/<poolId>/.well-known/jwks.json` | Assume `sub` format matches Keycloak’s raw `sub` without checking Cognito mapping |
 
-**Username in Cognito** is often `Keycloak_<keycloak-sub>`. Authorize on `cognito:groups`, custom claims, or app roles — not on Keycloak group names unless you map them (advanced: SAML or custom Lambda triggers).
+**Username in Cognito** is often `Keycloak_<keycloak-sub>`. Authorize on `cognito:groups`, custom claims, or app roles - not on Keycloak group names unless you map them (advanced: SAML or custom Lambda triggers).
 
 <details>
-<summary>Pod Deployment — pass pool metadata as env (app validates JWT)</summary>
+<summary>Pod Deployment - pass pool metadata as env (app validates JWT)</summary>
 
 ```yaml
 apiVersion: apps/v1
@@ -655,7 +655,7 @@ Your framework middleware downloads JWKS once, validates every request. Referenc
 
 </details>
 
-### Case B — Pod calls **AWS** APIs (S3, DynamoDB, etc.)
+### Case B - Pod calls **AWS** APIs (S3, DynamoDB, etc.)
 
 Use **IRSA** (IAM Roles for Service Accounts). Identity chain is **Kubernetes ServiceAccount → STS → IAM**, not Cognito and not Keycloak.
 
@@ -665,7 +665,7 @@ Pod ── projected SA token (aud=sts.amazonaws.com) ──► AssumeRoleWithWe
 
 Humans may still use Cognito+Keycloak for the **web app**; batch workers use IRSA. No federation change required.
 
-### Case C — Machine-to-machine HTTP (no human in browser)
+### Case C - Machine-to-machine HTTP (no human in browser)
 
 Keycloak federation does **not** help nightly jobs. Options:
 
@@ -678,7 +678,7 @@ Keycloak federation does **not** help nightly jobs. Options:
 Do **not** embed `alice` password in a pod to “simulate” federation.
 
 <details>
-<summary>Optional — ALB authenticate with Cognito (ingress annotation idea)</summary>
+<summary>Optional - ALB authenticate with Cognito (ingress annotation idea)</summary>
 
 ALB can authenticate users against Cognito before traffic hits pods. Users still federate to Keycloak at Cognito Hosted UI; pods receive requests only after ALB session is established (pattern varies by controller version). Prefer in-app JWT validation when you need fine-grained scopes inside the service.
 
@@ -715,8 +715,8 @@ ALB can authenticate users against Cognito before traffic hits pods. Users still
 
 ## References
 
-- [AWS workshop — third-party IdP authentication](https://catalog.workshops.aws/workshops/137bc34c-33d9-43a8-bf8f-2d4f6c22c333/en-US/60-third-party-idp-authentication)
-- [Cognito — OIDC identity providers](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-oidc-idp.html)
-- [Keycloak — Configuring the database](https://www.keycloak.org/server/db)
-- [Keycloak — Securing applications](https://www.keycloak.org/docs/latest/securing_apps/)
+- [AWS workshop - third-party IdP authentication](https://catalog.workshops.aws/workshops/137bc34c-33d9-43a8-bf8f-2d4f6c22c333/en-US/60-third-party-idp-authentication)
+- [Cognito - OIDC identity providers](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-oidc-idp.html)
+- [Keycloak - Configuring the database](https://www.keycloak.org/server/db)
+- [Keycloak - Securing applications](https://www.keycloak.org/docs/latest/securing_apps/)
 - [Amazon RDS for PostgreSQL](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html)
