@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-frontend
+  namespace: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-frontend
+  template:
+    metadata:
+      labels:
+        app: catalog-frontend
+    spec:
+      containers:
+        - name: catalog-frontend
+          image: 271995869266.dkr.ecr.us-east-1.amazonaws.com/app/frontend:v1
+          env:
+            - name: BACKEND_HOST
+              value: catalog.lattice.lab.internal
+            - name: BACKEND_SCHEME
+              value: http
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-frontend
+  namespace: frontend
+spec:
+  selector:
+    app: catalog-frontend
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: catalog-frontend-route
+  namespace: frontend
+spec:
+  parentRefs:
+    - name: lattice-gateway
+      namespace: networking
+      sectionName: http
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /fetch
+      backendRefs:
+        - name: catalog-frontend
+          port: 80
+---
+apiVersion: application-networking.k8s.aws/v1alpha1
+kind: TargetGroupPolicy
+metadata:
+  name: catalog-frontend-policy
+  namespace: frontend
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: catalog-frontend
+  protocol: HTTP
+  protocolVersion: HTTP1
+  healthCheck:
+    enabled: true
+    path: /health
+    port: 8080
+    intervalSeconds: 30
+    healthyThresholdCount: 3
+    unhealthyThresholdCount: 3

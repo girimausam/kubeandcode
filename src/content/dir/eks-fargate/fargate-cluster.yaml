@@ -1,0 +1,34 @@
+# eksctl: cluster with Fargate + one small managed node group (optional hybrid)
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: fargate-demo
+  region: us-east-1
+  version: "1.31"
+
+vpc:
+  cidr: 10.20.0.0/16
+  nat:
+    gateway: Single
+
+fargateProfiles:
+  - name: fp-apps
+    selectors:
+      - namespace: apps
+        labels:
+          compute: fargate
+  - name: fp-kube-system
+    selectors:
+      - namespace: kube-system
+        labels:
+          k8s-app: kube-dns
+
+managedNodeGroups:
+  - name: system-ng
+    instanceType: t3.small
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 2
+    labels:
+      role: system

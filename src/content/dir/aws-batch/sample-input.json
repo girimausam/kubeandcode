@@ -1,0 +1,8 @@
+{
+  "currency": "USD",
+  "invoices": [
+    { "id": "inv-001", "amount": 120.5 },
+    { "id": "inv-002", "amount": 89.0 },
+    { "id": "inv-003", "amount": 42.25 }
+  ]
+}

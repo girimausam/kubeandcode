@@ -1,0 +1,8 @@
+serviceAccount:
+  create: true
+  name: gateway-api-controller
+log:
+  level: info
+# Gateway name must match the VPC Lattice service network name (see Gateway API controller docs).
+# On EKS, pass account/VPC IDs as strings (helm --set-string) or omit them and let the chart read from the cluster.
+defaultServiceNetwork: lattice-gateway

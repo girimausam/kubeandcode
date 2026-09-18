@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-fargate
+  namespace: apps
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-fargate
+  template:
+    metadata:
+      labels:
+        app: hello-fargate
+        compute: fargate
+    spec:
+      containers:
+        - name: app
+          image: public.ecr.aws/docker/library/nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

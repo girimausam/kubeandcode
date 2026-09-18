@@ -1,0 +1,39 @@
+apiVersion: application-networking.k8s.aws/v1alpha1
+kind: TargetGroupPolicy
+metadata:
+  name: catalog-backend-policy
+  namespace: backend
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: catalog-backend
+  protocol: HTTP
+  protocolVersion: HTTP1
+  healthCheck:
+    enabled: true
+    path: /health
+    port: 8080
+    intervalSeconds: 30
+    healthyThresholdCount: 3
+    unhealthyThresholdCount: 3
+---
+apiVersion: application-networking.k8s.aws/v1alpha1
+kind: TargetGroupPolicy
+metadata:
+  name: catalog-frontend-policy
+  namespace: frontend
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: catalog-frontend
+  protocol: HTTP
+  protocolVersion: HTTP1
+  healthCheck:
+    enabled: true
+    path: /health
+    port: 8080
+    intervalSeconds: 30
+    healthyThresholdCount: 3
+    unhealthyThresholdCount: 3

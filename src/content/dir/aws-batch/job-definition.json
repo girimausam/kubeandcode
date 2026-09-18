@@ -1,0 +1,30 @@
+{
+  "jobDefinitionName": "invoice-summarizer",
+  "type": "container",
+  "platformCapabilities": ["FARGATE"],
+  "containerProperties": {
+    "image": "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/invoice-summarizer:latest",
+    "resourceRequirements": [
+      { "type": "VCPU", "value": "0.25" },
+      { "type": "MEMORY", "value": "512" }
+    ],
+    "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/BatchEcsTaskExecutionRole",
+    "jobRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/BatchInvoiceJobRole",
+    "environment": [
+      { "name": "INPUT_BUCKET", "value": "my-batch-demo-bucket" },
+      { "name": "INPUT_KEY", "value": "input/invoices.json" },
+      { "name": "OUTPUT_KEY", "value": "output/summary.json" }
+    ],
+    "networkConfiguration": {
+      "assignPublicIp": "ENABLED"
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/batch/job",
+        "awslogs-region": "<REGION>",
+        "awslogs-stream-prefix": "invoice-summarizer"
+      }
+    }
+  }
+}

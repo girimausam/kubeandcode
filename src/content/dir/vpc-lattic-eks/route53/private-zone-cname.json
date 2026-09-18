@@ -1,0 +1,18 @@
+{
+  "Comment": "CNAME catalog.lattice.lab.internal -> VPC Lattice backend FQDN",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "catalog.lattice.lab.internal",
+        "Type": "CNAME",
+        "TTL": 60,
+        "ResourceRecords": [
+          {
+            "Value": "REPLACE_WITH_BACKEND_LATTICE_FQDN"
+          }
+        ]
+      }
+    }
+  ]
+}
