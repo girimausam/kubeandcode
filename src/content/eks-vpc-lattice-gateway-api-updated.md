@@ -16,8 +16,8 @@ resources:
     url: https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/
   - title: Gateway API type — Gateway
     url: https://www.gateway-api-controller.eks.aws.dev/latest/api-types/gateway/
-  - title: Earlier guide (unchanged)
-    url: /eks-vpc-lattice-gateway-api/
+  # - title: Earlier guide (unchanged)
+  #   url: /eks-vpc-lattice-gateway-api/
 ---
 
 This page supersedes the **operational** details for new clusters; the [original Gateway API guide](/eks-vpc-lattice-gateway-api/) is unchanged. Manifests and apps live under [`dir/vpc-lattic-eks/`](./dir/vpc-lattic-eks/).
