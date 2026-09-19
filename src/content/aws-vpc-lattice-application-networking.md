@@ -119,10 +119,9 @@ Same service network. Cluster subnets in VPC-A.
 
 1. Build/push [`eks-inventory-service/Dockerfile`](./dir/vpc/vpc-lattice-networking/eks-inventory-service/Dockerfile).
 2. Apply [`eks-inventory-service/k8s/deployment.yaml`](./dir/vpc/vpc-lattice-networking/eks-inventory-service/k8s/deployment.yaml) (replace `REPLACE_WITH_ECR_IMAGE`). ClusterIP **80** → pod **8080**. `GET /health`, `GET /inventory/{sku}`.
-3. Install the [AWS Gateway API Controller](https://www.gateway-api-controller.eks.aws.dev/) in the cluster.
-4. `GatewayClass` `amazon-vpc-lattice`. `Gateway` whose spec points at service network `lattice-sn` (controller creates the Lattice service and associates it by default).
-5. `HTTPRoute` `parentRefs` → that Gateway; `backendRefs` → Kubernetes Service `inventory-service` port **80**.
-6. Pod / node security group: inbound TCP **8080** from `com.amazonaws.<region>.vpc-lattice`.
+3. Follow [VPC Lattice on EKS with Gateway API](/eks-vpc-lattice-gateway-api/): controller install, **`defaultServiceNetwork=lattice-sn`**, VPC association, Gateway, HTTPRoute, TargetGroupPolicy (`/health` on port **8080**).
+4. `HTTPRoute` `backendRefs` → Kubernetes Service `inventory-service` port **80**; path prefix **`/inventory`** matches the app.
+5. Pod / node security group: inbound TCP **8080** from `com.amazonaws.<region>.vpc-lattice` (plus prefix-list rules on the cluster/node SG per controller deploy guide).
 
 If you skip the controller: IP target group HTTP **8080** in VPC-A, Lattice service HTTP **80**, `create-service-network-service-association` to `lattice-sn`, and register pod IPs yourself (they change on reschedule).
 
@@ -184,4 +183,5 @@ Replace hosts in [`requests/sample-requests.sh`](./dir/vpc/vpc-lattice-networkin
 - [ECS and VPC Lattice](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-vpc-lattice.html)
 - [AWS Gateway API Controller (EKS)](https://www.gateway-api-controller.eks.aws.dev/)
 - [Resource gateways](https://docs.aws.amazon.com/vpc-lattice/latest/ug/resource-gateway.html)
-- [Path-based HTTP lab](./vpc-lattice.md)
+- [Path-based HTTP lab](/aws-vpc-lattice-path-routing-lab/)
+- [EKS Gateway API + Lattice](/eks-vpc-lattice-gateway-api/)

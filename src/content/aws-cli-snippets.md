@@ -56,6 +56,9 @@ aws ecr get-login-password --region <region> | \
 
 - [Kubernetes on AWS](/eks-cluster-operations-runbook) - EKS operations runbook
 - [ShopSphere on Amazon EKS](/eks-shopsphere-walkthrough/) - full walkthrough with Pod Identity
+- [AWS AI/ML (1) Text and chatbots](/aws-ai-ml-text-and-chatbots/) - Comprehend, Translate, Lex
+- [AWS AI/ML (2) Speech and documents](/aws-ai-ml-speech-vision-documents/) - Polly, Transcribe, Rekognition, Textract
+- [AWS AI/ML (3) Search and recommendations](/aws-ai-ml-search-and-recommendations/) - Kendra, Personalize
 
 ## FSx and EBS setup
 

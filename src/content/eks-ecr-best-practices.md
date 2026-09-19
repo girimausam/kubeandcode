@@ -1,6 +1,6 @@
 ---
-title: "Amazon ECR Best Practices for Amazon EKS"
-description: "Repository hardening for EKS workloads-scan on push, immutable production tags, and lifecycle policies for cost control."
+title: "Amazon ECR Best Practices"
+description: "Repository hardening workloads-scan on push, immutable production tags, and lifecycle policies for cost control."
 tags:
   - ecr
   - eks

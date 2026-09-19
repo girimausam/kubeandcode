@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deploy
+  namespace: claude
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      serviceAccountName: frontend-sa
+      containers:
+        - name: frontend-container
+          image: "<account_id>.dkr.ecr.us-east-1.amazonaws.com/frontend:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: SSM_PARAM_PREFIX
+              value: "/apps/frontend"
+            - name: WEBHOOK_SECRET_ID
+              value: "frontend/webhook-api-key"
+            # matches the volumeMount below - if these two disagree the
+            # /status EFS check will pass but be writing to non-EFS disk
+            - name: EFS_MOUNT_PATH
+              value: "/efs"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secret   # produced by the SealedSecret
+                  key: db-password
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+            limits:
+              cpu: "512m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          volumeMounts:
+            - name: app-efs-storage
+              mountPath: /efs
+      volumes:
+        - name: app-efs-storage
+          persistentVolumeClaim:
+            claimName: app-efs-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+  namespace: claude
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: frontend
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-sa
+  namespace: claude
+  annotations:
+    # replace with the real FrontendAppRole ARN - this is what grants the
+    # pod its S3/DynamoDB/SSM/EFS permissions via IRSA, with no static keys
+    eks.amazonaws.com/role-arn: "arn:aws:iam::<account_id>:role/FrontendAppRole"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-alb
+  namespace: claude
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: "frontend-alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: "/health"
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: app-service
+                port:
+                  number: 8080
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: app-efs-sc
+provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: fs-XXXXXXXX          # replace with your real EFS filesystem id
+  directoryPerms: "0755"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-efs-claim
+  namespace: claude
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: app-efs-sc
+  resources:
+    requests:
+      storage: 5Gi

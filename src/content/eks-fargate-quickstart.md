@@ -1,6 +1,6 @@
 ---
 title: "Run Workloads on AWS Fargate with Amazon EKS"
-description: "Quick start for EKS Fargate profiles—pod execution role, private subnets, eksctl, sample Deployment, networking pitfalls."
+description: "Quick start for EKS Fargate profiles-pod execution role, private subnets, eksctl, sample Deployment, networking pitfalls."
 tags:
   - eks
   - fargate
@@ -47,7 +47,7 @@ flowchart TB
 | Private subnets | Required for Fargate pods (with NAT or VPC endpoints) |
 | Cluster security group | Traffic between control plane and pod ENIs |
 
-Manifests: [`dir/eks-fargate/`](./dir/eks-fargate/) — [`fargate-cluster.yaml`](./dir/eks-fargate/fargate-cluster.yaml), [`deployment.yaml`](./dir/eks-fargate/deployment.yaml).
+Manifests: [`dir/eks-fargate/`](./dir/eks-fargate/) - [`fargate-cluster.yaml`](./dir/eks-fargate/fargate-cluster.yaml), [`deployment.yaml`](./dir/eks-fargate/deployment.yaml).
 
 ## Prerequisites
 
@@ -60,7 +60,7 @@ export AWS_REGION=us-east-1
 export CLUSTER_NAME=fargate-demo
 ```
 
-## Step 1 — Pod execution role
+## Step 1 - Pod execution role
 
 Fargate needs a role trusted by `eks-fargate-pods.amazonaws.com` with **`AmazonEKSFargatePodExecutionRolePolicy`**.
 
@@ -87,9 +87,9 @@ aws iam attach-role-policy \
   --policy-arn arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy
 ```
 
-## Step 2 — Create cluster with Fargate profiles
+## Step 2 - Create cluster with Fargate profiles
 
-### Option A — eksctl config (recommended)
+### Option A - eksctl config (recommended)
 
 Edit region/version in [`fargate-cluster.yaml`](./dir/eks-fargate/fargate-cluster.yaml), then:
 
@@ -99,11 +99,11 @@ eksctl create cluster -f src/content/dir/eks-fargate/fargate-cluster.yaml
 
 This example:
 
-- **`fp-apps`** — pods in namespace `apps` with label `compute=fargate`
-- **`fp-kube-system`** — CoreDNS (`k8s-app=kube-dns`) on Fargate
-- **`system-ng`** — small managed node group for controllers/DaemonSets that cannot run on Fargate
+- **`fp-apps`** - pods in namespace `apps` with label `compute=fargate`
+- **`fp-kube-system`** - CoreDNS (`k8s-app=kube-dns`) on Fargate
+- **`system-ng`** - small managed node group for controllers/DaemonSets that cannot run on Fargate
 
-### Option B — Fargate-only cluster flag
+### Option B - Fargate-only cluster flag
 
 ```bash
 eksctl create cluster \
@@ -114,7 +114,7 @@ eksctl create cluster \
 
 That seeds profiles for **`default`** and **`kube-system`** only. Add more profiles for app namespaces.
 
-### Option C — Existing cluster
+### Option C - Existing cluster
 
 ```bash
 eksctl create fargateprofile \
@@ -124,9 +124,9 @@ eksctl create fargateprofile \
   --labels compute=fargate
 ```
 
-Profiles are **immutable** — change selectors by creating a new profile and deleting the old one after workloads move.
+Profiles are **immutable** - change selectors by creating a new profile and deleting the old one after workloads move.
 
-## Step 3 — Security groups and subnets
+## Step 3 - Security groups and subnets
 
 | Rule | Detail |
 | --- | --- |
@@ -136,7 +136,7 @@ Profiles are **immutable** — change selectors by creating a new profile and de
 
 No extra inbound rules for a stateless `nginx` demo. For ALB Ingress, use the [AWS Load Balancer Controller](./eks-deploy-app-alb-autoscaling.md) and target-type `ip` on Fargate.
 
-## Step 4 — Deploy a sample app
+## Step 4 - Deploy a sample app
 
 Create namespace and apply the deployment (labels must match the Fargate profile):
 
@@ -160,7 +160,7 @@ kubectl -n apps run -it --rm debug --image=public.ecr.aws/docker/library/busybox
   --restart=Never -- wget -qO- http://hello-fargate.apps.svc.cluster.local
 ```
 
-## Step 5 — CoreDNS on Fargate
+## Step 5 - CoreDNS on Fargate
 
 If app pods stay `Pending` or DNS fails:
 
@@ -208,11 +208,5 @@ eksctl delete cluster --name "$CLUSTER_NAME" --region "$AWS_REGION"
 | **Fargate profiles** | Profiles + pod sizing | Stateless apps, batch jobs, no node patching |
 | **Managed node groups** | AMIs, scaling, DaemonSets | System agents, GPUs, EBS-heavy workloads |
 | **EKS Auto Mode** | Less node plumbing | New clusters wanting AWS-managed compute (see [EKS getting started](./eks-getting-started.md)) |
-
-## Next steps
-
-- [AWS Load Balancer Controller + Ingress](./eks-deploy-app-alb-autoscaling.md) for public HTTP
-- IRSA for S3/DynamoDB from Fargate pods
-- Separate profiles per environment (`staging` / `production`) with label selectors
 
 Official walkthrough: [Get started with AWS Fargate for your cluster](https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html).

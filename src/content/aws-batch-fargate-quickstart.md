@@ -1,6 +1,6 @@
 ---
 title: "AWS Batch on Fargate: Quick Start Guide"
-description: "Step-by-step setup for AWS Batch with Fargate—IAM, security groups, ECR job image, compute environment, queue, submit job, pitfalls."
+description: "Step-by-step setup for AWS Batch with Fargate-IAM, security groups, ECR job image, compute environment, queue, submit job, pitfalls."
 tags:
   - aws
   - batch
@@ -21,8 +21,6 @@ resources:
 ---
 
 Quick path to run **AWS Batch** on **Fargate**: one container job that reads invoice JSON from S3 and writes a summary back. Same flow works for ETL, rendering, or any batch workload.
-
-**Time:** ~25–30 minutes · **Cost:** pennies if you tear down right away (Fargate per-second billing).
 
 ## What you build
 
@@ -84,7 +82,7 @@ aws s3 cp src/content/dir/aws-batch/sample-input.json \
   s3://my-batch-demo-bucket/input/invoices.json
 ```
 
-## Step 1 — Security group
+## Step 1 - Security group
 
 Fargate tasks get ENIs in your subnets. The group must allow **outbound** traffic your task needs.
 
@@ -122,7 +120,7 @@ export SUBNET_IDS=$(aws ec2 describe-subnets \
 
 > **Production:** Prefer **private subnets**, `assignPublicIp: DISABLED`, NAT gateway or [VPC endpoints](https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html) for ECR, S3, and CloudWatch Logs. Public IP on tasks is fine for learning only.
 
-## Step 2 — IAM roles
+## Step 2 - IAM roles
 
 ### Execution role (required for Fargate)
 
@@ -149,7 +147,7 @@ aws iam attach-role-policy \
   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 ```
 
-### Job role (task role — S3 access)
+### Job role (task role - S3 access)
 
 Trust **ECS tasks**; inline policy for the demo bucket only.
 
@@ -188,7 +186,7 @@ aws iam put-role-policy \
 
 Your user/role still needs Batch API permissions (e.g. `AWSBatchFullAccess` for the lab, or a tighter custom policy).
 
-## Step 3 — Build image and push to ECR
+## Step 3 - Build image and push to ECR
 
 ```bash
 export ECR_REPO=invoice-summarizer
@@ -205,10 +203,18 @@ docker tag "$ECR_REPO:latest" \
 docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest"
 ```
 
-## Step 4 — Compute environment
+## Step 4 - Compute environment
 
 Managed Fargate environment (aligned with [AWS CLI tutorial](https://docs.aws.amazon.com/batch/latest/userguide/getting-started-with-fargate-using-the-aws-cli.html)):
 
+1.  Go to **AWS Batch > Compute environments > Create**.
+2.  Name: `${PROJECT}-fargate`.
+3.  Provisioning model: **Fargate**.
+4.  Network configuration: Select your VPC, the subnets you noted earlier, and the Security Group created in Step 1.
+5.  Click **Create**. Wait for the status to turn **VALID**.
+
+<details>
+<summary>Create Compute Environment</summary>
 ```bash
 aws batch create-compute-environment \
   --compute-environment-name "${PROJECT}-fargate" \
@@ -221,10 +227,20 @@ aws batch describe-compute-environments \
   --query 'computeEnvironments[0].status' \
   --output text
 ```
+</details>
 
 Wait until status is **`VALID`** (not `CREATING` or `INVALID`).
 
-## Step 5 — Job queue
+## Step 5 - Job queue
+
+1.  Go to **AWS Batch > Job queues > Create**.
+2.  Name: `${PROJECT}-queue`.
+3.  Priority: `10`.
+4.  Connected compute environments: Select the `${PROJECT}-fargate` environment created in Step 4.
+5.  Click **Create**.
+
+<details>
+<summary>Create Job Queue</summary>
 
 ```bash
 aws batch create-job-queue \
@@ -233,12 +249,31 @@ aws batch create-job-queue \
   --priority 10 \
   --compute-environment-order "order=1,computeEnvironment=${PROJECT}-fargate"
 ```
+</details>
 
 All compute environments on one queue must share the same provisioning model (do not mix Fargate and EC2 on the same queue).
 
-## Step 6 — Job definition
+## Step 6 - Job definition
 
 Register from the template ([`job-definition.json`](./dir/aws-batch/job-definition.json)) after substituting account, region, and image:
+
+
+1.  Go to **AWS Batch > Job definitions > Create**.
+2.  Name: `invoice-summarizer`.
+3.  Platform compatibility: **Fargate**.
+4.  Container details:
+    *   **Image:** Paste your ECR URI from Step 3.
+    *   **Execution role:** Select `BatchEcsTaskExecutionRole`.
+    *   **Job role:** Select `BatchInvoiceJobRole`.
+    *   **Resource requirements:** vCPU `0.25`, Memory `512 MB`.
+    *   **Environment variables:** Add `INPUT_BUCKET`, `INPUT_KEY`, and `OUTPUT_KEY` with their respective values.
+    *   **Network configuration:** Check **Assign public IP**.
+    *   **Log configuration:** Driver `awslogs`, Options: `awslogs-group: /aws/batch/job`, `awslogs-region: us-east-1`.
+5.  Click **Create**.
+
+
+<details>
+<summary>Register Job Definition</summary>
 
 ```bash
 export IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest"
@@ -271,10 +306,21 @@ aws batch register-job-definition \
     }
   }"
 ```
+</details>
 
 Fargate minimums: **0.25 vCPU** and **512 MiB** memory. Use valid [CPU/memory pairs](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html).
 
-## Step 7 — Submit and monitor
+## Step 7 - Submit and monitor
+
+1.  Go to **AWS Batch > Jobs > Submit job**.
+2.  Job name: `invoice-run-1`.
+3.  Job queue: Select `${PROJECT}-queue`.
+4.  Job definition: Select `invoice-summarizer`.
+5.  Click **Submit**.
+6.  Refresh the **Jobs** list to see the status change from `SUBMITTED` → `RUNNING` → `SUCCEEDED`.
+
+<details>
+<summary>Submit Job</summary>
 
 ```bash
 export JOB_ID=$(aws batch submit-job \
@@ -285,9 +331,11 @@ export JOB_ID=$(aws batch submit-job \
 
 echo "Job ID: $JOB_ID"
 
+# Check status
 aws batch describe-jobs --jobs "$JOB_ID" \
   --query 'jobs[0].status' --output text
 ```
+</details>
 
 Typical states: `SUBMITTED` → `PENDING` → `RUNNABLE` → `STARTING` → `RUNNING` → `SUCCEEDED` | `FAILED`.
 
@@ -298,38 +346,59 @@ aws batch describe-jobs --jobs "$JOB_ID" \
   --query 'jobs[0].{status:status,reason:statusReason,container:container}'
 ```
 
-## Step 8 — Verify output
+## Step 8 - Verify output
+
+1.  Go to **S3** and open `my-batch-demo-bucket/output/summary.json` to see the result.
+2.  Go to **CloudWatch > Log groups > /aws/batch/job**. Click the latest stream to view stdout/stderr from your container.
+
+<details>
+<summary>Check Results</summary>
 
 ```bash
+# Check S3 output
 aws s3 cp s3://my-batch-demo-bucket/output/summary.json -
 
-aws batch describe-jobs --jobs "$JOB_ID" \
-  --query 'jobs[0].attempts[0].container.logStreamName' --output text
+# Check Logs
+LOG_STREAM=$(aws batch describe-jobs --jobs "$JOB_ID" \
+  --query 'jobs[0].attempts[0].container.logStreamName' --output text)
 
-# Then:
-# aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name <stream>
+aws logs get-log-events \
+  --log-group-name /aws/batch/job \
+  --log-stream-name "$LOG_STREAM"
 ```
+</details>
 
 Log group `/aws/batch/job` is created when the first job emits logs.
 
 ## Cleanup (order matters)
 
+<details>
+<summary>Delete Resources</summary>
+
 ```bash
+# 1. Disable and Delete Queue
 aws batch update-job-queue --job-queue "${PROJECT}-queue" --state DISABLED
 aws batch delete-job-queue --job-queue "${PROJECT}-queue"
 
+# 2. Disable and Delete Compute Environment
 aws batch update-compute-environment --compute-environment "${PROJECT}-fargate" --state DISABLED
 aws batch delete-compute-environment --compute-environment "${PROJECT}-fargate"
 
+# 3. Delete IAM Roles
 aws iam delete-role-policy --role-name BatchInvoiceJobRole --policy-name S3InvoiceAccess
 aws iam delete-role --role-name BatchInvoiceJobRole
 aws iam detach-role-policy --role-name BatchEcsTaskExecutionRole \
   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 aws iam delete-role --role-name BatchEcsTaskExecutionRole
 
+# 4. Delete S3 Bucket
 aws s3 rb s3://my-batch-demo-bucket --force
+
+# 5. Delete Security Group
 aws ec2 delete-security-group --group-id "$BATCH_SG_ID"
 ```
+</details>
+
 
 Deregister job definitions separately if you want them gone (`aws batch deregister-job-definition`).
 
@@ -354,12 +423,5 @@ Deregister job definitions separately if you want them gone (`aws batch deregist
 | Ops | No instances to manage | You manage AMI, scaling, ECS agent |
 | Best for | Short jobs, quick start, variable sizes | GPU, very large memory, long runtimes, Spot fleets |
 | Networking | Per-task ENI in your subnets | Instance ENI + host mode considerations |
-
-## Next steps
-
-- Array jobs and job dependencies for fan-out/fan-in
-- Multiple queues (high/low priority) sharing one compute environment
-- EventBridge or Step Functions to submit jobs on a schedule or after S3 upload
-- CloudFormation/CDK for repeatable environments
 
 Official walkthrough (busybox, no ECR): [Getting started with AWS Batch and Fargate using the AWS CLI](https://docs.aws.amazon.com/batch/latest/userguide/getting-started-with-fargate-using-the-aws-cli.html).
