@@ -9,7 +9,7 @@
 
 Flow: client → Lattice → frontend → `http://catalog.lattice.lab.internal/catalog/...` (PHZ CNAME → backend Lattice FQDN) → Lattice → backend.
 
-Extended reference: [VPC Lattice on EKS with Gateway API](/eks-vpc-lattice-gateway-api/).
+Extended reference: [Gateway API guide (updated)](/eks-vpc-lattice-gateway-api-updated/) · [original](/eks-vpc-lattice-gateway-api/).
 
 ---
 
@@ -45,6 +45,13 @@ aws ec2 authorize-security-group-ingress --region "${AWS_REGION}" \
 aws ec2 authorize-security-group-ingress --region "${AWS_REGION}" \
   --group-id "${CLUSTER_SG}" \
   --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID}}],IpProtocol=-1" 2>/dev/null || true
+```
+
+**Do not skip TCP 8080.** Without prefix-list ingress on **8080**, Lattice returns **`ConnectionTimeout`** on pod IP even when `curl localhost:8080/health` is **200** inside the pod. Details: [updated Gateway API guide](/eks-vpc-lattice-gateway-api-updated/#unhealthy-targets-connectiontimeout).
+
+```bash
+aws ec2 describe-security-groups --group-ids "${CLUSTER_SG}" --region "${AWS_REGION}" \
+  --query 'SecurityGroups[0].IpPermissions[?FromPort==`8080`]'
 ```
 
 ---
@@ -251,6 +258,7 @@ vpc-lattic-eks/
 | Symptom | Check |
 | --- | --- |
 | Controller crash | Pod Identity association + `VPCLatticeControllerIAMPolicy` |
-| Unhealthy targets | TargetGroupPolicy `/health` on port **8080**; SG prefix list |
+| Unhealthy targets (`ConnectionTimeout`) | **Step 1** TCP **8080** from vpc-lattice prefix list on `clusterSecurityGroupId`; plus TargetGroupPolicy `/health` on **8080** — see [troubleshooting](/eks-vpc-lattice-gateway-api-updated/#unhealthy-targets-connectiontimeout) |
+| Pod health OK, Lattice UNHEALTHY | Usually missing Step 1 SG rule, not wrong health path |
 | Frontend 502 | PHZ CNAME → correct backend Lattice FQDN; zone associated with VPC |
 | Gateway not programmed | `defaultServiceNetwork=lattice-sn`; VPC association **ACTIVE** |

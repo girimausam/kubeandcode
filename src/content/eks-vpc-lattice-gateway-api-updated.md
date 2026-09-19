@@ -10,14 +10,14 @@ tags:
   - pod-identity
   - aws
   - notes
-date: 2026-09-18
+date: 2026-09-20
 resources:
   - title: Controller installation (EKS)
     url: https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/
   - title: Gateway API type — Gateway
     url: https://www.gateway-api-controller.eks.aws.dev/latest/api-types/gateway/
-  # - title: Earlier guide (unchanged)
-  #   url: /eks-vpc-lattice-gateway-api/
+  - title: Earlier guide (unchanged)
+    url: /eks-vpc-lattice-gateway-api/
 ---
 
 This page supersedes the **operational** details for new clusters; the [original Gateway API guide](/eks-vpc-lattice-gateway-api/) is unchanged. Manifests and apps live under [`dir/vpc-lattic-eks/`](./dir/vpc-lattic-eks/).
@@ -34,6 +34,7 @@ This page supersedes the **operational** details for new clusters; the [original
 | Service network | `defaultServiceNetwork` / `lattice-sn` | **Gateway `metadata.name` = VPC Lattice service network name** (e.g. Gateway `lattice-gateway` → SN `lattice-gateway`) |
 | Helm account ID | Numeric `awsAccountId` in values | Use **`helm --set-string awsAccountId=...`** or omit on EKS — bare numbers can become `2.71e+11` in pod env |
 | HTTPRoute errors | Generic troubleshooting | **IMDS timeout** on `Resource Groups Tagging API` / target group synthesis → missing Pod Identity/IRSA on controller SA |
+| Unhealthy Lattice targets | Often blamed on health path only | **`ConnectionTimeout`** on pod IP **:8080** → missing **Step 1** SG rule (validated `lab-cluster` 2026-09-19) |
 
 One VPC can be associated with **one** service network at a time. Plan SN name before associating the cluster VPC.
 
@@ -77,6 +78,15 @@ PREFIX_LIST_ID=$(aws ec2 describe-managed-prefix-lists --region "${AWS_REGION}" 
 aws ec2 authorize-security-group-ingress --region "${AWS_REGION}" \
   --group-id "${CLUSTER_SG}" \
   --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID}}],IpProtocol=tcp,FromPort=8080,ToPort=8080" 2>/dev/null || true
+```
+
+**Required before healthy targets.** Skipping this step leaves targets **UNHEALTHY** even when `TargetGroupPolicy` sets `GET /health` on **8080** and `curl localhost:8080/health` inside the pod returns **200**. Lattice probes **pod IP** from the managed prefix list, not loopback.
+
+Confirm the rule exists on **`clusterSecurityGroupId`** (on `lab-cluster`, worker nodes used only this SG):
+
+```bash
+aws ec2 describe-security-groups --group-ids "${CLUSTER_SG}" --region "${AWS_REGION}" \
+  --query 'SecurityGroups[0].IpPermissions[?FromPort==`8080`]'
 ```
 
 ---
@@ -217,7 +227,30 @@ curl -s "http://${BACKEND_FQDN}/catalog/item-1"
 | `Service network lattice-gateway` not found | Create SN **named like the Gateway**; associate cluster VPC (only one SN per VPC) |
 | `awsAccountId` looks like `2.71e+11` in pod env | `helm --set-string awsAccountId=...` |
 | HTTPRoute stuck; no `lattice-assigned-domain-name` | Fix controller IAM + SN; wait for `DeploySucceed` event |
-| 503 / unhealthy targets | Apply **TargetGroupPolicy**; SG allows Lattice prefix list to **8080** |
+| 503 / unhealthy targets | Apply **TargetGroupPolicy** (`/health`, port **8080**); run **§1** SG ingress on **8080** |
+| Pod `/health` OK, Lattice **UNHEALTHY** | See **Unhealthy targets (`ConnectionTimeout`)** below |
+
+### Unhealthy targets (`ConnectionTimeout`)
+
+**Observed on `lab-cluster`:** TG `k8s-frontend-catalog-frontend-phtiedlppg` (`tg-022f060321eee55ce`), pod `catalog-frontend-7bbfdc9687-plqvk`.
+
+| Check | Inside pod | Lattice |
+| --- | --- | --- |
+| `GET /health` on **8080** | **200** (`localhost`) | **`ConnectionTimeout`** to **pod IP:8080** |
+
+**Cause:** cluster SG had no inbound **TCP 8080** from `com.amazonaws.${AWS_REGION}.vpc-lattice` prefix list. Health path/port from `TargetGroupPolicy` were already correct.
+
+**Fix:** run **§1** (same as analytics-style labs). After SG change, wait ~**90s** (3×30s healthy checks) before expecting **HEALTHY**.
+
+```bash
+TG_ID=$(aws vpc-lattice list-target-groups --region "${AWS_REGION}" \
+  --query "items[?name=='k8s-frontend-catalog-frontend-phtiedlppg'].id" --output text)
+
+aws vpc-lattice list-targets --target-group-identifier "${TG_ID}" --region "${AWS_REGION}" \
+  --query 'items[*].{ip:id,port:port,status:status,reason:reasonCode}'
+# Before fix: UNHEALTHY, reasonCode ConnectionTimeout
+# After §1: HEALTHY
+```
 
 ```bash
 aws eks list-pod-identity-associations --cluster-name lab-cluster --region us-east-1
