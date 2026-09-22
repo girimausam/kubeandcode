@@ -50,6 +50,10 @@ aws bedrock-agent-runtime invoke-agent \
 
 Otherwise prefer **Converse + Knowledge Base Retrieve** from Part 2.
 
+### AgentCore (Harness, Gateway, Memory)
+
+For **production agents** on **Amazon Bedrock AgentCore**—console **Build** items (Harness, Runtime, Gateways, Memory, Policy, Identity, built-in Browser/Code Interpreter/KB)—see the step-by-step guide: [Amazon Bedrock AgentCore in Production](./bedrock-agentcore-production-guide.md).
+
 ---
 
 ## IAM and troubleshooting
