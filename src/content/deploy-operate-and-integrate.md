@@ -12,7 +12,7 @@ tags:
 
 Run Bedrock in production: **Bedrock Agents** (when useful), **IAM** and **troubleshooting**, and wiring **Lambda**, **API Gateway**, **S3**, **DynamoDB**, **OpenSearch**, and **EventBridge**.
 
-**Previous:** [Part 2 - Embeddings and RAG](./02-embeddings-and-rag.md) · [Index](./README.md)
+**Previous:** [Part 2 - Embeddings and RAG](./embeddings-and-rag.md) · **Next:** [Part 4 - AgentCore in production](./bedrock-agentcore-production-guide.md)
 
 ---
 
@@ -49,6 +49,10 @@ aws bedrock-agent-runtime invoke-agent \
 </details>
 
 Otherwise prefer **Converse + Knowledge Base Retrieve** from Part 2.
+
+### AgentCore (Harness, Gateway, Memory)
+
+For **production agents** on **Amazon Bedrock AgentCore**—console **Build** items (Harness, Runtime, Gateways, Memory, Policy, Identity, built-in Browser/Code Interpreter/KB), **IAM roles**, and **Lambda/API Gateway integration**—see [Part 4 - Amazon Bedrock AgentCore in Production](./bedrock-agentcore-production-guide.md).
 
 ---
 

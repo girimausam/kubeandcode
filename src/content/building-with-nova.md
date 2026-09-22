@@ -12,7 +12,7 @@ tags:
 
 Amazon **Nova** is Amazon's family of foundation models on **Amazon Bedrock**. This part covers inference (**Converse**, **InvokeModel**, streaming), **tool calling**, **multimodal** inputs, and **structured JSON** output.
 
-**Next:** [Part 2 - Embeddings and RAG](./02-embeddings-and-rag.md) · [Part 3 - Deploy, operate, integrate](./03-deploy-operate-and-integrate.md)
+**Next:** [Part 2 - Embeddings and RAG](./embeddings-and-rag.md) · [Part 3 - Deploy, operate, integrate](./deploy-operate-and-integrate.md) · [Part 4 - AgentCore](./bedrock-agentcore-production-guide.md)
 
 ---
 
