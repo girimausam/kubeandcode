@@ -61,6 +61,9 @@ Official hub-and-spoke diagram: [AWS Transit Gateway](https://docs.aws.amazon.co
 | GitOps / CD | Argo CD, pipelines to cluster | Cluster secret vs repo creds; sync waves | [Argo CD install](./eks-argocd-install.md) |
 | Node autoscaling | Pending pods get EC2 | Cluster Autoscaler and Karpenter both acting on the same pods | [Cluster Autoscaler and Karpenter](./eks-cluster-autoscaler-and-karpenter.md) |
 | ECS queue workers | Tasks follow SQS depth | Scaling on CPU or on messages sent, not visible backlog | [ECS autoscaling from SQS](./ecs-autoscaling-sqs-queue-depth.md) |
+| AWS Batch | Queues, Fargate or EC2, fair-share | Legacy BEST_FIT, console settings mistaken for resources | [Batch console](./aws-batch-console-guide.md) |
+| CloudWatch agent | Memory and disk on EC2 | Alarming AWS/EC2 for memory | [CloudWatch agent](./cloudwatch-agent-ec2-metrics.md) |
+| Log search | Insights, Live Tail, field indexes | Filter syntax used in the wrong search box | [Search CloudWatch Logs](./cloudwatch-logs-search.md) |
 
 ---
 

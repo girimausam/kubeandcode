@@ -22,6 +22,8 @@ resources:
 
 Quick path to run **AWS Batch** on **Fargate**: one container job that reads invoice JSON from S3 and writes a summary back. Same flow works for ETL, rendering, or any batch workload.
 
+Current console, fair-share, and consumable resources: [AWS Batch in the current console](./aws-batch-console-guide.md).
+
 ## What you build
 
 ```mermaid
