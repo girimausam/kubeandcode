@@ -36,6 +36,8 @@ This post is written for teams shipping **multi-service Fargate or EC2 clusters*
 
 **Shorter reference:** [ECS Service Connect vs Cloud Map](./aws-ecs-service-connect-vs-discovery.md) (troubleshooting cheat sheet).
 
+**Full example:** [ShopFlow on ECS — end-to-end walkthrough](./ecs-shopflow-production-walkthrough.md) (four services, ALB, EFS, Lambda settlement).
+
 ---
 
 ## Mental model: three layers
