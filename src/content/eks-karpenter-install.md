@@ -13,6 +13,8 @@ tags:
 
 Install [Karpenter](https://karpenter.sh/) on an **existing** Amazon EKS cluster so it can provision EC2 nodes when pods are unschedulable.
 
+How this differs from Cluster Autoscaler, and how not to run both on the same pods: [EKS Cluster Autoscaler and Karpenter](./eks-cluster-autoscaler-and-karpenter.md).
+
 ## Prerequisites
 
 - `aws`, `kubectl`, `eksctl`, and `helm` installed and on your `PATH`
