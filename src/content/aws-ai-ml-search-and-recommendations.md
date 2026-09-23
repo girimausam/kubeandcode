@@ -1,5 +1,5 @@
 ---
-title: "AWS AI/ML: Search and Recommendations (Kendra, Personalize)"
+title: "AI/ML: Search and Recommendations (Kendra, Personalize)"
 description: "Console-first guide to Amazon Kendra and Amazon Personalize. AWS CLI in collapsible sections."
 tags:
   - aws

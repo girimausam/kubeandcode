@@ -1,5 +1,5 @@
 ---
-title: "AWS Batch in the current console"
+title: "Batch in the current console"
 description: "Current AWS Batch: wizard, Fargate and EC2 environments, fair-share scheduling, consumable resources, job definitions, and the console settings that are not resources."
 tags:
   - aws
@@ -10,7 +10,7 @@ tags:
   - cloudwatch
 ---
 
-# AWS Batch in the current console
+# Batch in the current console
 
 The Batch console in the screenshot is the current one: **Dashboard, Jobs, Job definitions, Job queues, Environments, Consumable resources, Scheduling policies, Wizard**, then a separate **Console settings** group. Console settings only change what the UI shows. They do not create a queue or a compute environment.
 

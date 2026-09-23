@@ -1,5 +1,5 @@
 ---
-title: "AWS security implementation patterns (console)"
+title: "Security implementation patterns (console)"
 description: "Organization guardrails, KMS, logging, detective controls, and network isolation - patterns commonly combined in production and system-design exercises."
 tags:
  - aws
@@ -12,7 +12,7 @@ tags:
  - devops
 ---
 
-# AWS security implementation patterns (console)
+# Security implementation patterns (console)
 
 Security in AWS is **layered**: identity, network, data encryption, detective controls, and governance. System designs should name **who can do what** and **what is logged**.
 

@@ -1,5 +1,5 @@
 ---
-title: "Amazon Bedrock AgentCore in Production"
+title: "Bedrock AgentCore in Production"
 description: "Part 4 — AgentCore Build console (Harness, Runtime, Gateways, Memory, Policy, Identity), IAM roles, and Lambda/compute integration for production agents."
 tags:
   - aws

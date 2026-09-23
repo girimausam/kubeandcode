@@ -1,5 +1,5 @@
 ---
-title: "Amazon DocumentDB: TLS in Transit and Connecting with the CA Bundle"
+title: "DocumentDB: TLS in Transit and Connecting with the CA Bundle"
 description: "Enable and verify TLS to DocumentDB using global-bundle.pem—mongosh, Python, and Node examples, cluster parameters, CA rotation, and console checklist."
 date: 2026-09-22
 tags:

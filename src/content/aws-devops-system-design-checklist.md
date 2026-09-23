@@ -1,5 +1,5 @@
 ---
-title: "AWS system design & DevOps prep checklist"
+title: "System design and DevOps prep checklist"
 description: "Industry-level AWS topics for full-system implementations - commonly missed items, service combinations, and links to console-focused reference posts on this site."
 tags:
  - aws
@@ -11,7 +11,7 @@ tags:
  - networking
 ---
 
-# AWS system design & DevOps prep checklist
+# System design and DevOps prep checklist
 
 Use this as a **coverage map** before a long hands-on build (multi-hour system tests, production cutovers, or architecture reviews). Items marked **missed** are frequent gap areas in real projects - not obscure trivia.
 

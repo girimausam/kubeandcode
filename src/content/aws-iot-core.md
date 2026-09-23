@@ -1,5 +1,5 @@
 ---
-title: "AWS IoT Core: MQTT, Policies, and Rules Engine"
+title: "IoT Core: MQTT, Policies, and Rules Engine"
 description: "Thing, X.509 cert, policy, MQTT publish/subscribe, rules to Lambda, shadows, and common connect/policy failures."
 tags:
   - iot
@@ -20,7 +20,7 @@ links:
     url: https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html
 ---
 
-# AWS IoT Core
+# IoT Core
 
 **Device path:** register **Thing** → create **X.509 cert** → **IoT policy** on cert → MQTT over TLS to **data endpoint** → **topics** → optional **Rules** → Lambda / DynamoDB / SQS / Timestream.
 

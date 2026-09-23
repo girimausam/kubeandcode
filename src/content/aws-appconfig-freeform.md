@@ -1,5 +1,5 @@
 ---
-title: "AWS AppConfig: Freeform Configuration"
+title: "AppConfig: Freeform Configuration"
 description: "Daily playbook: Freeform profile, JSON Schema validators, hosted versions, deployment (release) with bake-time rollback."
 tags:
   - appconfig
@@ -17,7 +17,7 @@ links:
     url: https://docs.aws.amazon.com/appconfig/latest/userguide/appconfig-creating-deployment-strategy.html
 ---
 
-# AWS AppConfig - Freeform
+# AppConfig - Freeform
 
 Order: **Application** → **Environment** (`dev` / `prod`) → **Configuration profile** (`AWS.Freeform`) → **Hosted version** → **Start deployment**.
 

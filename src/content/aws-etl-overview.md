@@ -1,5 +1,5 @@
 ---
-title: "AWS ETL in Brief: Glue, DMS, EMR, and When to Use Each"
+title: "ETL in Brief: Glue, DMS, EMR, and When to Use Each"
 description: "A concise map of extract-transform-load on AWS: service choices, DocumentDB-to-lake patterns, Glue workflows, and ELT vs ETL."
 date: 2026-09-22
 tags:

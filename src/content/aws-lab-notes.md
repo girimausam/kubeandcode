@@ -1,5 +1,5 @@
 ---
-title: "AWS Lab Notes: EventBridge, RDS, Backup, and JAM"
+title: "Lab Notes: EventBridge, RDS, Backup, and JAM"
 description: "Lab notes: RDS logs, EventBridge, Backup, SSM, jam EKS incident fixes."
 tags:
   - aws

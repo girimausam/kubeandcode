@@ -1,5 +1,5 @@
 ---
-title: "AWS AppConfig - production console guide"
+title: "AppConfig - production console guide"
 description: "Hosted configuration and feature flags - applications, environments, deployment strategies, and safe rollouts for live systems."
 tags:
  - aws
@@ -9,7 +9,7 @@ tags:
  - configuration
 ---
 
-# AWS AppConfig - production console guide
+# AppConfig - production console guide
 
 **AWS AppConfig** delivers **application configuration** and **feature flags** with **controlled deployment strategies** (linear, canary, all-at-once) - reducing risk vs editing SSM parameters by hand.
 

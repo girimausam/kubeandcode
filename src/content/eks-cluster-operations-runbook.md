@@ -1,5 +1,5 @@
 ---
-title: "Amazon EKS Cluster Operations Runbook"
+title: "EKS Cluster Operations Runbook"
 description: "EKS version guidance, access entries, Pod Identity vs IRSA, and day-2 cluster operations for Amazon EKS."
 tags:
   - eks

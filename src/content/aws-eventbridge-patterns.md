@@ -1,5 +1,5 @@
 ---
-title: "Amazon EventBridge Integration Patterns"
+title: "EventBridge Integration Patterns"
 description: "EventBridge rules, event patterns, input transformers, archive/replay, pipes, scheduler, and DLQs."
 tags:
 - eventbridge

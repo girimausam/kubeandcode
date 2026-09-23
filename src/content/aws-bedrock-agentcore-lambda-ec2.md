@@ -1,5 +1,5 @@
 ---
-title: "Amazon Bedrock AgentCore: Step-by-Step with Lambda and EC2 (Instances)"
+title: "Bedrock AgentCore: Step-by-Step with Lambda and EC2 (Instances)"
 description: "Deploy an agent on AgentCore Runtime (microVM or EC2 Instances), invoke it from Lambda or the AWS CLI, and clean up sessions—console and CLI walkthrough aligned with current AWS docs."
 date: 2026-09-22
 tags:

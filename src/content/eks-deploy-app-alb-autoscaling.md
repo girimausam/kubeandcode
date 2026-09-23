@@ -11,7 +11,7 @@ tags:
 date: 2026-08-29
 ---
 
-# AWS EKS Application Deployment Guide
+# EKS Application Deployment Guide
 
 
 ---

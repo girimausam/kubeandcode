@@ -1,5 +1,5 @@
 ---
-title: "AWS Service Best Practices"
+title: "Service Best Practices"
 description: "Operational and security best practices by AWS service—S3 versioning and lifecycle, IAM least privilege, RDS backups, EKS logging, and more."
 tags:
   - aws

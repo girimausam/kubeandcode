@@ -1,5 +1,5 @@
 ---
-title: "AWS AI/ML: Text and Chatbots (Comprehend, Translate, Lex)"
+title: "AI/ML: Text and Chatbots (Comprehend, Translate, Lex)"
 description: "Console-first guide to Amazon Comprehend, Translate, and Lex V2. AWS CLI commands in collapsible sections."
 tags:
   - aws

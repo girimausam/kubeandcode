@@ -1,5 +1,5 @@
 ---
-title: "Amazon ECR Best Practices"
+title: "ECR Best Practices"
 description: "Repository hardening workloads-scan on push, immutable production tags, and lifecycle policies for cost control."
 tags:
   - ecr

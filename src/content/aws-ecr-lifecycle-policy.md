@@ -1,5 +1,5 @@
 ---
-title: "Amazon ECR: Repository Settings and Lifecycle Policy"
+title: "ECR: Repository Settings and Lifecycle Policy"
 description: "Scan on push, tag mutability, resource tags, and a lifecycle policy that expires untagged, branch, and excess production images - with prefix rules split (ECR matches all prefixes on a rule)."
 tags:
   - ecr

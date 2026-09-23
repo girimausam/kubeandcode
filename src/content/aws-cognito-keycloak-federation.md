@@ -1,5 +1,5 @@
 ---
-title: "Amazon Cognito and Keycloak Federation"
+title: "Cognito and Keycloak Federation"
 description: "Keycloak on EKS with RDS PostgreSQL, Cognito OIDC federation, and how app pods validate Cognito JWTs."
 tags:
   - keycloak

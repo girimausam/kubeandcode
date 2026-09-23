@@ -1,5 +1,5 @@
 ---
-title: "AWS Data Services: RDS, Redshift, and Athena"
+title: "Data Services: RDS, Redshift, and Athena"
 description: "Operational runbooks for Amazon RDS day-2 checks, Redshift COPY loads from S3, and Athena tables for VPC Flow Logs forensics."
 tags:
   - rds

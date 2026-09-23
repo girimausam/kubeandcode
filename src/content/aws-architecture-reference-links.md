@@ -1,5 +1,5 @@
 ---
-title: "AWS Architecture Reference Links"
+title: "Architecture Reference Links"
 description: "Curated Well-Architected, prescriptive guidance, workshops, and hands-on lab templates for EKS, networking, and data."
 tags:
  - aws

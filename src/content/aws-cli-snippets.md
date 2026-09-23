@@ -1,5 +1,5 @@
 ---
-title: "AWS and Kubernetes CLI Snippets"
+title: "Kubernetes and AWS CLI Snippets"
 description: "Quick-reference kubectl, eksctl, ECR, FSx, EBS, and VPC Flow Logs commands for EKS day-2 operations."
 tags:
   - cli

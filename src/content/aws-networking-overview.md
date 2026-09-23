@@ -1,5 +1,5 @@
 ---
-title: "AWS Networking Overview"
+title: "Networking Overview"
 description: "Runbook for Network Firewall, Transit Gateway hub-and-spoke, VPC Lattice, and centralized inspection routing patterns."
 tags:
   - vpc

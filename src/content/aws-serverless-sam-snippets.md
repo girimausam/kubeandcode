@@ -1,5 +1,5 @@
 ---
-title: "AWS Serverless SAM and CLI Snippets"
+title: "Serverless SAM and CLI Snippets"
 description: "SAM build, deploy, local invoke, scaling policy, and CodeDeploy commands for the serverless order-events project."
 tags:
   - serverless
