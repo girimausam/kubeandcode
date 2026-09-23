@@ -1,5 +1,5 @@
 ---
-title: "ECR lifecycle and repository policies -  console guide"
+title: "ECR lifecycle and repository policies - console guide"
 description: "Production ECR - immutable tags, scanning, lifecycle expiration rules, and cross-account pull policies via the console."
 tags:
  - aws
@@ -10,7 +10,7 @@ tags:
  - devops
 ---
 
-# ECR lifecycle and repository policies -  console guide
+# ECR lifecycle and repository policies - console guide
 
 **Amazon ECR** is the hinge between **CI/CD** and **EKS/ECS**. Production setups combine **immutable tags**, **scanning**, **lifecycle cleanup**, and **repository policies** for cross-account pulls.
 
@@ -30,7 +30,7 @@ tags:
 
 ---
 
-## Console -  create repository
+## Console - create repository
 
 1. **ECR** → **Create repository**.
 2. **Tag mutability:** **Immutable** (prod).
@@ -39,7 +39,7 @@ tags:
 
 ---
 
-## Console -  lifecycle policy
+## Console - lifecycle policy
 
 1. Repository → **Lifecycle policies** → **Create rule**.
 2. Rules (separate per prefix - **do not** combine unrelated prefixes in one `tagPrefixList`):
@@ -54,7 +54,7 @@ See [lifecycle doc](./aws-ecr-lifecycle-policy.md) for JSON.
 
 ---
 
-## Console -  repository permissions (cross-account)
+## Console - repository permissions (cross-account)
 
 1. Repository → **Permissions** → **Edit**.
 2. JSON policy allowing `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer` for spoke account root or role.

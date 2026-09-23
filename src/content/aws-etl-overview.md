@@ -10,11 +10,11 @@ tags:
  - emr
  - analytics
 resources:
- - title: What is AWS Glue?
+  - title: What is AWS Glue?
     url: https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html
- - title: What is AWS Database Migration Service?
+  - title: What is AWS Database Migration Service?
     url: https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html
- - title: AWS Data Pipeline product overview
+  - title: AWS Data Pipeline product overview
     url: https://aws.amazon.com/documentation-overview/datapipeline/
 ---
 

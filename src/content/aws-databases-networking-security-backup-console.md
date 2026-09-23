@@ -1,5 +1,5 @@
 ---
-title: "Databases on AWS -  networking, security, backup (console)"
+title: "Databases on AWS - networking, security, backup (console)"
 description: "RDS and Aurora production placement - subnet groups, security groups, encryption, backups, IAM auth, and hybrid access patterns."
 tags:
  - aws
@@ -12,7 +12,7 @@ tags:
  - devops
 ---
 
-# Databases on AWS -  networking, security, backup (console)
+# Databases on AWS - networking, security, backup (console)
 
 In full-system labs, the database layer fails when **network placement**, **secrets**, or **backup** are treated as afterthoughts.
 
@@ -45,13 +45,13 @@ App tier (ECS/EKS/Lambda in VPC) ──SG:5432──► RDS in DB subnets (2+ AZ
 
 **Rules:**
 
-- **DB subnets** -  dedicated private subnets per AZ in **DB subnet group**.
+- **DB subnets** - dedicated private subnets per AZ in **DB subnet group**.
 - **No public accessibility** in production.
 - **Multi-AZ** for prod RDS; Aurora storage is HA by design - still place instances across AZs.
 
 ---
 
-## Console -  create DB subnet group
+## Console - create DB subnet group
 
 1. **RDS** → **Subnet groups** → **Create**.
 2. Select **VPC** and **private subnets** in ≥2 AZs.
@@ -59,7 +59,7 @@ App tier (ECS/EKS/Lambda in VPC) ──SG:5432──► RDS in DB subnets (2+ AZ
 
 ---
 
-## Console -  create RDS/Aurora instance
+## Console - create RDS/Aurora instance
 
 1. **RDS** → **Create database**.
 2. **Engine:** Aurora or RDS.

@@ -1,5 +1,5 @@
 ---
-title: "EKS Ingress with VPC Lattice -  console guide"
+title: "EKS Ingress with VPC Lattice - console guide"
 description: "Expose Kubernetes services through VPC Lattice - service networks, associations, Gateway API, and how this differs from ALB Ingress alone."
 tags:
  - eks
@@ -10,7 +10,7 @@ tags:
  - devops
 ---
 
-# EKS Ingress with VPC Lattice -  console guide
+# EKS Ingress with VPC Lattice - console guide
 
 **VPC Lattice** provides **application-layer connectivity** across VPCs and accounts with **auth policies** and **service networks**. On EKS, teams combine **Gateway API** or **Lattice targets** with cluster ingress controllers.
 
@@ -42,7 +42,7 @@ Consumer VPC (Lambda/ECS) ──► VPC Lattice service network ──► Lattic
 
 ---
 
-## Console -  service network
+## Console - service network
 
 1. **VPC Lattice** console → **Service networks** → **Create**.
 2. Name: `platform-internal`.
@@ -50,7 +50,7 @@ Consumer VPC (Lambda/ECS) ──► VPC Lattice service network ──► Lattic
 
 ---
 
-## Console -  register EKS workload
+## Console - register EKS workload
 
 Paths vary by integration generation; typical flow:
 

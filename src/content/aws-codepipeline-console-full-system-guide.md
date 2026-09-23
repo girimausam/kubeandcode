@@ -33,14 +33,14 @@ S3 artifact bucket (SSE-KMS) ◄── encrypted artifacts between stages
 
 ---
 
-## Console -  artifact bucket
+## Console - artifact bucket
 
 1. **S3** → create `my-pipeline-artifacts-prod` with **SSE-KMS** ([S3 KMS guide](./aws-s3-kms-encryption-decryption-iam.md)).
 2. Block public access; bucket policy allowing CodePipeline service.
 
 ---
 
-## Console -  CodeBuild project
+## Console - CodeBuild project
 
 1. **CodeBuild** → **Create build project**.
 2. **Source:** CodeCommit/GitHub connection.
@@ -52,7 +52,7 @@ VPC: only if build must reach private resources - add NAT/endpoints.
 
 ---
 
-## Console -  CodePipeline
+## Console - CodePipeline
 
 1. **CodePipeline** → **Create pipeline** → name `shopflow-release`.
 2. **Source stage:** repository + branch.

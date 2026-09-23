@@ -1,5 +1,5 @@
 ---
-title: "S3 encryption with KMS -  console, policies, and access"
+title: "S3 encryption with KMS - console, policies, and access"
 description: "SSE-KMS on S3 buckets - default encryption, bucket policies, KMS key policies, and decryption paths for apps and analytics."
 tags:
  - aws
@@ -11,7 +11,7 @@ tags:
  - devops
 ---
 
-# S3 encryption with KMS -  console, policies, and access
+# S3 encryption with KMS - console, policies, and access
 
 S3 is the default artifact store for **CodePipeline**, **logs**, **data lakes**, and **backups**. **SSE-KMS** is required when you need **key policies**, **CloudTrail audit of key use**, and **separation of duties**.
 
@@ -30,7 +30,7 @@ S3 is the default artifact store for **CodePipeline**, **logs**, **data lakes**,
 
 ---
 
-## Console -  bucket default encryption
+## Console - bucket default encryption
 
 1. **S3** → bucket → **Properties** → **Default encryption**.
 2. **Encryption type:** **SSE-KMS**.
@@ -39,14 +39,14 @@ S3 is the default artifact store for **CodePipeline**, **logs**, **data lakes**,
 
 ---
 
-## Console -  block public access & versioning
+## Console - block public access & versioning
 
-1. **Permissions** → **Block public access** -  all four ON for private data.
-2. **Versioning** -  enable for recovery and lifecycle compliance.
+1. **Permissions** → **Block public access** - all four ON for private data.
+2. **Versioning** - enable for recovery and lifecycle compliance.
 
 ---
 
-## Bucket policy -  deny insecure transport & unencrypted puts
+## Bucket policy - deny insecure transport & unencrypted puts
 
 ```json
 {
@@ -78,12 +78,12 @@ Require SSE-KMS on upload:
 
 ---
 
-## KMS key policy -  S3 usage
+## KMS key policy - S3 usage
 
 CMK must allow:
 
-- **Administrators** -  `kms:*` management (separate role).
-- **S3 service** -  via IAM roles used by apps (`kms:Decrypt`, `kms:GenerateDataKey`).
+- **Administrators** - `kms:*` management (separate role).
+- **S3 service** - via IAM roles used by apps (`kms:Decrypt`, `kms:GenerateDataKey`).
 - Optional: `kms:ViaService` condition `s3.region.amazonaws.com`.
 
 ---

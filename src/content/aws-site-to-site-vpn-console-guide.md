@@ -44,7 +44,7 @@ On-prem firewall ──IPsec──► AWS VPN endpoint ──► VGW or TGW ─�
 
 ---
 
-## Console implementation -  VPN to a VPC (VGW)
+## Console implementation - VPN to a VPC (VGW)
 
 ### 1. Customer gateway (your side)
 
@@ -83,7 +83,7 @@ On-prem firewall ──IPsec──► AWS VPN endpoint ──► VGW or TGW ─�
 
 ---
 
-## Console implementation -  VPN to Transit Gateway
+## Console implementation - VPN to Transit Gateway
 
 1. Create **Transit Gateway** ([TGW guide](./aws-vpc-transit-gateway.md)).
 2. **VPN attachment** on TGW instead of VGW.

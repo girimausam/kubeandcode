@@ -1,5 +1,5 @@
 ---
-title: "EKS with Kyverno -  console-oriented production guide"
+title: "EKS with Kyverno - console-oriented production guide"
 description: "Policy-as-code on EKS - install verification, representative ClusterPolicies, and governance patterns beyond the Helm install steps."
 tags:
  - eks
@@ -10,7 +10,7 @@ tags:
  - devops
 ---
 
-# EKS with Kyverno -  console-oriented production guide
+# EKS with Kyverno - console-oriented production guide
 
 **Kyverno** validates and mutates Kubernetes resources without a separate language - policies are **YAML**. In enterprises it enforces **labels, image registries, resource limits, and network defaults**.
 

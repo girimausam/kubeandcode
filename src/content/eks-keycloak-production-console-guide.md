@@ -1,5 +1,5 @@
 ---
-title: "EKS with Keycloak -  production console walkthrough"
+title: "EKS with Keycloak - production console walkthrough"
 description: "Run Keycloak on EKS for OIDC - console and cluster steps, ALB ingress, database, HA, and integration with apps and Cognito federation."
 tags:
  - eks
@@ -10,7 +10,7 @@ tags:
  - devops
 ---
 
-# EKS with Keycloak -  production console walkthrough
+# EKS with Keycloak - production console walkthrough
 
 **Keycloak** on **EKS** provides an **OIDC/OAuth2** identity provider for microservices, ingress auth, and human operators - common in enterprise and exam scenarios that mention **external IdP** + **Kubernetes**.
 
@@ -42,7 +42,7 @@ Keycloak needs **persistent DB** - do not use embedded H2 in production.
 
 ---
 
-## Console -  prerequisites
+## Console - prerequisites
 
 1. **EKS cluster** with private API recommended ([getting started](./eks-getting-started.md)).
 2. **RDS PostgreSQL** in same VPC ([DB guide](./aws-databases-networking-security-backup-console.md)).
@@ -51,7 +51,7 @@ Keycloak needs **persistent DB** - do not use embedded H2 in production.
 
 ---
 
-## Console -  RDS for Keycloak
+## Console - RDS for Keycloak
 
 1. Create **PostgreSQL** Multi-AZ, private, encrypted.
 2. SG: allow **5432** from **EKS node/pod SG** only.
@@ -59,7 +59,7 @@ Keycloak needs **persistent DB** - do not use embedded H2 in production.
 
 ---
 
-## Cluster -  deploy Keycloak (Helm via console CloudShell or local)
+## Cluster - deploy Keycloak (Helm via console CloudShell or local)
 
 Console does not install Helm charts directly; use **EKS console → Add-ons** for supporting pieces:
 
@@ -81,7 +81,7 @@ helm install keycloak bitnami/keycloak -n keycloak --create-namespace \
 
 ---
 
-## Console -  ALB Ingress for Keycloak
+## Console - ALB Ingress for Keycloak
 
 1. Create **Ingress** resource with `ingressClassName: alb`, host `auth.example.com`, TLS cert ARN.
 2. **Target type IP** for Fargate/EC2 backends.

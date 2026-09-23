@@ -20,7 +20,7 @@ Security in AWS is **layered**: identity, network, data encryption, detective co
 
 ---
 
-## Pattern 1 -  Organization guardrails (SCPs)
+## Pattern 1 - Organization guardrails (SCPs)
 
 **Use:** Prevent disabling logging, restrict regions, deny public S3.
 
@@ -33,7 +33,7 @@ Example deny (conceptual): `ec2:RunInstances` unless `ec2:InstanceType` in allow
 
 ---
 
-## Pattern 2 -  KMS hierarchy
+## Pattern 2 - KMS hierarchy
 
 | Key | Purpose |
 |-----|---------|
@@ -46,7 +46,7 @@ Link: [S3 KMS](./aws-s3-kms-encryption-decryption-iam.md), [SQS/SNS KMS](./aws-m
 
 ---
 
-## Pattern 3 -  Audit logging
+## Pattern 3 - Audit logging
 
 1. **CloudTrail** → **Trails** → multi-region, log file validation, SSE-KMS to dedicated bucket.
 2. **AWS Config** → record **global resources** + conformance packs (e.g. CIS).
@@ -54,7 +54,7 @@ Link: [S3 KMS](./aws-s3-kms-encryption-decryption-iam.md), [SQS/SNS KMS](./aws-m
 
 ---
 
-## Pattern 4 -  Detective services
+## Pattern 4 - Detective services
 
 1. **GuardDuty** → enable in all regions (delegated admin in org).
 2. **Security Hub** → enable standards (FSBP, CIS).
@@ -62,7 +62,7 @@ Link: [S3 KMS](./aws-s3-kms-encryption-decryption-iam.md), [SQS/SNS KMS](./aws-m
 
 ---
 
-## Pattern 5 -  Network zero-trust basics
+## Pattern 5 - Network zero-trust basics
 
 - No public IPs on app tier; **ALB** or **API Gateway** only.
 - **VPC endpoints** for SSM, ECR, S3, KMS to avoid internet egress for AWS APIs.
@@ -72,7 +72,7 @@ Networking deep dives: [Peering](./aws-vpc-peering-console-guide.md), [VPN](./aw
 
 ---
 
-## Pattern 6 -  Workload identity
+## Pattern 6 - Workload identity
 
 | Compute | Identity |
 |---------|----------|
@@ -86,7 +86,7 @@ Reference: [IAM triage](./aws-iam-policies-triage.md), [IAM roles & endpoints](.
 
 ---
 
-## Pattern 7 -  Edge protection
+## Pattern 7 - Edge protection
 
 1. **WAF** on ALB/CloudFront - managed rule groups + rate limiting.
 2. **Shield Advanced** for DDoS-sensitive workloads (optional).

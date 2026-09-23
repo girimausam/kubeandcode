@@ -1,5 +1,5 @@
 ---
-title: "AWS AppConfig -  production console guide"
+title: "AWS AppConfig - production console guide"
 description: "Hosted configuration and feature flags - applications, environments, deployment strategies, and safe rollouts for live systems."
 tags:
  - aws
@@ -9,7 +9,7 @@ tags:
  - configuration
 ---
 
-# AWS AppConfig -  production console guide
+# AWS AppConfig - production console guide
 
 **AWS AppConfig** delivers **application configuration** and **feature flags** with **controlled deployment strategies** (linear, canary, all-at-once) - reducing risk vs editing SSM parameters by hand.
 
@@ -29,7 +29,7 @@ tags:
 
 ---
 
-## Console -  application & environment
+## Console - application & environment
 
 1. **AWS Systems Manager** → **AppConfig** (or AppConfig console).
 2. **Create application** → name `shopflow-api`.
@@ -38,7 +38,7 @@ tags:
 
 ---
 
-## Console -  deployment strategy
+## Console - deployment strategy
 
 1. **Deployment strategies** → **Create**.
 2. Choose **Linear** (e.g. 20% every 10 minutes) or **Canary** for prod.
@@ -46,7 +46,7 @@ tags:
 
 ---
 
-## Console -  deploy configuration version
+## Console - deploy configuration version
 
 1. **Create hosted configuration version** (upload JSON).
 2. **Start deployment** → select environment + strategy.
