@@ -538,6 +538,8 @@ Pass a stable `runtimeSessionId` derived from `event.id` for idempotent retries.
 
 **Sample:** [Serverless image-editing agent with Harness + Lambda tools](https://github.com/aws-samples/sample-serverless-image-editing-agent-bedrock-agentcore-harness) (BFF + gateway tool Lambdas).
 
+**Scenario walkthrough:** [DynamoDB Stream → Lambda → Harness → 4 fraud agents → DynamoDB](./bedrock-agentcore-fraud-dynamodb-stream.md) (uses Steps 1–8 end to end).
+
 ---
 
 ## Choose Harness, Runtime, or classic Bedrock Agent
