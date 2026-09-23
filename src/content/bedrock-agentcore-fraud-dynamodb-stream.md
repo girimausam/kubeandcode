@@ -8,9 +8,6 @@ tags:
   - lambda
   - dynamodb
   - fraud
-links:
-  - title: Part 4 - AgentCore in production
-    url: ./bedrock-agentcore-production-guide.md
 ---
 
 # Scenario: DynamoDB Stream → Lambda → Harness → 4 fraud agents → DynamoDB
