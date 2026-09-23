@@ -2,12 +2,12 @@
 title: "AWS Architecture Reference Links"
 description: "Curated Well-Architected, prescriptive guidance, workshops, and hands-on lab templates for EKS, networking, and data."
 tags:
-  - aws
-  - architecture
-  - well-architected
-  - reference
-  - workshops
-  - eks
+ - aws
+ - architecture
+ - well-architected
+ - reference
+ - workshops
+ - eks
 ---
 ## Purpose
 
@@ -56,9 +56,10 @@ Reusable template for AWS CloudOps practice: build, break, diagnose, document, a
 
 ## Cross-links
 
-- [Kubernetes on AWS](/eks-cluster-operations-runbook)
-- [Networking on AWS](/aws-networking-overview)
-- [Data on AWS](/aws-data-rds-redshift-athena)
+- [AWS DevOps system design checklist](./aws-devops-system-design-checklist.md) - master index for exam-style full-system prep
+- [Kubernetes on AWS](./eks-cluster-operations-runbook.md)
+- [Networking on AWS](./aws-networking-overview.md)
+- [Data on AWS](./aws-data-rds-redshift-athena.md)
 
 ## WAF reference
 
