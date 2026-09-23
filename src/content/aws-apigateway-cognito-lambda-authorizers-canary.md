@@ -61,6 +61,141 @@ Lambda proxy integration (`AWS_PROXY`) skips mapping templates. The function ret
 
 ---
 
+## Console implementation order
+
+Do this in order. Later steps fail if the Lambda resource policy or the deployment is missing.
+
+| Step | Console | Done when |
+| --- | --- | --- |
+| 1 | Lambda: create `northwind-admin-authorizer`, `northwind-upload`, `northwind-download` | Each has a successful test event |
+| 2 | Lambda: execution role can write logs and, for upload/download, S3 and KMS | IAM role shows those policies |
+| 3 | Lambda: resource-based policy allows `apigateway.amazonaws.com` | Statement visible under Permissions |
+| 4 | Cognito: user pool app client with scopes `files/read` and `files/write` | You can copy an access token |
+| 5 | S3: bucket, block public access, SSE-KMS | Upload from the Lambda test succeeds |
+| 6 | API Gateway: Regional REST API, resources, methods, two authorizers | Test invoke returns 200 or 201, not 500 from a missing permission |
+| 7 | API Gateway: binary media types, OPTIONS, gateway CORS headers | Browser preflight returns 200 |
+| 8 | Deploy to stage `prod`, then enable cache and canary | Stage URL works outside the console |
+
+The API Gateway **Test** button on a method calls the integration. It does not send a browser preflight. Test CORS from a browser or curl, not only from that button.
+
+---
+
+## Lambda permissions: execution role and resource-based policy
+
+These are different controls. Both must be right.
+
+| | Execution role | Resource-based policy |
+| --- | --- | --- |
+| Question it answers | What may this function do? | Who may invoke this function? |
+| Attached to | The role in **Configuration -> Permissions -> Execution role** | The function itself, **Resource-based policy statements** |
+| Typical statements | `logs:CreateLogGroup`, `s3:PutObject`, `kms:Decrypt` | `lambda:InvokeFunction` for `apigateway.amazonaws.com` |
+| If it is missing | The function runs and then fails on S3 or CloudWatch | API Gateway returns **500** with `Execution failed due to configuration error: Invalid permissions on Lambda function` |
+
+The authorizer function and the integration functions each need their own resource-based statement. A statement on `northwind-upload` does not allow API Gateway to call `northwind-admin-authorizer`.
+
+### Execution role in the console
+
+1. **Lambda** -> the function -> **Configuration** -> **Permissions**.
+2. Open the role name. It opens IAM.
+3. **Add permissions** -> **Create inline policy** -> JSON.
+
+Upload and download functions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Logs",
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+      "Resource": "arn:aws:logs:us-east-1:ACCOUNT:log-group:/aws/lambda/northwind-*:*"
+    },
+    {
+      "Sid": "MediaBucket",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:GetObject"],
+      "Resource": "arn:aws:s3:::northwind-media/incoming/*"
+    },
+    {
+      "Sid": "BucketKey",
+      "Effect": "Allow",
+      "Action": ["kms:Decrypt", "kms:GenerateDataKey"],
+      "Resource": "arn:aws:kms:us-east-1:ACCOUNT:key/KEY_ID"
+    }
+  ]
+}
+```
+
+The authorizer role only needs the logs statement. Do not put `s3:PutObject` on the authorizer.
+
+### Resource-based policy in the console
+
+1. **Lambda** -> function -> **Configuration** -> **Permissions**.
+2. Scroll to **Resource-based policy statements** -> **Add permissions**.
+3. Choose **AWS service**.
+4. Fill the form. Repeat for each function.
+
+| Field | Authorizer `northwind-admin-authorizer` | Integration `northwind-upload` |
+| --- | --- | --- |
+| Service | API Gateway | API Gateway |
+| Statement ID | `apigw-authorizer-prod` | `apigw-post-files` |
+| Principal | `apigateway.amazonaws.com` (the form sets this) | same |
+| Source ARN | `arn:aws:execute-api:us-east-1:ACCOUNT:API_ID/authorizers/AUTHORIZER_ID` | `arn:aws:execute-api:us-east-1:ACCOUNT:API_ID/*/POST/files` |
+| Action | `lambda:InvokeFunction` | `lambda:InvokeFunction` |
+
+`API_ID` is the id in the API Gateway URL (`https://API_ID.execute-api...`), not the API name. `AUTHORIZER_ID` is on the authorizer page after you create it. If you add the permission before the authorizer exists, use a wildcard source ARN and tighten it after:
+
+- Authorizer, any id on this API: `arn:aws:execute-api:us-east-1:ACCOUNT:API_ID/authorizers/*`
+- Any method and stage for one path: `arn:aws:execute-api:us-east-1:ACCOUNT:API_ID/*/GET/files/*`
+- Download path parameter: `arn:aws:execute-api:us-east-1:ACCOUNT:API_ID/*/GET/files/*`
+
+The trailing `/*` on `/files/*` is required for `GET /files/{id}`. A source ARN that ends at `/files` does not match `/files/incoming/abc`.
+
+Download function statement, same console form, statement id `apigw-get-files`, source ARN `arn:aws:execute-api:us-east-1:ACCOUNT:API_ID/*/GET/files/*`.
+
+### Statement JSON you should see
+
+After saving, **View policy** shows:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "apigw-post-files",
+      "Effect": "Allow",
+      "Principal": { "Service": "apigateway.amazonaws.com" },
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:us-east-1:ACCOUNT:function:northwind-upload",
+      "Condition": {
+        "ArnLike": {
+          "AWS:SourceArn": "arn:aws:execute-api:us-east-1:ACCOUNT:API_ID/*/POST/files"
+        }
+      }
+    }
+  ]
+}
+```
+
+`AWS:SourceArn` is the condition key Lambda stores. It is not `aws:SourceArn` in this policy. If you edit the JSON by hand in **Add permissions -> JSON**, keep that key.
+
+A source ARN of `*` or no condition lets every API in the account invoke the function. Use that only for a short lab, then replace it.
+
+### Let the API Gateway console add the statement
+
+On the integration screen, when you select the Lambda function, the console asks **Add permission to Lambda function**. Choose **OK**. That calls `AddPermission` for you.
+
+Check the statement afterward. The console often uses a wide source ARN (`.../*/*` or `.../authorizers/*`). For a graded build, edit it to the method ARN above. If you click **OK** twice you get two statements. Delete the duplicate. Statement IDs must be unique per function. `ResourceConflictException` means that id already exists.
+
+The authorizer dialog has the same prompt when you attach the function. The integration prompt does not cover the authorizer, and the authorizer prompt does not cover `POST /files`.
+
+### Alias and version
+
+If the integration points at `northwind-upload:live`, the resource policy must be on that **alias**, or the statement `Resource` must include `:live`. A policy only on the unqualified function name does not allow `function:northwind-upload:live`. Console: Lambda -> **Aliases** -> `live` -> **Permissions** -> add the same API Gateway statement.
+
+---
+
 ## Console: create the API and the two authorizers
 
 1. **API Gateway** -> **Create API** -> **REST API** (not private, not HTTP) -> Regional -> name `northwind-media`.
@@ -95,6 +230,49 @@ Use the **access token**, not the ID token. Scopes exist on the access token. An
 Identity sources are the cache key. If `x-client-id` is not an identity source, API Gateway reuses a cached Allow for a different client id. That is a real cross-tenant hole.
 
 Attach `office-admin` only on `/admin` and `/admin/{proxy+}`.
+
+### Console: resources and methods
+
+1. API `northwind-media` -> **Resources**.
+2. `/` -> **Create resource**. Resource path `files`. Create resource again under `files` with path `{id}` (parameter, not a literal).
+3. Select `/files` -> **Create method** -> POST.
+4. Method execution screen:
+   - **Method request** -> Authorization `northwind-users`. Save. Open **Settings** on that method request if scopes are separate in your console revision, and set OAuth scopes to `files/write`.
+   - **Integration request** -> Integration type **Lambda function** -> check **Use Lambda proxy integration** -> region `us-east-1` -> function `northwind-upload` -> Save -> **OK** on the permission prompt.
+5. Select `/files/{id}` -> method GET -> same pattern with `northwind-download` and scope `files/read`.
+6. Create resource `admin`, then child `{proxy+}`. On `/admin` and `/admin/{proxy+}` create method ANY. Authorization `office-admin`. Integration: Lambda proxy to the admin **business** function, not the authorizer function. The authorizer is only selected under Method request.
+7. **Actions** -> **Deploy API** -> stage `prod` (New stage the first time). Copy the invoke URL.
+
+Until you deploy, the stage URL returns `Missing Authentication Token` for unknown routes and does not show your latest method.
+
+### Console: call it
+
+**API Gateway test (no CORS):**
+
+1. Resources -> POST on `/files` -> **Test**.
+2. Header `Authorization` = `Bearer ACCESS_TOKEN`. Header `Content-Type` = `image/png`.
+3. Body is text in the test pane. Binary tests from this pane are a poor fit. Use curl against the stage URL for the real PNG.
+
+```bash
+TOKEN=$(aws cognito-idp initiate-auth \
+  --auth-flow USER_PASSWORD_AUTH \
+  --client-id APP_CLIENT_ID \
+  --auth-parameters USERNAME=user@northwind.example,PASSWORD='...' \
+  --query 'AuthenticationResult.AccessToken' --output text)
+
+curl -sS -D - -o /tmp/out.json \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: image/png" \
+  --data-binary @./sample.png \
+  "https://API_ID.execute-api.us-east-1.amazonaws.com/prod/files"
+```
+
+Expect `HTTP/1.1 201` and a `Location` header. Then GET that path with `Accept: image/png` and the same token.
+
+**Authorizer test:**
+
+1. **Authorizers** -> `office-admin` -> **Test**.
+2. Set `Authorization` and `x-client-id`. The test event does not always include `requestContext.identity.sourceIp`. A policy that requires source IP can Deny here and Allow from a real client, or the reverse. Check the execution log for the live `sourceIp`.
 
 ---
 
@@ -204,7 +382,13 @@ Authorizer timeout is **10 seconds**. The integration timeout is **29 seconds**.
 
 ## Binary media types and the upload Lambda
 
-Console: API -> **Settings** -> **Binary media types**. Add each type the client will send **or** accept:
+Console path:
+
+1. API -> **API settings** (or **Settings** in the left nav) -> **Binary media types** -> **Manage media types** -> Add each type -> **Save changes**.
+2. **Resources** -> **Deploy API** again. Binary settings are not on the method. They apply only after a new deployment.
+3. Confirm the upload function's resource policy source ARN is `.../POST/files` and the execution role can `s3:PutObject`.
+
+Add each type the client will send **or** accept:
 
 - `image/png`
 - `image/jpeg`
@@ -337,7 +521,7 @@ Headers the browser or a grader will look for:
 | `Access-Control-Allow-Credentials` | Only if you use cookies. Then origin cannot be `*` |
 | `Vary: Origin` | If you reflect the request origin dynamically |
 
-Gateway-generated errors (authorizer Deny, throttling, expired token) **do not** pass through Lambda. Add CORS headers on **Gateway Responses**:
+Gateway-generated errors (authorizer Deny, throttling, expired token) **do not** pass through Lambda. Console: API -> **Gateway responses** -> select the response -> **Edit** -> **Add response header**. Add CORS headers on:
 
 - `DEFAULT_4XX`
 - `DEFAULT_5XX`
