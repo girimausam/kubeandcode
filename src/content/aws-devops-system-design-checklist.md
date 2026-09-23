@@ -59,6 +59,8 @@ Official hub-and-spoke diagram: [AWS Transit Gateway](https://docs.aws.amazon.co
 | **Keycloak on EKS** | OIDC for apps | Realm vs client; sticky sessions; DB for Keycloak HA | [EKS Keycloak (console)](./eks-keycloak-production-console-guide.md) |
 | Storage (EBS/EFS/S3) | Stateful workloads | Fargate + EBS constraints; EFS access points | [EKS storage](./eks-storage-ebs-efs-s3.md) |
 | GitOps / CD | Argo CD, pipelines to cluster | Cluster secret vs repo creds; sync waves | [Argo CD install](./eks-argocd-install.md) |
+| Node autoscaling | Pending pods get EC2 | Cluster Autoscaler and Karpenter both acting on the same pods | [Cluster Autoscaler and Karpenter](./eks-cluster-autoscaler-and-karpenter.md) |
+| ECS queue workers | Tasks follow SQS depth | Scaling on CPU or on messages sent, not visible backlog | [ECS autoscaling from SQS](./ecs-autoscaling-sqs-queue-depth.md) |
 
 ---
 
