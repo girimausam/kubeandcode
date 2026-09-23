@@ -136,7 +136,18 @@ Practice explaining end-to-end flows - not isolated services:
 
 ---
 
-## 10. Console-first study order (suggested)
+## 10. Roles, migration, cost, and hidden settings
+
+The four cloud roles (architect, DevOps, developer, security) and the six responsibilities (design, run, build cloud-native, secure, migrate, optimize cost) are mapped in [Cloud roles mapped to real AWS work](./aws-cloud-roles-responsibility-map.md).
+
+| Gap this checklist used to skip | Post |
+| --- | --- |
+| Lift-and-shift plus database plus files | [MGN, DMS, DataSync](./aws-workload-migration-mgn-dms-datasync.md) |
+| Bill, budgets, NAT, lifecycle | [Cost optimization](./aws-cost-optimization-console-guide.md) |
+| Checkboxes a scoring rubric hides | [Hidden settings](./aws-competition-hidden-settings.md) |
+| AI APIs without training a model | [Textract and Comprehend](./aws-managed-ai-services-console.md) |
+
+## 11. Console-first study order (suggested)
 
 1. Networking: peering → VPN → TGW ([peering](./aws-vpc-peering-console-guide.md), [VPN](./aws-site-to-site-vpn-console-guide.md), [TGW](./aws-vpc-transit-gateway.md))
 2. Security: KMS, S3, IAM ([S3](./aws-s3-kms-encryption-decryption-iam.md), [security patterns](./aws-security-implementation-patterns-console.md))
@@ -145,6 +156,7 @@ Practice explaining end-to-end flows - not isolated services:
 5. Delivery: ECR + CodePipeline ([ECR](./aws-ecr-access-lifecycle-console-guide.md), [pipeline](./aws-codepipeline-console-full-system-guide.md))
 6. EKS: Lattice ingress, Kyverno, Keycloak ([Lattice](./eks-ingress-vpc-lattice-console-guide.md), [Kyverno](./eks-kyverno-console-production-guide.md), [Keycloak](./eks-keycloak-production-console-guide.md))
 7. Config flags: AppConfig ([AppConfig](./aws-appconfig-console-production-guide.md))
+8. Roles and the sweep: [role map](./aws-cloud-roles-responsibility-map.md), [migration](./aws-workload-migration-mgn-dms-datasync.md), [cost](./aws-cost-optimization-console-guide.md), [hidden settings](./aws-competition-hidden-settings.md), [managed AI](./aws-managed-ai-services-console.md)
 
 ---
 
