@@ -215,6 +215,118 @@ Attach this authorizer on `POST /files` and `GET /files/{id}`. On each method, *
 
 Use the **access token**, not the ID token. Scopes exist on the access token. An ID token passes a Cognito authorizer that has no scopes and then fails as soon as you add a scope. The header is `Authorization: Bearer <access_token>` with a space after `Bearer`.
 
+### Create the pool, the scopes, and an access token
+
+Do this in the Cognito console before you test the method. The scope string API Gateway expects is `identifier/scopeName`. With identifier `files` and scope name `write`, the method scope is `files/write`.
+
+**1. User pool**
+
+1. **Cognito** -> **User pools** -> **Create user pool**.
+2. Sign-in: **Email**.
+3. Password policy: the default is fine for a lab. MFA: optional.
+4. Self-registration: off if you will create the user yourself.
+5. Pool name: `northwind-users`.
+
+**2. Resource server (this is what creates `files/read` and `files/write`)**
+
+1. Open the pool -> **Branding** is not the right menu. Go to **App integration** -> **Resource servers** (wording may be **Domain** nearby, resource servers are under app integration).
+2. **Create resource server**.
+3. Name: `Northwind files`. Identifier: `files`. The identifier is the prefix in the scope.
+4. Scopes:
+
+| Scope name | Description |
+| --- | --- |
+| `read` | `GET /files/{id}` |
+| `write` | `POST /files` |
+
+5. Save. Cognito now has scopes `files/read` and `files/write`.
+
+**3. Domain, or the token endpoint does not exist**
+
+1. Same pool -> **App integration** -> **Domain**.
+2. **Cognito domain** -> prefix `northwind-media-ACCOUNT` (must be unique in the Region).
+3. Save. The base URL is `https://northwind-media-ACCOUNT.auth.us-east-1.amazoncognito.com`.
+
+**4. App client that is allowed to request those scopes**
+
+1. **App integration** -> **App clients** -> **Create app client**.
+2. Name: `northwind-media-web`.
+3. Client secret: **generate a secret** if you will use the token endpoint with `client_secret` (the curl below). A public client with no secret is for the hosted UI with PKCE. Do not mix both styles in one test.
+4. Auth flows: enable **Authorization code grant**. You do not need `USER_PASSWORD_AUTH` for the token that contains custom scopes.
+5. Allowed callback URL: `http://localhost:8080/callback`. Allowed sign-out URL: `http://localhost:8080`.
+6. OAuth scopes: `openid` plus custom scopes **`files/read`** and **`files/write`**. If the custom scopes are not listed, the resource server was not saved.
+7. Save and copy **Client ID** and **Client secret**.
+
+**5. A user who can sign in**
+
+1. Pool -> **Users** -> **Create user**.
+2. Email and username: `user@northwind.example`. Invitation or set a password.
+3. If the user status is `FORCE_CHANGE_PASSWORD`, open the user -> **Actions** -> set a permanent password, or sign in once and change it. The token endpoint will not issue tokens for a user who still must change their password.
+
+**6. Get the access token from the token endpoint**
+
+`InitiateAuth` / `USER_PASSWORD_AUTH` returns an access token whose `scope` is `aws.cognito.signin.user.admin`. It does **not** include `files/read` or `files/write`. API Gateway then returns 401 as soon as the method lists those OAuth scopes. Use the OAuth token endpoint.
+
+Browser (one time), logged in as that user. Open this URL and approve. After redirect, copy the `code` query parameter. It expires in minutes.
+
+```text
+https://northwind-media-ACCOUNT.auth.us-east-1.amazoncognito.com/oauth2/authorize?response_type=code&client_id=APP_CLIENT_ID&redirect_uri=http://localhost:8080/callback&scope=openid+files/read+files/write
+```
+
+Exchange the code:
+
+```bash
+curl -sS -X POST \
+  "https://northwind-media-ACCOUNT.auth.us-east-1.amazoncognito.com/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -u "APP_CLIENT_ID:APP_CLIENT_SECRET" \
+  -d "grant_type=authorization_code" \
+  -d "code=AUTH_CODE" \
+  -d "redirect_uri=http://localhost:8080/callback"
+```
+
+The JSON field you send to API Gateway is `access_token`, not `id_token`. Decode it at [jwt.io](https://jwt.io) or with `jq`. You should see:
+
+```json
+{
+  "client_id": "APP_CLIENT_ID",
+  "scope": "openid files/read files/write",
+  "token_use": "access",
+  "username": "user@northwind.example"
+}
+```
+
+`token_use` must be `access`. `scope` must contain `files/write` before `POST /files` will pass. There is no `aud` claim. Leave API Gateway **Token validation** empty.
+
+Header on every call:
+
+```text
+Authorization: Bearer eyJraWQiOiJ...
+```
+
+One space after `Bearer`. No quotes around the token.
+
+**Machine token (no user):** create a second app client with **client credentials** only, a secret, and the same custom scopes. Then:
+
+```bash
+curl -sS -X POST \
+  "https://northwind-media-ACCOUNT.auth.us-east-1.amazoncognito.com/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -u "M2M_CLIENT_ID:M2M_CLIENT_SECRET" \
+  -d "grant_type=client_credentials" \
+  -d "scope=files/read files/write"
+```
+
+Client credentials cannot be enabled on the same app client as authorization code. The access token has the scopes and no `username`.
+
+Store the value:
+
+```bash
+export TOKEN='paste-access-token'
+```
+
+The upload curl later in this post uses `$TOKEN`.
+
 ### Lambda authorizer
 
 | Field | Value |
@@ -254,18 +366,14 @@ Until you deploy, the stage URL returns `Missing Authentication Token` for unkno
 3. Body is text in the test pane. Binary tests from this pane are a poor fit. Use curl against the stage URL for the real PNG.
 
 ```bash
-TOKEN=$(aws cognito-idp initiate-auth \
-  --auth-flow USER_PASSWORD_AUTH \
-  --client-id APP_CLIENT_ID \
-  --auth-parameters USERNAME=user@northwind.example,PASSWORD='...' \
-  --query 'AuthenticationResult.AccessToken' --output text)
-
 curl -sS -D - -o /tmp/out.json \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: image/png" \
   --data-binary @./sample.png \
   "https://API_ID.execute-api.us-east-1.amazonaws.com/prod/files"
 ```
+
+`$TOKEN` is the `access_token` from the Cognito `/oauth2/token` exchange above, the one whose `scope` includes `files/write`. An `InitiateAuth` access token does not carry those scopes and this call returns 401.
 
 Expect `HTTP/1.1 201` and a `Location` header. Then GET that path with `Accept: image/png` and the same token.
 
