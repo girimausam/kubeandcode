@@ -14,6 +14,8 @@ tags:
 
 ## Overview
 
+Two authorizers on one REST API, binary uploads, canary, stage cache, CORS on proxy routes, and VPC link to a load balancer: [Cognito and Lambda authorizers, canary, and cache](./aws-apigateway-cognito-lambda-authorizers-canary.md).
+
 Amazon Cognito splits into two services that solve different problems:
 
 

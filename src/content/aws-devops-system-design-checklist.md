@@ -94,7 +94,7 @@ Official hub-and-spoke diagram: [AWS Transit Gateway](https://docs.aws.amazon.co
 | **SQS + SNS** with **KMS** | Event-driven decoupling | SNS → SQS subscription needs CMK on **both**; key policy `ViaService` | [SQS/SNS KMS & IAM](./aws-messaging-sqs-sns-kms-encryption-iam.md) |
 | EventBridge | Bus rules, schedules | Input transformer vs constant; dead-letter on rule target | [EventBridge patterns](./aws-eventbridge-patterns.md) |
 | Streaming ETL (Glue) | Clickstream to lake | Firehose Lambda record contract; crawler vs job order; KMS on Glue role | [Glue + Kinesis + Firehose + Lambda](./aws-etl-glue-kinesis-firehose-lambda.md) |
-| API Gateway + auth | BFF, WebSocket | Cognito authorizer cache; resource policy for private API | [API Gateway Cognito](./aws-apigateway-cognito-auth.md) |
+| API Gateway + auth | BFF, WebSocket | Cognito authorizer cache; resource policy for private API | [API Gateway Cognito](./aws-apigateway-cognito-auth.md) · [Two authorizers, binary, canary, cache, CORS, ALB proxy](./aws-apigateway-cognito-lambda-authorizers-canary.md) |
 
 ---
 
