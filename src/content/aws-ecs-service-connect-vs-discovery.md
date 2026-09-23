@@ -17,6 +17,8 @@ When you run multiple services on Amazon ECS, they need a way to find each other
 
 This guide explains what each one does, when to choose which, how to wire them up, and the caveats that usually cause "nothing works" in real clusters.
 
+**Production deep dive (console + storage):** [ECS at production scale: Service Connect, Discovery, and storage](./ecs-production-service-connect-discovery-storage.md).
+
 ---
 
 ## TL;DR

@@ -1,0 +1,46 @@
+{
+  "family": "shopflow-storefront",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/shopflow-ecs-execution",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/shopflow-storefront-task",
+  "containerDefinitions": [
+    {
+      "name": "storefront",
+      "image": "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/shopflow-api:1.0.0",
+      "essential": true,
+      "environment": [
+        { "name": "APP_ROLE", "value": "storefront" },
+        { "name": "PORT", "value": "8080" },
+        { "name": "ORDERS_HOST", "value": "orders" },
+        { "name": "ORDERS_PORT", "value": "8081" }
+      ],
+      "portMappings": [
+        {
+          "name": "storefront-8080-tcp",
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://127.0.0.1:8080/ready || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 90
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/shopflow/storefront",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "storefront"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "family": "shopflow-orders",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/shopflow-ecs-execution",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/shopflow-orders-task",
+  "volumes": [
+    {
+      "name": "audit-efs",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "fs-0123456789abcdef0",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "accessPointId": "fsap-0123456789abcdef0",
+          "iam": "ENABLED"
+        }
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "orders",
+      "image": "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/shopflow-api:1.0.0",
+      "essential": true,
+      "environment": [
+        { "name": "APP_ROLE", "value": "orders" },
+        { "name": "PORT", "value": "8081" },
+        { "name": "ORDERS_HOST", "value": "orders" },
+        { "name": "ORDERS_PORT", "value": "8081" },
+        { "name": "PAYMENTS_HOST", "value": "payments" },
+        { "name": "PAYMENTS_PORT", "value": "8082" },
+        { "name": "INVENTORY_HOST", "value": "inventory" },
+        { "name": "INVENTORY_PORT", "value": "8083" },
+        { "name": "EFS_AUDIT_DIR", "value": "/mnt/efs/audit" }
+      ],
+      "portMappings": [
+        {
+          "name": "orders-8081-tcp",
+          "containerPort": 8081,
+          "hostPort": 8081,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "audit-efs",
+          "containerPath": "/mnt/efs",
+          "readOnly": false
+        }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://127.0.0.1:8081/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/shopflow/orders",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "orders"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "namespace": "arn:aws:servicediscovery:us-east-1:ACCOUNT_ID:namespace/ns-shopflow-mesh",
+  "services": [
+    {
+      "portName": "orders-8081-tcp",
+      "discoveryName": "orders",
+      "clientAliases": [{ "port": 8081, "dnsName": "orders" }]
+    }
+  ],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "/ecs/shopflow/service-connect",
+      "awslogs-region": "us-east-1",
+      "awslogs-stream-prefix": "orders-sc"
+    }
+  }
+}
