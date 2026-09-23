@@ -64,6 +64,7 @@ Official hub-and-spoke diagram: [AWS Transit Gateway](https://docs.aws.amazon.co
 | AWS Batch | Queues, Fargate or EC2, fair-share | Legacy BEST_FIT, console settings mistaken for resources | [Batch console](./aws-batch-console-guide.md) |
 | CloudWatch agent | Memory and disk on EC2 | Alarming AWS/EC2 for memory | [CloudWatch agent](./cloudwatch-agent-ec2-metrics.md) |
 | Log search | Insights, Live Tail, field indexes | Filter syntax used in the wrong search box | [Search CloudWatch Logs](./cloudwatch-logs-search.md) |
+| Laptop and CLI | SSH, scp, S3 sync, baseline checks | Public SSH, S3 without block public access | [SSH, SCP, and AWS CLI](./aws-linux-ssh-s3-cli.md) |
 
 ---
 

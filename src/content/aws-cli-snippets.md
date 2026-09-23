@@ -14,6 +14,8 @@ tags:
 
 Short command snippets only. Move long scripts or project-specific samples into dedicated pages.
 
+SSH, scp, cp, S3 sync, and baseline checks: [SSH, SCP, cp, and AWS CLI](./aws-linux-ssh-s3-cli.md).
+
 ## kubectl triage
 
 ```bash
