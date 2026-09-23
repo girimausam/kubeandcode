@@ -1,18 +1,18 @@
 ---
-title: "EKS with Kyverno — console-oriented production guide"
-description: "Policy-as-code on EKS—install verification, representative ClusterPolicies, and governance patterns beyond the Helm install steps."
+title: "EKS with Kyverno -  console-oriented production guide"
+description: "Policy-as-code on EKS - install verification, representative ClusterPolicies, and governance patterns beyond the Helm install steps."
 tags:
-  - eks
-  - kyverno
-  - policy
-  - security
-  - governance
-  - devops
+ - eks
+ - kyverno
+ - policy
+ - security
+ - governance
+ - devops
 ---
 
-# EKS with Kyverno — console-oriented production guide
+# EKS with Kyverno -  console-oriented production guide
 
-**Kyverno** validates and mutates Kubernetes resources without a separate language—policies are **YAML**. In enterprises it enforces **labels, image registries, resource limits, and network defaults**.
+**Kyverno** validates and mutates Kubernetes resources without a separate language - policies are **YAML**. In enterprises it enforces **labels, image registries, resource limits, and network defaults**.
 
 **Install steps:** [Kyverno install on EKS](./eks-kyverno-install.md)  
 **Checklist:** [DevOps checklist](./aws-devops-system-design-checklist.md)
@@ -63,10 +63,10 @@ metadata:
 spec:
   validationFailureAction: Enforce
   rules:
-    - name: check-team
+ - name: check-team
       match:
         any:
-          - resources:
+ - resources:
               kinds: [Deployment]
       validate:
         message: "label team is required"
@@ -86,17 +86,17 @@ metadata:
 spec:
   validationFailureAction: Enforce
   rules:
-    - name: ecr-only
+ - name: ecr-only
       match:
         any:
-          - resources:
+ - resources:
               kinds: [Pod]
       validate:
         message: "Images must be from ECR"
         pattern:
           spec:
             containers:
-              - image: "*.dkr.ecr.*.amazonaws.com/*"
+ - image: "*.dkr.ecr.*.amazonaws.com/*"
 ```
 
 ---
@@ -110,7 +110,7 @@ spec:
 
 ## Security
 
-- Exclude `kyverno` and `kube-system` carefully when testing `Enforce`—avoid cluster lockout.
+- Exclude `kyverno` and `kube-system` carefully when testing `Enforce` - avoid cluster lockout.
 - Start policies in `Audit` (`validationFailureAction: Audit`) before `Enforce`.
 - Backup policies in Git ([Argo CD](./eks-argocd-install.md)).
 

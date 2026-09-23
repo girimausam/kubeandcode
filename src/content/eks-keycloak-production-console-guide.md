@@ -1,18 +1,18 @@
 ---
-title: "EKS with Keycloak — production console walkthrough"
-description: "Run Keycloak on EKS for OIDC—console and cluster steps, ALB ingress, database, HA, and integration with apps and Cognito federation."
+title: "EKS with Keycloak -  production console walkthrough"
+description: "Run Keycloak on EKS for OIDC - console and cluster steps, ALB ingress, database, HA, and integration with apps and Cognito federation."
 tags:
-  - eks
-  - keycloak
-  - oidc
-  - ingress
-  - security
-  - devops
+ - eks
+ - keycloak
+ - oidc
+ - ingress
+ - security
+ - devops
 ---
 
-# EKS with Keycloak — production console walkthrough
+# EKS with Keycloak -  production console walkthrough
 
-**Keycloak** on **EKS** provides an **OIDC/OAuth2** identity provider for microservices, ingress auth, and human operators—common in enterprise and exam scenarios that mention **external IdP** + **Kubernetes**.
+**Keycloak** on **EKS** provides an **OIDC/OAuth2** identity provider for microservices, ingress auth, and human operators - common in enterprise and exam scenarios that mention **external IdP** + **Kubernetes**.
 
 **Long-form federation:** [Cognito + Keycloak federation](./aws-cognito-keycloak-federation.md)  
 **Checklist:** [DevOps checklist](./aws-devops-system-design-checklist.md)
@@ -38,11 +38,11 @@ Users ──HTTPS──► ALB ──► Keycloak (EKS) ──► RDS PostgreSQL
                 └──► App Ingress (JWT validation / oauth2-proxy)
 ```
 
-Keycloak needs **persistent DB**—do not use embedded H2 in production.
+Keycloak needs **persistent DB** - do not use embedded H2 in production.
 
 ---
 
-## Console — prerequisites
+## Console -  prerequisites
 
 1. **EKS cluster** with private API recommended ([getting started](./eks-getting-started.md)).
 2. **RDS PostgreSQL** in same VPC ([DB guide](./aws-databases-networking-security-backup-console.md)).
@@ -51,7 +51,7 @@ Keycloak needs **persistent DB**—do not use embedded H2 in production.
 
 ---
 
-## Console — RDS for Keycloak
+## Console -  RDS for Keycloak
 
 1. Create **PostgreSQL** Multi-AZ, private, encrypted.
 2. SG: allow **5432** from **EKS node/pod SG** only.
@@ -59,7 +59,7 @@ Keycloak needs **persistent DB**—do not use embedded H2 in production.
 
 ---
 
-## Cluster — deploy Keycloak (Helm via console CloudShell or local)
+## Cluster -  deploy Keycloak (Helm via console CloudShell or local)
 
 Console does not install Helm charts directly; use **EKS console → Add-ons** for supporting pieces:
 
@@ -71,17 +71,17 @@ Deploy Keycloak with Helm (representative):
 ```bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install keycloak bitnami/keycloak -n keycloak --create-namespace \
-  --set auth.adminUser=admin \
-  --set externalDatabase.host=RDS_ENDPOINT \
-  --set externalDatabase.database=keycloak \
-  --set replicaCount=2
+ --set auth.adminUser=admin \
+ --set externalDatabase.host=RDS_ENDPOINT \
+ --set externalDatabase.database=keycloak \
+ --set replicaCount=2
 ```
 
 **Production:** pin chart version; use **PodDisruptionBudget**; externalize admin password via Secret.
 
 ---
 
-## Console — ALB Ingress for Keycloak
+## Console -  ALB Ingress for Keycloak
 
 1. Create **Ingress** resource with `ingressClassName: alb`, host `auth.example.com`, TLS cert ARN.
 2. **Target type IP** for Fargate/EC2 backends.
@@ -94,7 +94,7 @@ helm install keycloak bitnami/keycloak -n keycloak --create-namespace \
 After deploy, access Keycloak admin:
 
 1. Create **realm** (not `master` for apps).
-2. **Clients** for each app—confidential vs public, redirect URIs exact match.
+2. **Clients** for each app - confidential vs public, redirect URIs exact match.
 3. **Roles/groups** mapped to app permissions.
 4. Enable **brute force detection** and **events** logging.
 
@@ -112,7 +112,7 @@ After deploy, access Keycloak admin:
 - TLS 1.2+ end-to-end; HSTS on ALB.
 - No public RDS; rotate DB credentials.
 - Limit Keycloak admin to VPN or SSO + IP allow list.
-- Keep Keycloak updated—track CVEs.
+- Keep Keycloak updated - track CVEs.
 
 ---
 

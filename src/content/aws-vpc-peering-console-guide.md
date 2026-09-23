@@ -2,16 +2,16 @@
 title: "VPC peering (console guide)"
 description: "When to use VPC peering, console steps, routing and DNS, and non-transitive routing traps for multi-VPC system designs."
 tags:
-  - aws
-  - vpc
-  - peering
-  - networking
-  - devops
+ - aws
+ - vpc
+ - peering
+ - networking
+ - devops
 ---
 
 # VPC peering (console guide)
 
-**VPC peering** connects two VPCs at Layer 3 with **private IP routing**. Use it for **simple two-VPC** or **full mesh among few VPCs**—not as a large-scale hub (use **Transit Gateway** instead).
+**VPC peering** connects two VPCs at Layer 3 with **private IP routing**. Use it for **simple two-VPC** or **full mesh among few VPCs** - not as a large-scale hub (use **Transit Gateway** instead).
 
 **Checklist:** [DevOps system design checklist](./aws-devops-system-design-checklist.md)
 
@@ -67,9 +67,9 @@ Peering creation uses EC2 VPC IAM actions (`ec2:CreateVpcPeeringConnection`, `ec
 
 ## Security
 
-- Peering is **private**—traffic does not traverse internet.
+- Peering is **private** - traffic does not traverse internet.
 - Still apply **least-privilege SG**; peering is not a security boundary by itself.
-- **Network ACLs** apply per subnet—verify both directions.
+- **Network ACLs** apply per subnet - verify both directions.
 
 ---
 

@@ -1,13 +1,13 @@
 ---
 title: "Site-to-Site VPN on AWS (console guide)"
-description: "Production-oriented Site-to-Site VPN—VGW and Transit Gateway paths, routing, security, and commonly missed console settings."
+description: "Production-oriented Site-to-Site VPN - VGW and Transit Gateway paths, routing, security, and commonly missed console settings."
 tags:
-  - aws
-  - vpn
-  - site-to-site
-  - networking
-  - transit-gateway
-  - devops
+ - aws
+ - vpn
+ - site-to-site
+ - networking
+ - transit-gateway
+ - devops
 ---
 
 # Site-to-Site VPN on AWS (console guide)
@@ -44,7 +44,7 @@ On-prem firewall ──IPsec──► AWS VPN endpoint ──► VGW or TGW ─�
 
 ---
 
-## Console implementation — VPN to a VPC (VGW)
+## Console implementation -  VPN to a VPC (VGW)
 
 ### 1. Customer gateway (your side)
 
@@ -78,12 +78,12 @@ On-prem firewall ──IPsec──► AWS VPN endpoint ──► VGW or TGW ─�
 
 ### 5. Security groups & NACLs
 
-- RDS/EC2 SGs must allow **on-prem CIDR** on app ports—not `0.0.0.0/0`.
+- RDS/EC2 SGs must allow **on-prem CIDR** on app ports - not `0.0.0.0/0`.
 - NACLs must permit return traffic symmetrically.
 
 ---
 
-## Console implementation — VPN to Transit Gateway
+## Console implementation -  VPN to Transit Gateway
 
 1. Create **Transit Gateway** ([TGW guide](./aws-vpc-transit-gateway.md)).
 2. **VPN attachment** on TGW instead of VGW.
@@ -96,13 +96,13 @@ Use when the exam scenario mentions **multiple VPCs** and **on-prem** in one dia
 
 ## IAM & permissions
 
-Console users need `ec2:CreateVpnConnection`, `ec2:CreateCustomerGateway`, etc. (often via `NetworkAdministrator` policy). **VPN does not use IAM roles for traffic**—authorization is **IP routing + SG + NACL + resource policies**.
+Console users need `ec2:CreateVpnConnection`, `ec2:CreateCustomerGateway`, etc. (often via `NetworkAdministrator` policy). **VPN does not use IAM roles for traffic** - authorization is **IP routing + SG + NACL + resource policies**.
 
 ---
 
 ## Security considerations
 
-- Prefer **two tunnels** (AWS provides two endpoints) for HA—terminate both on-prem.
+- Prefer **two tunnels** (AWS provides two endpoints) for HA - terminate both on-prem.
 - Use **IKEv2** strong crypto suites per downloaded config.
 - Monitor **VPN Connection** CloudWatch metrics (`TunnelState`).
 - Do not expose admin APIs publicly; hybrid access should land in **private subnets**.
@@ -127,7 +127,7 @@ Console users need `ec2:CreateVpnConnection`, `ec2:CreateCustomerGateway`, etc. 
 |---------|--------|
 | Tunnel DOWN | PSK, peer IP, UDP 500/4500, IKE versions |
 | Tunnel UP, no ping | Routes, SG, NACL, wrong destination CIDR |
-| Intermittent | MSS/MTU—try TCP MSS clamping 1370 |
+| Intermittent | MSS/MTU - try TCP MSS clamping 1370 |
 | Works to EC2, not RDS | RDS SG missing on-prem CIDR |
 
 Docs: [Site-to-Site VPN](https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html) · [TGW VPN](https://docs.aws.amazon.com/vpc/latest/tgw/tgw-vpn-attachments.html)

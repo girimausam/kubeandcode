@@ -1,16 +1,16 @@
 ---
-title: "EKS Ingress with VPC Lattice — console guide"
-description: "Expose Kubernetes services through VPC Lattice—service networks, associations, Gateway API, and how this differs from ALB Ingress alone."
+title: "EKS Ingress with VPC Lattice -  console guide"
+description: "Expose Kubernetes services through VPC Lattice - service networks, associations, Gateway API, and how this differs from ALB Ingress alone."
 tags:
-  - eks
-  - vpc-lattice
-  - ingress
-  - gateway-api
-  - networking
-  - devops
+ - eks
+ - vpc-lattice
+ - ingress
+ - gateway-api
+ - networking
+ - devops
 ---
 
-# EKS Ingress with VPC Lattice — console guide
+# EKS Ingress with VPC Lattice -  console guide
 
 **VPC Lattice** provides **application-layer connectivity** across VPCs and accounts with **auth policies** and **service networks**. On EKS, teams combine **Gateway API** or **Lattice targets** with cluster ingress controllers.
 
@@ -30,7 +30,7 @@ Official: [What is VPC Lattice?](https://docs.aws.amazon.com/vpc-lattice/latest/
 | Gradual strangler from monolith | Path-based routing to K8s and EC2 targets |
 | Internal API catalog | DNS names under service network |
 
-**When ALB alone is enough:** single VPC, north-south HTTP only—use [ALB Ingress Controller](./eks-alb-ingress-controller.md).
+**When ALB alone is enough:** single VPC, north-south HTTP only - use [ALB Ingress Controller](./eks-alb-ingress-controller.md).
 
 ---
 
@@ -42,15 +42,15 @@ Consumer VPC (Lambda/ECS) ──► VPC Lattice service network ──► Lattic
 
 ---
 
-## Console — service network
+## Console -  service network
 
 1. **VPC Lattice** console → **Service networks** → **Create**.
 2. Name: `platform-internal`.
-3. **Auth policy** (optional): IAM-based access—define who can invoke.
+3. **Auth policy** (optional): IAM-based access - define who can invoke.
 
 ---
 
-## Console — register EKS workload
+## Console -  register EKS workload
 
 Paths vary by integration generation; typical flow:
 
@@ -70,8 +70,8 @@ Paths vary by integration generation; typical flow:
 
 | Item | Note |
 |------|------|
-| Health checks | Lattice target health independent of K8s `ready`—align probes |
-| TLS | Terminate at Lattice or pass-through—pick one model |
+| Health checks | Lattice target health independent of K8s `ready` - align probes |
+| TLS | Terminate at Lattice or pass-through - pick one model |
 | DNS | Lattice-generated names; integrate with private DNS if needed |
 | Security groups | Pod SG must allow Lattice ENI traffic |
 
@@ -89,7 +89,7 @@ Paths vary by integration generation; typical flow:
 - Mixing **ALB Ingress** annotations with Lattice routes without clear ownership
 - Forgetting **cross-account RAM** accept for service network
 - Target type mismatch (instance vs IP) on Fargate
-- No auth policy—open internal mesh
+- No auth policy - open internal mesh
 
 ---
 

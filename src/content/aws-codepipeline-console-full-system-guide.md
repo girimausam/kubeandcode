@@ -1,15 +1,15 @@
 ---
 title: "CodePipeline full-system console guide"
-description: "Build a multi-stage CI/CD pipeline in the console—source, CodeBuild, approvals, ECS/EKS deploy, artifacts, KMS, and cross-service IAM."
+description: "Build a multi-stage CI/CD pipeline in the console - source, CodeBuild, approvals, ECS/EKS deploy, artifacts, KMS, and cross-service IAM."
 tags:
-  - aws
-  - codepipeline
-  - codebuild
-  - codedeploy
-  - cicd
-  - devops
-  - eks
-  - ecs
+ - aws
+ - codepipeline
+ - codebuild
+ - codedeploy
+ - cicd
+ - devops
+ - eks
+ - ecs
 ---
 
 # CodePipeline full-system console guide
@@ -33,14 +33,14 @@ S3 artifact bucket (SSE-KMS) ◄── encrypted artifacts between stages
 
 ---
 
-## Console — artifact bucket
+## Console -  artifact bucket
 
 1. **S3** → create `my-pipeline-artifacts-prod` with **SSE-KMS** ([S3 KMS guide](./aws-s3-kms-encryption-decryption-iam.md)).
 2. Block public access; bucket policy allowing CodePipeline service.
 
 ---
 
-## Console — CodeBuild project
+## Console -  CodeBuild project
 
 1. **CodeBuild** → **Create build project**.
 2. **Source:** CodeCommit/GitHub connection.
@@ -48,18 +48,18 @@ S3 artifact bucket (SSE-KMS) ◄── encrypted artifacts between stages
 4. **Service role:** allow ECR push, CloudWatch Logs, S3 artifacts.
 5. **Buildspec** (inline or repo file): `pre_build` login ECR → `build` docker → `post_build` push + `imagedefinitions.json` for ECS.
 
-VPC: only if build must reach private resources—add NAT/endpoints.
+VPC: only if build must reach private resources - add NAT/endpoints.
 
 ---
 
-## Console — CodePipeline
+## Console -  CodePipeline
 
 1. **CodePipeline** → **Create pipeline** → name `shopflow-release`.
 2. **Source stage:** repository + branch.
 3. **Build stage:** CodeBuild project.
 4. **Deploy stage (ECS example):**
-   - Deploy provider **Amazon ECS**
-   - Cluster + service + imagedefinitions file from build output
+ - Deploy provider **Amazon ECS**
+ - Cluster + service + imagedefinitions file from build output
 5. **Add stage** → **Manual approval** before production deploy.
 6. **Settings** → default artifact location = KMS-encrypted bucket.
 
@@ -79,7 +79,7 @@ Pipeline role typically needs:
 - `cod deploy:*` if using CodeDeploy
 - `kms:Decrypt`, `kms:GenerateDataKey` for artifact CMK
 
-Use AWS managed `AWSCodePipelineServiceRole` as template—**narrow** for prod.
+Use AWS managed `AWSCodePipelineServiceRole` as template - **narrow** for prod.
 
 ---
 
@@ -107,7 +107,7 @@ Use AWS managed `AWSCodePipelineServiceRole` as template—**narrow** for prod.
 ## Notifications
 
 1. **CodePipeline** → **Settings** → triggers or EventBridge rule on pipeline state.
-2. Target **SNS** topic (optionally encrypted with KMS—[messaging guide](./aws-messaging-sqs-sns-kms-encryption-iam.md)).
+2. Target **SNS** topic (optionally encrypted with KMS - [messaging guide](./aws-messaging-sqs-sns-kms-encryption-iam.md)).
 
 ---
 

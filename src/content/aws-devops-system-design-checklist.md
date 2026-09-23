@@ -1,19 +1,19 @@
 ---
 title: "AWS system design & DevOps prep checklist"
-description: "Industry-level AWS topics for full-system implementations—commonly missed items, service combinations, and links to console-focused reference posts on this site."
+description: "Industry-level AWS topics for full-system implementations - commonly missed items, service combinations, and links to console-focused reference posts on this site."
 tags:
-  - aws
-  - devops
-  - checklist
-  - exam-prep
-  - architecture
-  - security
-  - networking
+ - aws
+ - devops
+ - checklist
+ - exam-prep
+ - architecture
+ - security
+ - networking
 ---
 
 # AWS system design & DevOps prep checklist
 
-Use this as a **coverage map** before a long hands-on build (multi-hour system tests, production cutovers, or architecture reviews). Items marked **missed** are frequent gap areas in real projects—not obscure trivia.
+Use this as a **coverage map** before a long hands-on build (multi-hour system tests, production cutovers, or architecture reviews). Items marked **missed** are frequent gap areas in real projects - not obscure trivia.
 
 **How to use:** For each row, confirm you can explain **why**, **console path**, **IAM**, and **failure mode**. Deep dives link to posts on this site.
 
@@ -23,7 +23,7 @@ Use this as a **coverage map** before a long hands-on build (multi-hour system t
 
 | Topic | Industry use | Commonly missed | Reference |
 |-------|----------------|-----------------|-----------|
-| IAM roles vs users for workloads | Lambda, ECS, EKS use roles—no long-lived keys | Trust policy `sts:AssumeRole` conditions (`aws:SourceAccount`, `aws:ArnLike`) | [IAM policies triage](./aws-iam-policies-triage.md) |
+| IAM roles vs users for workloads | Lambda, ECS, EKS use roles - no long-lived keys | Trust policy `sts:AssumeRole` conditions (`aws:SourceAccount`, `aws:ArnLike`) | [IAM policies triage](./aws-iam-policies-triage.md) |
 | Permission boundaries & SCPs | Org-wide guardrails | SCP deny does not grant; member account admin can still misconfigure | [Security patterns (console)](./aws-security-implementation-patterns-console.md) |
 | IAM policy conditions | `aws:SourceVpc`, `aws:PrincipalTag`, `kms:ViaService` | Missing `kms:EncryptionContext` alignment with S3/SNS | [IAM conditions](./aws-iam-policy-conditions.md) |
 | EKS access (API + RBAC) | `aws eks update-cluster-config` access entries | Mixing `system:masters` with IRSA/Pod Identity | [EKS operations runbook](./eks-cluster-operations-runbook.md) |
@@ -91,6 +91,7 @@ Official hub-and-spoke diagram: [AWS Transit Gateway](https://docs.aws.amazon.co
 |-------|----------------|-----------------|-----------|
 | **SQS + SNS** with **KMS** | Event-driven decoupling | SNS → SQS subscription needs CMK on **both**; key policy `ViaService` | [SQS/SNS KMS & IAM](./aws-messaging-sqs-sns-kms-encryption-iam.md) |
 | EventBridge | Bus rules, schedules | Input transformer vs constant; dead-letter on rule target | [EventBridge patterns](./aws-eventbridge-patterns.md) |
+| Streaming ETL (Glue) | Clickstream to lake | Firehose Lambda record contract; crawler vs job order; KMS on Glue role | [Glue + Kinesis + Firehose + Lambda](./aws-etl-glue-kinesis-firehose-lambda.md) |
 | API Gateway + auth | BFF, WebSocket | Cognito authorizer cache; resource policy for private API | [API Gateway Cognito](./aws-apigateway-cognito-auth.md) |
 
 ---
@@ -118,7 +119,7 @@ Official hub-and-spoke diagram: [AWS Transit Gateway](https://docs.aws.amazon.co
 
 ## 9. Full-system combinations (exam-style scenarios)
 
-Practice explaining end-to-end flows—not isolated services:
+Practice explaining end-to-end flows - not isolated services:
 
 | Scenario | Services typically combined |
 |----------|----------------------------|

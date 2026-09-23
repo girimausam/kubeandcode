@@ -1,14 +1,14 @@
 ---
 title: "SQS and SNS with KMS encryption and IAM"
-description: "Console and policy patterns for encrypted SNS topics and SQS queues—key policies, subscriptions, and cross-service permissions teams miss."
+description: "Console and policy patterns for encrypted SNS topics and SQS queues - key policies, subscriptions, and cross-service permissions teams miss."
 tags:
-  - aws
-  - sqs
-  - sns
-  - kms
-  - iam
-  - encryption
-  - devops
+ - aws
+ - sqs
+ - sns
+ - kms
+ - iam
+ - encryption
+ - devops
 ---
 
 # SQS and SNS with KMS encryption and IAM
@@ -40,7 +40,7 @@ Publisher ──► SNS (SSE-KMS) ──► SQS (SSE-KMS) ──► Consumer (La
 
 ---
 
-## Console — KMS customer managed key (CMK)
+## Console -  KMS customer managed key (CMK)
 
 1. **KMS** → **Create key** → Symmetric, encrypt/decrypt.
 2. **Key administrators:** security team role.
@@ -67,7 +67,7 @@ For **SQS** queue encryption, add similar for `sqs.amazonaws.com`.
 
 ---
 
-## Console — SNS topic with encryption
+## Console -  SNS topic with encryption
 
 1. **SNS** → **Topics** → **Create topic**.
 2. **Type:** Standard or FIFO.
@@ -76,7 +76,7 @@ For **SQS** queue encryption, add similar for `sqs.amazonaws.com`.
 
 ---
 
-## Console — SQS queue with encryption
+## Console -  SQS queue with encryption
 
 1. **SQS** → **Create queue**.
 2. **Encryption:** enabled, same or dedicated CMK.
@@ -84,7 +84,7 @@ For **SQS** queue encryption, add similar for `sqs.amazonaws.com`.
 
 ---
 
-## Console — Subscribe SQS to SNS
+## Console -  Subscribe SQS to SNS
 
 1. Topic → **Create subscription** → protocol **Amazon SQS** → select queue.
 2. SNS updates **queue policy** to allow `sns.amazonaws.com` `SendMessage` with `aws:SourceArn` condition on topic.
@@ -106,7 +106,7 @@ Task role needs:
 
 - Enforce TLS: `aws:SecureTransport` in queue/topic policies where applicable.
 - Separate CMKs per environment (`prod-events` vs `dev-events`).
-- Least privilege on `sns:Publish`—use topic policy + IAM together.
+- Least privilege on `sns:Publish` - use topic policy + IAM together.
 
 ---
 

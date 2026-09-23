@@ -1,18 +1,18 @@
 ---
-title: "Databases on AWS — networking, security, backup (console)"
-description: "RDS and Aurora production placement—subnet groups, security groups, encryption, backups, IAM auth, and hybrid access patterns."
+title: "Databases on AWS -  networking, security, backup (console)"
+description: "RDS and Aurora production placement - subnet groups, security groups, encryption, backups, IAM auth, and hybrid access patterns."
 tags:
-  - aws
-  - rds
-  - aurora
-  - database
-  - security
-  - backup
-  - networking
-  - devops
+ - aws
+ - rds
+ - aurora
+ - database
+ - security
+ - backup
+ - networking
+ - devops
 ---
 
-# Databases on AWS — networking, security, backup (console)
+# Databases on AWS -  networking, security, backup (console)
 
 In full-system labs, the database layer fails when **network placement**, **secrets**, or **backup** are treated as afterthoughts.
 
@@ -45,13 +45,13 @@ App tier (ECS/EKS/Lambda in VPC) ──SG:5432──► RDS in DB subnets (2+ AZ
 
 **Rules:**
 
-- **DB subnets** — dedicated private subnets per AZ in **DB subnet group**.
+- **DB subnets** -  dedicated private subnets per AZ in **DB subnet group**.
 - **No public accessibility** in production.
-- **Multi-AZ** for prod RDS; Aurora storage is HA by design—still place instances across AZs.
+- **Multi-AZ** for prod RDS; Aurora storage is HA by design - still place instances across AZs.
 
 ---
 
-## Console — create DB subnet group
+## Console -  create DB subnet group
 
 1. **RDS** → **Subnet groups** → **Create**.
 2. Select **VPC** and **private subnets** in ≥2 AZs.
@@ -59,21 +59,21 @@ App tier (ECS/EKS/Lambda in VPC) ──SG:5432──► RDS in DB subnets (2+ AZ
 
 ---
 
-## Console — create RDS/Aurora instance
+## Console -  create RDS/Aurora instance
 
 1. **RDS** → **Create database**.
 2. **Engine:** Aurora or RDS.
 3. **Templates:** Production → **Multi-AZ** where applicable.
 4. **Connectivity:**
-   - VPC + **DB subnet group**
-   - **Public access:** **No**
-   - **VPC security group:** create `rds-app-sg` allowing **only app SG** on DB port.
+ - VPC + **DB subnet group**
+ - **Public access:** **No**
+ - **VPC security group:** create `rds-app-sg` allowing **only app SG** on DB port.
 5. **Encryption:** enable at rest (KMS CMK).
 6. **Authentication:** enable **IAM database authentication** if apps use IAM tokens ([Lambda RDS IAM](./aws-lambda-rds-iam-auth.md)).
 7. **Backup:**
-   - Retention (e.g. 7–35 days)
-   - Backup window
-   - **Copy tags to snapshots**
+ - Retention (e.g. 7-35 days)
+ - Backup window
+ - **Copy tags to snapshots**
 
 ---
 
@@ -82,7 +82,7 @@ App tier (ECS/EKS/Lambda in VPC) ──SG:5432──► RDS in DB subnets (2+ AZ
 | SG | Inbound |
 |----|---------|
 | `rds-sg` | TCP 5432/3306 **from** `app-sg` only |
-| `app-sg` | From ALB or mesh—not open to world |
+| `app-sg` | From ALB or mesh - not open to world |
 
 **Hybrid:** add on-prem CIDR only if Site-to-Site VPN/DX exists ([VPN guide](./aws-site-to-site-vpn-console-guide.md)).
 
@@ -92,7 +92,7 @@ App tier (ECS/EKS/Lambda in VPC) ──SG:5432──► RDS in DB subnets (2+ AZ
 
 1. **Secrets Manager** → store master password or use RDS integration.
 2. Enable **rotation** (Lambda in VPC with RDS SG access).
-3. Applications read secret via **task role**—never bake passwords in images.
+3. Applications read secret via **task role** - never bake passwords in images.
 
 ---
 

@@ -1,16 +1,16 @@
 ---
-title: "ECR lifecycle and repository policies — console guide"
-description: "Production ECR—immutable tags, scanning, lifecycle expiration rules, and cross-account pull policies via the console."
+title: "ECR lifecycle and repository policies -  console guide"
+description: "Production ECR - immutable tags, scanning, lifecycle expiration rules, and cross-account pull policies via the console."
 tags:
-  - aws
-  - ecr
-  - lifecycle
-  - security
-  - cicd
-  - devops
+ - aws
+ - ecr
+ - lifecycle
+ - security
+ - cicd
+ - devops
 ---
 
-# ECR lifecycle and repository policies — console guide
+# ECR lifecycle and repository policies -  console guide
 
 **Amazon ECR** is the hinge between **CI/CD** and **EKS/ECS**. Production setups combine **immutable tags**, **scanning**, **lifecycle cleanup**, and **repository policies** for cross-account pulls.
 
@@ -30,7 +30,7 @@ tags:
 
 ---
 
-## Console — create repository
+## Console -  create repository
 
 1. **ECR** → **Create repository**.
 2. **Tag mutability:** **Immutable** (prod).
@@ -39,10 +39,10 @@ tags:
 
 ---
 
-## Console — lifecycle policy
+## Console -  lifecycle policy
 
 1. Repository → **Lifecycle policies** → **Create rule**.
-2. Rules (separate per prefix—**do not** combine unrelated prefixes in one `tagPrefixList`):
+2. Rules (separate per prefix - **do not** combine unrelated prefixes in one `tagPrefixList`):
 
 | Priority | Rule |
 |----------|------|
@@ -54,7 +54,7 @@ See [lifecycle doc](./aws-ecr-lifecycle-policy.md) for JSON.
 
 ---
 
-## Console — repository permissions (cross-account)
+## Console -  repository permissions (cross-account)
 
 1. Repository → **Permissions** → **Edit**.
 2. JSON policy allowing `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer` for spoke account root or role.
@@ -104,7 +104,7 @@ Scope `PutImage` to repository ARN when possible.
 
 - Block public repositories (account setting).
 - Sign images (Notary/Cosign) in advanced pipelines.
-- Deny `latest` in prod deploy—pin digest or semver tag.
+- Deny `latest` in prod deploy - pin digest or semver tag.
 
 ---
 
