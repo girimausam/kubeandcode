@@ -1,6 +1,6 @@
 ---
 title: "Lab Notes: EventBridge, RDS, Backup, and JAM"
-description: "Lab notes: RDS logs, EventBridge, Backup, SSM, EKS aws-auth from EC2, Gateway Load Balancer, Transit Gateway flow, and importing an externally signed certificate."
+description: "Lab notes and medium-to-hard Jam troubleshooting: IAM is allowed and a second lock still denies the call, plus network, data, and delivery breaks."
 tags:
   - aws
   - labs
@@ -962,3 +962,365 @@ aws acm-pca import-certificate-authority-certificate \
 | Basic constraints are not CA | The external CA issued an end-entity cert. Re-sign the same CSR with `CA:TRUE` |
 | Chain does not link | Issuer of `subordinate-ca.pem` is not the subject of the first cert in the chain file |
 | Import says the CA already has a certificate | This CA is past pending. You cannot import a second CA cert onto it |
+
+---
+
+## Jam troubleshooting (medium to hard)
+
+A Jam gives you a symptom and a working-looking config. Read the error before you change anything.
+
+- `AccessDenied`, `not authorized`, or `403` with a fast response: the network path works. The identity policy, the resource policy, and the KMS key policy all have to allow the call. A permission boundary and an SCP are extra ANDs.
+- Timeout, `i/o timeout`, targets that never register, or a Lambda log that has `START` and then dies at the timeout: the path is wrong. IAM will not fix it.
+- The call succeeds and the wrong data appears (empty image, a 404, a dropped duplicate): the request was authorized. Look at view types, delete markers, filters, and dedup.
+
+Always read the route table **associated with the subnet** (`association.subnet-id`). The VPC main table is a different object. Always compare the ARN in the error with the ARN in the policy, character for character.
+
+```bash
+aws sts get-caller-identity
+aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=EVENT_NAME --max-results 5
+```
+
+The `errorCode` and `errorMessage` in the event are the Jam telling you which lock failed.
+
+### 1. KMS key policy no longer trusts the account
+
+IAM `kms:Decrypt` simulates as allowed, and the call still returns `AccessDenied`.
+
+The key policy is the authority. If a Jam replaced it and removed the statement whose principal is `arn:aws:iam::ACCOUNT:root`, IAM policies on roles in the account stop granting anything on that key. The admin who wrote the new policy can still use the key. Everyone else cannot.
+
+```bash
+aws kms get-key-policy --key-id alias/lab --policy-name default --query Policy --output text
+```
+
+Put the account root back on `kms:*` (IAM then scopes who can call), or add the specific role to the key policy for `Decrypt` and `GenerateDataKey*`.
+
+### 2. `kms:ViaService` allows one service
+
+The same role can read the object through S3 and cannot `Decrypt` the same key from Lambda or from the CLI. The key policy condition is `kms:ViaService` = `s3.us-east-1.amazonaws.com`. S3 is allowed to use the key on the caller's behalf. A direct decrypt is not. A condition that names `s3.eu-west-1.amazonaws.com` while the bucket is in `us-east-1` denies S3 as well.
+
+Match the service prefix and the Region to the service that actually touches the key.
+
+### 3. S3 delete marker
+
+`GetObject` returns `NoSuchKey`. The IAM policy is correct, and the bucket is not empty.
+
+Versioning is on. A delete wrote a delete marker that is the latest version. The bytes are still under an older version id.
+
+```bash
+aws s3api list-object-versions --bucket lab-data --prefix incoming/orders.json
+```
+
+`IsLatest` true with no `Size` is the marker. Delete that marker (`delete-object --version-id`) so the previous version becomes current, or `get-object --version-id` the real version. A lifecycle rule that expired the prefix will keep creating markers. Fix the rule or the app keeps "losing" objects.
+
+### 4. Bucket policy pinned to an old VPC endpoint
+
+A private instance gets `AccessDenied` on S3. The same role works from a public instance, so the identity policy is fine.
+
+The bucket policy allows the role only when `aws:SourceVpce` equals `vpce-aaaaaaaa`. The gateway endpoint was recreated and the id is now `vpce-bbbbbbbb`. Update the condition, or the instance is using the NAT (no `SourceVpce`) while the policy requires the endpoint.
+
+### 5. Bucket policy requires an encryption header
+
+`aws s3 cp` returns `AccessDenied`. CloudTrail shows `s3:PutObject`. The role has `s3:PutObject`.
+
+A deny statement fires unless `s3:x-amz-server-side-encryption` equals `aws:kms` (and often unless `s3:x-amz-server-side-encryption-aws-kms-key-id` matches). The CLI sent `AES256` or no header.
+
+```bash
+aws s3 cp ./orders.json s3://lab-data/incoming/orders.json \
+  --sse aws:kms --sse-kms-key-id alias/lab
+```
+
+### 6. S3 gateway endpoint is on the wrong route table
+
+`aws ec2 describe-vpc-endpoints` shows a Gateway endpoint for S3, and private instances still time out on S3.
+
+The endpoint's `RouteTableIds` list the VPC **main** table. The instance subnet is associated with a custom table that has no `pl-` prefix-list route. Associate the endpoint with the subnet's table, or add the route. A gateway endpoint does not use a security group. An interface endpoint does.
+
+### 7. Interface endpoint private DNS is off
+
+`nslookup ssm.us-east-1.amazonaws.com` from the instance returns a public address. `enableDnsSupport` and `enableDnsHostnames` are true, and there is still no NAT, so TCP 443 times out.
+
+```bash
+aws ec2 describe-vpc-endpoints \
+  --vpc-endpoint-ids vpce-xxxx \
+  --query "VpcEndpoints[].{dns:PrivateDnsEnabled,state:State,subnets:SubnetIds}"
+```
+
+`PrivateDnsEnabled` must be true or the SDK never uses the endpoint. The endpoint security group must allow TCP 443 from the instance security group. An endpoint policy that names a different bucket or account denies the call with `AccessDenied` after DNS is fixed. That is a different error. Treat it as item 1's cousin: the path works, the policy does not.
+
+### 8. Lambda in a VPC: timeout and AccessDenied are different breaks
+
+Log line `START` and a duration equal to the configured timeout, with no application error: the function ENI has no path to the API it calls. The subnet needs a NAT gateway or an interface endpoint, and the function security group needs egress on 443. `InvalidParameterValueException` at deploy time means the subnet and the security group are in different VPCs.
+
+An `AccessDenied` stack trace a few hundred milliseconds after `START`: the path is fine. Fix the role, the resource policy, or the key policy. Adding a NAT will not change that error.
+
+### 9. IMDSv2 hop limit is 1
+
+A container on EC2 (ECS bridge or host network, or an EKS pod that uses the node role) logs `Unable to locate credentials` or an EC2 metadata timeout. The task role and the node role look correct.
+
+```bash
+aws ec2 describe-instances --instance-ids i-xxxx \
+  --query "Reservations[].Instances[].MetadataOptions"
+```
+
+`HttpPutResponseHopLimit` is `1`. The extra hop from the container to the instance metadata service consumes it. Set the hop limit to `2`. Leave `HttpTokens` as `required`. `awsvpc` tasks get credentials from `169.254.170.2` through the ECS agent. That path is a different failure (the task role), not the hop limit.
+
+### 10. ECS execution role, task role, and target type
+
+`CannotPullContainerError` and the principal in the message is `ecsTaskExecutionRole`: the **execution** role is missing `ecr:GetAuthorizationToken` (resource `*`), `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer`, or `logs:CreateLogStream` on the log group.
+
+The container starts, then the app logs `s3:PutObject` `AccessDenied`: that is the **task** role (`taskRoleArn`). Putting S3 on the execution role does nothing for the application.
+
+A service that uses `awsvpc` (every Fargate service) with a target group of `targetType` `instance` never registers healthy tasks. `awsvpc` needs target type `ip`.
+
+### 11. ALB health check code
+
+`describe-target-health` says `Target.ResponseCodeMismatch`. The matcher is `200`. The process is up and redirects HTTP to HTTPS with `301`, or the health path returns `204`.
+
+Set the matcher to the code the process actually returns, or point the health check at a path that returns 200 on the **target port**. The task security group must allow that port from the load balancer security group. Opening 443 on the task while the target port is 8080 leaves the target unhealthy.
+
+### 12. SQS visibility, and FIFO dedup
+
+Lambda timeout is 60 seconds and the queue visibility timeout is 30 seconds. The message becomes visible while the first invocation is still running, `ApproximateReceiveCount` climbs, and a `maxReceiveCount` of 3 drops a slow success into the DLQ. Set visibility to at least six times the function timeout.
+
+A FIFO queue with content-based deduplication returns success for a second message with the same body inside the five-minute window and does not enqueue it. The jam looks like a lost event. Disable content-based dedup and send a unique `MessageDeduplicationId`, or change the body. A rule that targets FIFO without `MessageGroupId` shows `FailedInvocations` on the rule and an empty queue.
+
+### 13. Encrypted queue, service principal missing on the key
+
+The queue policy allows `sns.amazonaws.com` or `events.amazonaws.com` with the right `aws:SourceArn`. `NumberOfMessagesSent` stays 0. The topic metric `NumberOfNotificationsFailed` or the rule metric `FailedInvocations` climbs.
+
+The queue uses a customer managed key. The key policy allows the application role and does not allow the service.
+
+- SNS needs `kms:GenerateDataKey*` and `kms:Decrypt` for principal `sns.amazonaws.com`.
+- EventBridge needs the same for `events.amazonaws.com`.
+
+Without those, the service cannot write the ciphertext. The identity policy on the Lambda role is irrelevant until a message exists.
+
+### 14. Rule and publisher are on different buses
+
+`put-events` with no `EventBusName` publishes to `default`. The rule was created on `register-device-event-bus`. `MatchedEvents` on that rule stays 0. `TriggeredRules` on `default` also stays 0 if nobody created the rule there.
+
+```bash
+aws events list-rules --event-bus-name register-device-event-bus \
+  --query "Rules[].[Name,State]"
+```
+
+`State` of `DISABLED` matches nothing even when the pattern is right. Enable the rule, or publish to the bus the rule is on. A pattern on `detail-type` does not match a field named `detail.type`.
+
+### 15. DynamoDB stream view, and `LeadingKeys`
+
+The stream Lambda runs and `NewImage` is empty. `describe-table` shows `StreamViewType` `KEYS_ONLY`. The stream only has keys. Update the stream to `NEW_IMAGE` or `NEW_AND_OLD_IMAGES`. A filter on the event source mapping (`list-event-source-mappings`) that expects `status` while the item field is `Status` invokes nothing. The iterator age still moves. Fix the filter. The function is not broken.
+
+`PutItem` returns `AccessDenied` while a full-table `dynamodb:*` policy is attached. The policy condition `dynamodb:LeadingKeys` is a tenant id or `${aws:userid}`, and the code writes a different partition key. CloudTrail is the only place that failure is explicit. Change the key the code writes, or the condition. Both have to be the same string.
+
+### 16. RDS IAM authentication, and a parameter that is not active
+
+`generate-db-auth-token` output is the **password**. It expires in 15 minutes. The host you pass must be the endpoint you connect to, and the Region must be the cluster Region. The database user is not the IAM user name.
+
+MySQL user: `IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS'`. Postgres: `GRANT rds_iam TO` that user. The connection has to use SSL. A token generated for the reader endpoint fails against the writer endpoint.
+
+`describe-db-instances` shows the parameter group `ParameterApplyStatus` of `pending-reboot`. Static parameters (`rds.force_ssl` and others) do nothing until reboot. Also confirm the instance uses the parameter group you edited. Editing a group that is not associated is a clean console and an unchanged database.
+
+### 17. NACL return path, and a NAT that cannot reach an IGW
+
+Flow logs show `ACCEPT` for the outbound SYN and `REJECT` for the inbound reply on a high port. The network ACL allows inbound 443 and outbound 443. NACLs are stateless. Add inbound TCP 1024-65535 for the return traffic, and the matching outbound ephemeral range if the instance is the server.
+
+Private route `0.0.0.0/0` points at `nat-`. Sessions still time out. Describe the NAT and open the route table of the **NAT's subnet**. That table needs `0.0.0.0/0` to an internet gateway. A NAT placed in a private subnet, or a route table in another AZ that still points at a deleted NAT (`blackhole`), drops every new connection. `ErrorPortAllocation` and `PacketsDropCount` on the NAT tell you which case you have.
+
+### 18. EFS mount, uid, and TLS
+
+Mount hangs on TCP 2049: the file system security group does not allow the instance security group.
+
+Mount succeeds and `open` returns `Permission denied`: the access point POSIX uid/gid (often `1000`) is not the uid of the process. Match them, or write through the access point the task was given.
+
+A file system policy that denies `ClientMount` unless `aws:SecureTransport` is true rejects a plain NFS mount. Mount with TLS (`amazon-efs-utils`, `-o tls`). The policy is doing what it says.
+
+### 19. Private nodes cannot pull from ECR
+
+`dial tcp 443: i/o timeout` while pulling an image, in a subnet with no NAT. One ECR endpoint is not enough.
+
+You need interface endpoints for `com.amazonaws.REGION.ecr.api` and `com.amazonaws.REGION.ecr.dkr`, plus the S3 **gateway** endpoint on that subnet's route table (image layers live in S3). `com.amazonaws.REGION.logs` as well when the task uses `awslogs`. Each interface endpoint's security group allows 443 from the node security group.
+
+### 20. Load balancer controller never finds a subnet
+
+The Ingress stays without an address. Controller logs say it could not find subnets for the scheme.
+
+Public subnets need the tag `kubernetes.io/role/elb` = `1`. Internal subnets need `kubernetes.io/role/internal-elb` = `1`. A public Ingress in subnets that only have the internal tag never reconciles. The subnets also have to be the ones the controller is allowed to see for this cluster.
+
+### 21. Lake Formation is the second lock
+
+Athena returns `Insufficient Lake Formation permission`. The role has `s3:GetObject` and Glue read. IAM is no longer the authority for that database.
+
+Someone removed the `IAMAllowedPrincipals` grant. In Lake Formation, grant the role `SELECT` on the table and `DESCRIBE` on the database. The role also needs `lakeformation:GetDataAccess`. Until both exist, widening the S3 policy changes nothing.
+
+### 22. API Gateway never calls Lambda, or rejects the key
+
+`500` and execution log `Invalid permissions on Lambda function`. No new log stream on the function. `aws lambda get-policy` shows a `SourceArn` for a different API id, or no statement.
+
+```bash
+aws lambda add-permission \
+  --function-name lab-api \
+  --statement-id apigw \
+  --action lambda:InvokeFunction \
+  --principal apigateway.amazonaws.com \
+  --source-arn "arn:aws:execute-api:us-east-1:111122223333:API_ID/*/*/*"
+```
+
+`403` with body `{"message":"Forbidden"}` and still no Lambda log: the method has API key required. The key exists and is not on a usage plan, or the plan is not attached to **this stage**. Associate the stage, then send `x-api-key`. A missing header and a key that is not on the plan look the same.
+
+### 23. `ExternalId`, and a permission boundary
+
+`AssumeRole` fails. The trust policy condition `sts:ExternalId` is `jam-123`. The caller passes nothing, or `jam-1234`. Send that exact value. The trust principal has to be the calling role ARN (or the account), not a user who is not making the call.
+
+`AccessDenied` on `s3:PutObject` while the inline policy allows `s3:*`. `aws iam get-role` shows `PermissionsBoundary`. The boundary allows `s3:GetObject` only. Effective permission is the intersection of the identity policy and the boundary. Change the boundary. Another inline policy will not get past it. If both of those allow the action, check AWS Organizations SCPs. They are a third AND.
+
+### 24. Glue workers cannot talk to each other
+
+The Glue JDBC job stays `RUNNING`, writes no CloudWatch log, and times out. Or the connection test fails.
+
+The Glue security group needs a **self-referencing** inbound rule (all TCP from itself) so the job ENIs can reach each other, plus outbound to the database port. The database security group must allow that port from the Glue security group. The connection subnet needs a free IP. A security group that only allows 3306 from the VPC CIDR still fails the worker-to-worker requirement.
+
+### 25. Firehose transform returns the wrong envelope
+
+Objects appear under `processing-failed/` in the destination bucket. The transform Lambda returns `{ "status": "ok" }`.
+
+Firehose expects:
+
+```json
+{
+  "records": [
+    { "recordId": "THE_ID_FROM_THE_EVENT", "result": "Ok", "data": "BASE64_PAYLOAD" }
+  ]
+}
+```
+
+`result` is `Ok`, `Dropped`, or `ProcessingFailed`. `recordId` is echoed. `data` is base64. A normal API response fails every record. The delivery stream role can be correct the whole time.
+
+### 26. OpenSearch fine-grained access
+
+The domain access policy allows `es:ESHttp*` for the role, and the client still gets `403`.
+
+Fine-grained access control is enabled. The IAM role is not mapped to a backend role (`all_access` or the custom role the index requires). Map the role ARN. A request that is not SigV4-signed is rejected even when the access policy principal is `*`. Fix the signature after the mapping. The policy alone does not open the index.
+
+### 27. Redshift COPY role is not associated
+
+`COPY` says the IAM role is not associated with the cluster, or is not authorized. The role trust lists `redshift.amazonaws.com` and the role can read the bucket. That is not sufficient.
+
+```bash
+aws redshift describe-clusters --cluster-identifier lab \
+  --query "Clusters[].IamRoles"
+```
+
+The role has to appear there with status `in-sync`.
+
+```bash
+aws redshift modify-cluster-iam-roles --cluster-identifier lab \
+  --add-iam-roles arn:aws:iam::111122223333:role/redshift-copy
+```
+
+The `COPY` statement must use that role ARN. Enhanced VPC routing without a path from the cluster subnets to S3 (NAT or an S3 gateway endpoint on those route tables) fails later, with a network error, after this association is fixed.
+
+### 28. Metric filter and alarm dimensions
+
+The alarm and the EventBridge rule on `ALARM` are wired, and the alarm stays `INSUFFICIENT_DATA`.
+
+`describe-metric-filters` pattern is `{ $.error = "Timeout" }` while the log line is plain text `ERROR Timeout`, or the JSON field is `Error`. No datapoints are published. `filter-log-events` with the same pattern returns nothing. Fix the pattern until it matches a real line.
+
+If datapoints exist and the alarm still does not see them, `describe-alarms` shows an extra dimension (`InstanceType`, `ImageId`). `CPUUtilization` for an instance is published with `InstanceId` only. Drop the extra dimension. `TreatMissingData` of `notBreaching` hides a dead agent. Use `breaching` or `missing` when the Jam expects the alarm to fire on silence.
+
+### 29. Secrets Manager rotation stuck on `AWSPENDING`
+
+`describe-secret` shows a version stage `AWSPENDING` and clients still read `AWSCURRENT`, or they start failing because the password already changed in the database.
+
+The rotation Lambda runs in a VPC and cannot reach Secrets Manager (no endpoint, no NAT) or cannot reach the database security group. It also needs `secretsmanager:UpdateSecretVersionStage` and `GetSecretValue` so it can move `AWSCURRENT`. Fix the path, then rotate again. `cancel-rotate-secret` clears a stuck `AWSPENDING` version so a new rotation can start.
+
+### 30. Backup selection tag, and an Auto Scaling health loop
+
+The backup plan is `ENABLED` and `list-backup-jobs` is empty. The selection condition is tag key `backup` = `daily`. The volume tag key is `Backup`. Tag keys are case-sensitive. Retag the resource or the selection. The backup role still needs `AWSBackupServiceRolePolicyForBackup`. A matching tag with the wrong role fails the job. A mismatched tag never creates one.
+
+`describe-scaling-activities` shows launch, then terminate, "an instance was taken out of service in response to an ELB system health check", in a loop. The Auto Scaling group health check type is `ELB`, the target health check path is wrong, or the grace period is `0`. Fix target health (item 11) before you raise desired capacity. Raising it adds more instances that fail the same check.
+
+### 31. Private hosted zone is associated with the other VPC
+
+`nslookup db.internal` on the instance returns `NXDOMAIN`, or it returns the public address and the security group allows only the private CIDR.
+
+```bash
+aws route53 list-hosted-zones-by-vpc --vpc-id vpc-xxxx --vpc-region us-east-1
+```
+
+Associate the private zone with this VPC. `enableDnsSupport` and `enableDnsHostnames` must be true or the association does not answer inside the VPC. A resolver rule that forwards the same domain to on-prem DNS overrides the zone. Check the rule before you recreate the zone.
+
+### 32. MSK listener port and `kafka-cluster` actions
+
+The client uses port `9092` or `9094`. `get-bootstrap-brokers` shows IAM auth on `9098` (`*9098` in the IAM bootstrap string). The security group must allow that port from the client. Opening 9092 does nothing when unauthenticated access is disabled.
+
+The IAM actions are `kafka-cluster:Connect`, `kafka-cluster:DescribeTopic`, `kafka-cluster:ReadData`, and `kafka-cluster:WriteData` on the cluster, topic, and group ARNs. `kafka:DescribeCluster` on the cluster ARN does not authorize the data plane. A policy that only has `kafka:*` leaves the client with a broker disconnect after the TCP handshake.
+
+### 33. Event source mapping filter drops the batch
+
+The queue depth is high, the function error count is 0, and invocations are 0. `list-event-source-mappings` shows a filter such as `{ "body": { "status": ["READY"] } }` while the message field is `Status`, or the body is a JSON string the filter does not parse the way the author expected.
+
+`LastProcessingResult` reports that the batch had no matching records. Correct the filter. A bisect-on-error checkpoint with a poison message is the other face of this: one bad record, `maxReceiveCount` exhausted, and the rest of the window looks stuck. The DLQ holds the poison message. Read it before you raise the retry count.
+
+### 34. Step Functions `.sync` never completes
+
+The execution stays `Running` on `ecs:runTask.sync`, `batch:submitJob.sync`, or `glue:startJobRun.sync`, then hits `States.Timeout`. The child job succeeded.
+
+`.sync` needs extra permissions on the state machine role so it can consume the completion event: `events:PutRule`, `events:PutTargets`, `events:DescribeRule`, and the service's describe action. `lambda:InvokeFunction` is enough for a normal Lambda invoke. It is not enough for `.sync` on ECS, Batch, or Glue. A `waitForTaskToken` state has the same symptom when the worker never calls `SendTaskSuccess` or `SendTaskFailure`. The token is in the payload. The worker is what ends the state.
+
+### 35. CloudFront origin access control and the old OAI principal
+
+The distribution returns `403` from S3. The bucket policy principal is `arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity EXXXXXXXXX`. The distribution origin is now an origin access control.
+
+Replace the principal with `cloudfront.amazonaws.com` and condition `AWS:SourceArn` equal to the distribution ARN. Block Public Access can stay on. A policy that still names the OAI will not authorize the OAC. The object ACL is not the fix when Object Ownership is bucket-owner enforced.
+
+### 36. Network Firewall drops traffic the stateful rule would allow
+
+A stateful pass rule for TCP 443 exists, and the flow still dies. Stateless rules run first. A stateless drop, or a stateless default of drop, never hands the flow to the stateful engine.
+
+If the flow is handed off and still dropped, check `HOME_NET`. A Jam often leaves it as the firewall subnet CIDR. Client traffic from the VPC then fails to match. Set `HOME_NET` to the VPC CIDR (or the spoke CIDRs you actually inspect). Alert logs in the configured log destination show `dropped` and the rule id. Flow logs alone only show that the packet left the client ENI.
+
+### 37. Aurora writer endpoint
+
+Inserts fail with a read-only transaction error. The application uses the reader endpoint (the hostname contains `-ro` or is the instance endpoint of a reader).
+
+```bash
+aws rds describe-db-clusters --db-cluster-identifier lab \
+  --query "DBClusters[].{writer:Endpoint,reader:ReaderEndpoint}"
+```
+
+Point writes at `Endpoint`. After a failover, a process that cached the old writer IP keeps sending writes to a replica until it resolves DNS again. The cluster endpoint is what moves.
+
+### 38. CoreDNS pending on a taint
+
+Service names fail inside the cluster. The same call to the pod IP works. `kubectl get pods -n kube-system` shows `coredns` `Pending`.
+
+`kubectl describe pod` says the nodes have a taint the pod does not tolerate. A node group was launched with a custom `NoSchedule` taint, and the CoreDNS toleration was not updated. Add the toleration or remove the taint. Fixing application security groups does nothing while `kube-dns` has no pod.
+
+### 39. VPC endpoint connection waiting for acceptance
+
+The consumer endpoint stays `pendingAcceptance`. DNS for the endpoint service does not resolve to the endpoint yet.
+
+On the provider account:
+
+```bash
+aws ec2 describe-vpc-endpoint-connections \
+  --filters Name=vpc-endpoint-service-id,Values=vpce-svc-xxxx
+aws ec2 accept-vpc-endpoint-connections \
+  --service-id vpce-svc-xxxx --vpc-endpoint-ids vpce-CONSUMER
+```
+
+The Network Load Balancer behind the service still has to have healthy targets, and its security group must allow the endpoint's traffic. An accepted endpoint in front of an empty target group connects and then resets. Private DNS on the consumer only works after the service private DNS name is verified. Enabling it earlier fails the endpoint creation. That error is the verification, not the security group.
+
+### 40. What to change first
+
+Change the lock the error names. Then run the one call that was failing.
+
+| Error you have | First place to look |
+| --- | --- |
+| `AccessDenied` and IAM already allows it | Resource policy, KMS key policy, permission boundary, SCP |
+| Timeout, no application log | Subnet route table, NAT or endpoint, security group, NACL ephemeral ports |
+| `403` from API Gateway, Lambda has no new log | Usage plan and API key, or the method auth |
+| `500` Invalid permissions on Lambda | `lambda add-permission` source ARN |
+| Health check loop | Matcher, target port, target type `ip`, grace period |
+| Empty `NewImage`, 404 on an object you did not mean to delete, FIFO "lost" a duplicate | Stream view, delete marker, content-based dedup |
+| Job or pipe never starts | Tag case, bus name, rule `DISABLED`, filter that matches zero records |
