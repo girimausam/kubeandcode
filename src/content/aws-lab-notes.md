@@ -1,6 +1,6 @@
 ---
 title: "Lab Notes: EventBridge, RDS, Backup, and JAM"
-description: "Lab notes and medium-to-hard Jam troubleshooting: IAM is allowed and a second lock still denies the call, plus network, data, and delivery breaks."
+description: "Lab notes and medium-to-hard Jam troubleshooting: IAM, delivery, and VPC edge associations on internet and virtual private gateways."
 tags:
   - aws
   - labs
@@ -13,6 +13,7 @@ tags:
   - jam
   - eks
   - transit-gateway
+  - vpc
   - acm
 date: 2026-09-24
 ---
@@ -865,6 +866,89 @@ VPC Reachability Analyzer, path from the source ENI to the destination ENI, repo
 
 ---
 
+## Edge association on a route table
+
+A subnet association decides where an instance's own packets go. An **edge association** decides where packets go when they **enter** the VPC through an internet gateway or a virtual private gateway. The route table is attached to the gateway. AWS calls that table a gateway route table.
+
+Internet traffic can reach an instance while the firewall counters stay at zero. The public subnet route `0.0.0.0/0 → igw` is in place, and the IGW has no edge association, so ingress is delivered straight to the instance.
+
+```bash
+aws ec2 describe-route-tables \
+  --filters Name=association.gateway-id,Values=igw-xxxx \
+  --query "RouteTables[].{id:RouteTableId,assoc:Associations,routes:Routes}"
+```
+
+An empty result means the internet gateway has no edge association. `Associations[].GatewayId` is the edge. `Associations[].SubnetId` is a normal subnet association. They are different attachments.
+
+Use a new route table. The main table usually already has `0.0.0.0/0 → igw`, a NAT, or propagated VPN routes, and any of those blocks the edge association.
+
+```bash
+aws ec2 create-route-table --vpc-id vpc-xxxx
+aws ec2 associate-route-table --route-table-id rtb-edge --gateway-id igw-xxxx
+aws ec2 create-route --route-table-id rtb-edge \
+  --destination-cidr-block 10.0.1.0/24 \
+  --vpc-endpoint-id vpce-xxxx
+```
+
+`--network-interface-id eni-firewall` is the target when the appliance is an instance. `--vpc-endpoint-id` is the target when the appliance sits behind a Gateway Load Balancer endpoint.
+
+Three tables, one direction each. This is the pattern a Jam breaks one piece of.
+
+| Route table | Association | Extra route |
+| --- | --- | --- |
+| Gateway | Edge association on `igw-` or `vgw-` | Application subnet CIDR → appliance ENI or `vpce-` |
+| Application subnet | Subnet association | `0.0.0.0/0` → the **same** appliance ENI or `vpce-` |
+| Appliance subnet | Subnet association | `0.0.0.0/0` → `igw-` |
+
+The local route (the VPC CIDR) stays on all three. Longest prefix wins, so the application subnet CIDR on the gateway table is what pulls ingress off the local path and into the appliance.
+
+Virtual private gateway traffic (Site-to-Site VPN, Direct Connect through a virtual private gateway) uses an edge association on the **virtual private gateway**. An edge association on the internet gateway leaves that traffic on the normal path.
+
+### Pitfalls a challenge will plant
+
+1. **The edit landed on the subnet table.** `describe-route-tables` for the IGW returns nothing. Inbound sessions succeed and skip the appliance. Associate a gateway route table with `igw-` or `vgw-`, then put the application subnet CIDR on that table.
+
+2. **`associate-route-table` is rejected.** The table is not eligible for a gateway. AWS refuses the association when any of these are true: a route target is something other than `local`, a network interface, or a Gateway Load Balancer endpoint; a route destination sits outside the VPC CIDR (including `0.0.0.0/0`); route propagation is enabled. Create a clean table, associate it, then add the subnet route. Do not start from the main table.
+
+3. **The target type is illegal on a gateway table.** NAT gateway, transit gateway, peering connection, internet gateway, egress-only internet gateway, and interface or gateway VPC endpoints cannot be targets. A `/32` host route cannot be a target either. Allowed targets are `local`, an ENI, and a GWLB endpoint. The API error is a validation failure.
+
+4. **The destination CIDR is the whole VPC, or a slice of the subnet.** The local route already owns the VPC CIDR, so a second route for that same CIDR is rejected. The destination has to be the **entire** IPv4 or IPv6 CIDR of one subnet inside the VPC, which is more specific than local. `10.0.1.15/32` and `10.0.1.0/28` inside a `10.0.1.0/24` subnet are rejected. Copy the subnet CIDR from `describe-subnets`.
+
+5. **The application subnet was included in the wrong table.** The edge route destination is the subnet you want to protect. Pointing that route at the appliance subnet, or at the subnet that holds the GWLB endpoint, sends the packet back into the same hop. The appliance subnet keeps `0.0.0.0/0 → igw` so the appliance itself can complete the internet path.
+
+6. **The return path skips the appliance.** The gateway table sends ingress to the firewall. The application subnet still has `0.0.0.0/0 → igw`. Replies go straight out. A stateful appliance sees one direction and drops the flow. Both directions use the same ENI or the same `vpce-`. Ping to a public IP from the instance and a connection from the internet are two different route lookups.
+
+7. **The ENI cannot carry internet ingress.** For traffic that arrived on an internet gateway, the target network interface must be attached to a **running** instance and must have a **public IPv4** address. A stopped instance turns the route into `blackhole`. A private-only ENI never completes that ingress hop. A GWLB endpoint target does not need its own public IP. The endpoint has to be `available` and in this VPC.
+
+8. **Source/destination check is still on.** The appliance ENI drops packets whose destination is the application address.
+
+```bash
+aws ec2 describe-network-interfaces --network-interface-ids eni-firewall \
+  --query "NetworkInterfaces[].{status:Status,srcdst:SourceDestCheck,public:Association.PublicIp}"
+aws ec2 modify-network-interface-attribute --network-interface-id eni-firewall --no-source-dest-check
+```
+
+9. **IPv6 ingress is a second route.** The IPv4 subnet CIDR on the gateway table does not match IPv6 packets. Add the subnet IPv6 CIDR to the same ENI or `vpce-`. The application subnet needs a matching IPv6 default route to that same target.
+
+10. **The wrong gateway is associated.** Edge association on `igw-` covers internet ingress. Traffic from a virtual private gateway still follows the subnet and VGW path until `vgw-` has its own edge association. Some Local Zones do not support edge association on a virtual private gateway. Traffic that entered through a **transit gateway** is also outside this feature. Steer that with the subnet route and the TGW route table. A gateway route table only redirects traffic that entered on the gateway it is associated with, and only toward a target in the same VPC.
+
+11. **Security group references across the middlebox.** With a middlebox in the path, a security group rule that names the other security group does not apply between the original client and the final instance. Use the CIDR. The instance security group still has to allow the client, and the appliance security group has to allow the forwarded flow. Opening only the appliance security group leaves the instance `REJECT` in the flow log.
+
+12. **Managed-service hairpin.** A route that sends a NAT gateway, a Network Load Balancer, or a transit gateway through the appliance and back into the subnet where that service is attached is unsupported. Symptom is flows that work once and then blackhole, or health checks that flap. Keep those services' own subnets off the edge redirect.
+
+13. **The wizard replaced the association.** The middlebox routing wizard creates new route tables, disassociates the old ones, and tags the new tables `Origin` = `MiddleboxRoutingWizard`. The table you have been editing can be idle. Read `association.subnet-id` and `association.gateway-id` before the next change. Deleting the ENI removes the association and sets the route target to `blackhole`. The route table itself remains.
+
+14. **East-west uses the subnet table, and the same CIDR rule.** To send subnet A to subnet B through the appliance, the route on A's table destination is B's **full** subnet CIDR, target the ENI or `vpce-`. A prefix that is only part of B's CIDR is rejected. The reverse route has to exist on B. The edge association is not involved unless the packet came in through the IGW or VGW.
+
+```bash
+aws ec2 describe-route-tables --route-table-ids rtb-edge \
+  --query "RouteTables[].Routes[].{dest:DestinationCidrBlock,gw:GatewayId,eni:NetworkInterfaceId,vpce:VpcEndpointId,state:State}"
+```
+
+`state` of `blackhole` is a deleted ENI or endpoint. `active` with only the local route means the edge association exists and still does not intercept anything.
+
+---
+
 ## Externally signed certificate, and importing the CA
 
 Two different imports get mixed up.
@@ -1324,3 +1408,4 @@ Change the lock the error names. Then run the one call that was failing.
 | Health check loop | Matcher, target port, target type `ip`, grace period |
 | Empty `NewImage`, 404 on an object you did not mean to delete, FIFO "lost" a duplicate | Stream view, delete marker, content-based dedup |
 | Job or pipe never starts | Tag case, bus name, rule `DISABLED`, filter that matches zero records |
+| Internet path skips the firewall | IGW or VGW edge association, subnet CIDR route, return path on the same appliance |
