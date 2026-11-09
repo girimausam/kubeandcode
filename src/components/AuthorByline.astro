@@ -1,0 +1,120 @@
+---
+import { withBase } from '../utils/url';
+---
+
+<aside class="author-byline" aria-label="About the author">
+	<div class="author-avatar" aria-hidden="true">MG</div>
+	<div class="author-info">
+		<div class="author-name-row">
+			<span class="author-name">Mausam Giri</span>
+			<span class="author-title">Cloud &amp; DevOps Architect</span>
+		</div>
+		<p class="author-bio">
+			Architecting and operating production AWS, Amazon EKS, and container infrastructures. Focuses on console-first runbooks, GitOps automation, and zero-trust security postures.
+		</p>
+		<div class="author-links">
+			<a href={withBase('about/')} class="author-link">About Mausam &rarr;</a>
+			<a href="https://github.com/mausamgiri" target="_blank" rel="noopener noreferrer" class="social-link">GitHub</a>
+			<span class="dot">&bull;</span>
+			<a href="https://linkedin.com/in/mausamgiri" target="_blank" rel="noopener noreferrer" class="social-link">LinkedIn</a>
+		</div>
+	</div>
+</aside>
+
+<style>
+	.author-byline {
+		display: flex;
+		align-items: flex-start;
+		gap: 1.25rem;
+		margin: 3rem 0 1.5rem;
+		padding: 1.5rem;
+		border: 1px solid var(--border);
+		border-radius: 0.5rem;
+		background: var(--bg-subtle);
+	}
+
+	.author-avatar {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 3.25rem;
+		height: 3.25rem;
+		border-radius: 50%;
+		border: 1px solid var(--border);
+		background: var(--bg);
+		font-family: var(--font-mono);
+		font-weight: 700;
+		font-size: var(--text-base);
+		color: var(--accent);
+		flex-shrink: 0;
+	}
+
+	.author-info {
+		flex: 1;
+	}
+
+	.author-name-row {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 0.5rem 0.75rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.author-name {
+		font-size: var(--text-base);
+		font-weight: 700;
+		color: var(--text);
+	}
+
+	.author-title {
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
+		color: var(--accent);
+	}
+
+	.author-bio {
+		margin: 0 0 0.75rem;
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		line-height: 1.55;
+	}
+
+	.author-links {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		font-size: var(--text-xs);
+	}
+
+	.author-link {
+		font-weight: 600;
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	.author-link:hover {
+		text-decoration: underline;
+	}
+
+	.social-link {
+		color: var(--text-muted);
+		text-decoration: none;
+	}
+
+	.social-link:hover {
+		color: var(--text);
+	}
+
+	.dot {
+		color: var(--border);
+	}
+
+	@media (max-width: 36rem) {
+		.author-byline {
+			flex-direction: column;
+			gap: 1rem;
+		}
+	}
+</style>
+

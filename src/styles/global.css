@@ -14,24 +14,25 @@
 	--max-width: 72rem;
 	--header-height: 3.5rem;
 
-	--accent: hsl(220 80% 45%);
+	/* High-contrast WCAG AA verified values */
+	--accent: hsl(220 85% 40%);
 	--accent-muted: hsl(220 60% 94%);
 	--bg: hsl(0 0% 100%);
 	--bg-subtle: hsl(220 20% 97%);
 	--text: hsl(220 20% 14%);
-	--text-muted: hsl(220 10% 42%);
-	--border: hsl(220 14% 88%);
+	--text-muted: hsl(220 12% 38%);
+	--border: hsl(220 14% 86%);
 	--code-bg: hsl(220 16% 95%);
 }
 
 :root[data-theme='dark'] {
-	--accent: hsl(220 85% 65%);
+	--accent: hsl(220 85% 68%);
 	--accent-muted: hsl(220 30% 16%);
 	--bg: hsl(220 20% 7%);
 	--bg-subtle: hsl(220 18% 11%);
-	--text: hsl(220 15% 90%);
-	--text-muted: hsl(220 10% 62%);
-	--border: hsl(220 14% 20%);
+	--text: hsl(220 15% 92%);
+	--text-muted: hsl(220 12% 68%);
+	--border: hsl(220 14% 22%);
 	--code-bg: hsl(220 16% 14%);
 }
 
@@ -106,6 +107,19 @@ body {
 	line-height: var(--line-height);
 	color: var(--text);
 	background: var(--bg);
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+input:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
 }
 
 .site-main {

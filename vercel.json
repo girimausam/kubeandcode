@@ -1,6 +1,40 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/tag/:tag*",
+      "destination": "/tags/:tag*",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/tag/:tag*",
+      "destination": "/blogs/tags/:tag*",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/blogs/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/blogs/sitemap-index.xml",
+      "destination": "/sitemap-index.xml"
+    },
+    {
+      "source": "/blogs/feed.xml",
+      "destination": "/feed.xml"
+    },
+    {
+      "source": "/blogs/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/blogs/:path*",
+      "destination": "/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/_astro/(.*)",

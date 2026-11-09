@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /*?*
 
 Sitemap: https://mausamgiri.in/blogs/sitemap.xml
-
+Sitemap: https://mausamgiri.in/blogs/sitemap-index.xml
+Sitemap: https://blogs.mausamgiri.in/sitemap.xml

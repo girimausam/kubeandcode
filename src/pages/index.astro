@@ -2,59 +2,290 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
-import TagList from '../components/TagList.astro';
-import { getAllTags } from '../utils/posts';
+import { CATEGORIES } from '../data/categories';
+import { withBase } from '../utils/url';
 
-const posts = (await getCollection('posts')).sort(
-  (a, b) => (a.data.title ?? '').localeCompare(b.data.title ?? '')
-);
+const allPosts = await getCollection('posts');
 
-const initialTags = [...new Set(Astro.url.searchParams.getAll('tag'))];
-const tags = getAllTags(posts);
+// Sort posts by date descending
+const sortedPosts = allPosts.sort((a, b) => {
+  const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+  const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+  return dateB - dateA;
+});
+
+const latestPosts = sortedPosts.slice(0, 15);
+
+// Count posts per category
+const categoryCounts = new Map<string, number>();
+for (const cat of CATEGORIES) {
+  const count = allPosts.filter((p) =>
+    p.data.tags.some((t) => cat.tags.includes(t.toLowerCase()))
+  ).length;
+  categoryCounts.set(cat.id, count);
+}
 
 const title = 'AWS, EKS & DevOps Guides: Console-First Runbooks | Mausam Giri';
 const description = 'Practical AWS, EKS, and DevOps runbooks with console-first workflows, architecture patterns, and production troubleshooting guides by Mausam Giri.';
 const canonicalUrl = 'https://mausamgiri.in/blogs/';
 ---
 
-<BaseLayout title={title} description={description} posts={posts} canonicalUrl={canonicalUrl}>
-	<main class="container landing">
-		<section class="posts">
-			<h1>AWS, EKS &amp; DevOps Runbooks</h1>
-			<div class="posts-list">
-				{posts.map((post) => <PostCard post={post} />)}
-				<p class="empty" data-posts-empty hidden>No posts match your filters.</p>
+<BaseLayout title={title} description={description} posts={allPosts} canonicalUrl={canonicalUrl}>
+	<div class="container home">
+		<!-- Hero Section -->
+		<section class="hero">
+			<div class="hero-badge">Production Architecture &amp; Runbooks</div>
+			<h1>AWS, EKS &amp; DevOps Engineering Guides</h1>
+			<p class="hero-subtitle">
+				Console-first workflows, infrastructure patterns, and debugging playbooks built for cloud and platform engineers.
+			</p>
+		</section>
+
+		<!-- Category Hubs Grid -->
+		<section class="categories-section" aria-labelledby="cat-heading">
+			<div class="section-header">
+				<h2 id="cat-heading">Category Hubs</h2>
+				<span class="section-count">{CATEGORIES.length} domains</span>
+			</div>
+			<div class="categories-grid">
+				{CATEGORIES.map((cat) => {
+					const count = categoryCounts.get(cat.id) ?? 0;
+					return (
+						<a href={withBase(`tags/${cat.tag}/`)} class="category-card">
+							<div class="category-top">
+								<span class="category-name">{cat.name}</span>
+								<span class="category-count">{count} {count === 1 ? 'guide' : 'guides'}</span>
+							</div>
+							<p class="category-desc">{cat.description}</p>
+							<div class="category-link">
+								<span>Explore runbooks</span>
+								<span class="arrow">&rarr;</span>
+							</div>
+						</a>
+					);
+				})}
 			</div>
 		</section>
-		<TagList tags={tags} totalCount={posts.length} initialTags={initialTags} />
-	</main>
+
+		<!-- Latest 15 Posts -->
+		<section class="latest-section" aria-labelledby="latest-heading">
+			<div class="section-header">
+				<div>
+					<h2 id="latest-heading">Latest Runbooks</h2>
+					<p class="section-desc">Recently updated engineering and troubleshooting guides</p>
+				</div>
+				<a href={withBase('posts/')} class="view-all-link desktop-only">
+					View all {allPosts.length} guides &rarr;
+				</a>
+			</div>
+
+			<div class="posts-list">
+				{latestPosts.map((post) => <PostCard post={post} />)}
+			</div>
+
+			<div class="bottom-action">
+				<a href={withBase('posts/')} class="btn-archive">
+					Browse all {allPosts.length} posts grouped by year &rarr;
+				</a>
+			</div>
+		</section>
+	</div>
 </BaseLayout>
 
 <style>
-	.landing {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) 14rem;
-		gap: 3rem;
-		padding: 2.5rem 0 0;
+	.home {
+		padding: 2.5rem 0 4rem;
 	}
 
-	.posts h1 {
-		margin: 0 0 1.5rem;
-		font-size: var(--text-sm);
+	/* Hero */
+	.hero {
+		margin-bottom: 3rem;
+		padding-bottom: 2rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.hero-badge {
+		display: inline-block;
+		margin-bottom: 0.75rem;
+		padding: 0.2rem 0.65rem;
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
+		font-weight: 500;
+		color: var(--accent);
+		background: var(--bg-subtle);
+		letter-spacing: 0.02em;
+	}
+
+	.hero h1 {
+		margin: 0 0 0.75rem;
+		font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+		font-weight: 700;
+		line-height: 1.2;
+		letter-spacing: -0.03em;
+		color: var(--text);
+	}
+
+	.hero-subtitle {
+		margin: 0;
+		font-size: var(--text-base);
+		color: var(--text-muted);
+		line-height: 1.6;
+		max-width: 46rem;
+	}
+
+	/* Section Header */
+	.section-header {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.section-header h2 {
+		margin: 0;
+		font-size: var(--text-xl);
 		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		letter-spacing: -0.02em;
+		color: var(--text);
+	}
+
+	.section-count,
+	.section-desc {
+		margin: 0.2rem 0 0;
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+	}
+
+	.view-all-link {
+		font-size: var(--text-sm);
+		font-weight: 500;
+		color: var(--accent);
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.view-all-link:hover {
+		text-decoration: underline;
+	}
+
+	/* Categories Grid */
+	.categories-section {
+		margin-bottom: 3.5rem;
+	}
+
+	.categories-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+		gap: 1rem;
+	}
+
+	.category-card {
+		display: flex;
+		flex-direction: column;
+		padding: 1.25rem;
+		border: 1px solid var(--border);
+		border-radius: 0.5rem;
+		background: var(--bg);
+		text-decoration: none;
+		transition: border-color 0.15s ease, transform 0.15s ease;
+	}
+
+	.category-card:hover {
+		border-color: var(--accent);
+		background: var(--bg-subtle);
+		transform: translateY(-1px);
+	}
+
+	.category-top {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.category-name {
+		font-size: var(--text-base);
+		font-weight: 600;
+		color: var(--text);
+		letter-spacing: -0.01em;
+	}
+
+	.category-count {
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
 		color: var(--text-muted);
 	}
 
-	.empty {
+	.category-desc {
+		margin: 0 0 1rem;
+		font-size: var(--text-xs);
 		color: var(--text-muted);
+		line-height: 1.5;
+		flex-grow: 1;
+	}
+
+	.category-link {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: var(--text-xs);
+		font-weight: 500;
+		color: var(--accent);
+	}
+
+	.category-link .arrow {
+		transition: transform 0.15s ease;
+	}
+
+	.category-card:hover .arrow {
+		transform: translateX(3px);
+	}
+
+	/* Latest Section */
+	.posts-list {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 2rem;
+	}
+
+	.bottom-action {
+		display: flex;
+		justify-content: center;
+		padding: 2rem 0;
+	}
+
+	.btn-archive {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.75rem 1.75rem;
+		border: 1px solid var(--border);
+		border-radius: 0.375rem;
+		background: var(--bg-subtle);
+		color: var(--text);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		text-decoration: none;
+		transition: border-color 0.15s ease, background-color 0.15s ease;
+	}
+
+	.btn-archive:hover {
+		border-color: var(--accent);
+		color: var(--accent);
 	}
 
 	@media (max-width: 48rem) {
-		.landing {
+		.desktop-only {
+			display: none;
+		}
+		.categories-grid {
 			grid-template-columns: 1fr;
-			gap: 2rem;
 		}
 	}
 </style>

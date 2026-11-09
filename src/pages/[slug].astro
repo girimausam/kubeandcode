@@ -4,8 +4,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import PostTags from '../components/PostTags.astro';
+import AuthorByline from '../components/AuthorByline.astro';
+import PostEnhancements from '../components/PostEnhancements.astro';
 import { formatDate, getPostLinks, getRelatedPosts } from '../utils/posts';
 import { getSeriesForPost } from '../data/series';
+import { getCategoryForPost } from '../data/categories';
 import { withBase } from '../utils/url';
 
 export async function getStaticPaths() {
@@ -22,13 +25,20 @@ const { Content, headings } = await render(post);
 const links = getPostLinks(post);
 const related = getRelatedPosts(post, allPosts, 4);
 const seriesInfo = getSeriesForPost(post.id);
+const category = getCategoryForPost(post.data.tags);
 
-const toc = headings.filter((h) => h.depth >= 2);
+// Calculate reading time
+const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+// Headings for TOC (h2 and h3)
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
 const siteUrl = 'https://mausamgiri.in';
 const canonicalUrl = `${siteUrl}/blogs/${post.id}/`;
 const ogImage = `${siteUrl}/blogs/og/${post.id}.png`;
 
+// Breadcrumbs: Home > (Series or Category) > Post Title
 const breadcrumbs = [
   { name: 'Home', url: `${siteUrl}/blogs/` },
   ...(seriesInfo
@@ -38,17 +48,36 @@ const breadcrumbs = [
           url: `${siteUrl}/blogs/series/${seriesInfo.series.slug}/`,
         },
       ]
-    : []),
+    : category
+    ? [
+        {
+          name: category.name,
+          url: `${siteUrl}/blogs/tags/${category.tag}/`,
+        },
+      ]
+    : [{ name: 'Posts', url: `${siteUrl}/blogs/posts/` }]),
   { name: post.data.title, url: canonicalUrl },
 ];
+
+const postDate = post.data.date ? new Date(post.data.date) : new Date();
 
 const articleMeta = {
   headline: post.data.title,
   description: post.data.description,
   author: post.data.author || 'Mausam Giri',
-  datePublished: post.data.date,
-  dateModified: post.data.date,
+  datePublished: postDate,
+  dateModified: postDate,
 };
+
+// Chronological prev / next
+const sortedPosts = [...allPosts].sort((a, b) => {
+  const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+  const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+  return dateB - dateA;
+});
+const currentIndex = sortedPosts.findIndex((p) => p.id === post.id);
+const prevChronPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
+const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
 ---
 
 <BaseLayout
@@ -62,6 +91,29 @@ const articleMeta = {
   breadcrumbs={breadcrumbs}
 >
   <article class="container post">
+    <!-- Breadcrumb Bar -->
+    <nav class="post-breadcrumb" aria-label="Breadcrumb">
+      <a href={withBase()}>Home</a>
+      <span class="sep">/</span>
+      {seriesInfo ? (
+        <>
+          <a href={withBase(`series/${seriesInfo.series.slug}/`)}>{seriesInfo.series.shortTitle}</a>
+          <span class="sep">/</span>
+        </>
+      ) : category ? (
+        <>
+          <a href={withBase(`tags/${category.tag}/`)}>{category.name}</a>
+          <span class="sep">/</span>
+        </>
+      ) : (
+        <>
+          <a href={withBase('posts/')}>Posts</a>
+          <span class="sep">/</span>
+        </>
+      )}
+      <span class="current" title={post.data.title}>{post.data.title}</span>
+    </nav>
+
     {
       seriesInfo && (
         <aside class="series-callout">
@@ -85,17 +137,26 @@ const articleMeta = {
       <h1>{post.data.title}</h1>
       <div class="post-meta">
         <PostTags tags={post.data.tags} centered />
-        <p class="details">
-          {post.data.date && <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>}
-          {post.data.author && <span>{post.data.author}</span>}
+        <div class="meta-row">
+          <div class="date-group">
+            <time datetime={postDate.toISOString()}>{formatDate(postDate)}</time>
+            <span class="meta-divider">&bull;</span>
+            <span class="reading-time">{readingTime} min read</span>
+            <span class="meta-divider">&bull;</span>
+            <span class="byline">By <a href={withBase('about/')}>{post.data.author || 'Mausam Giri'}</a></span>
+          </div>
           {
-            links.map((link) => (
-              <a href={link.url} rel="noopener noreferrer">
-                {link.title}
-              </a>
-            ))
+            links.length > 0 && (
+              <div class="links-group">
+                {links.map((link) => (
+                  <a href={link.url} target="_blank" rel="noopener noreferrer">
+                    {link.title} &rarr;
+                  </a>
+                ))}
+              </div>
+            )
           }
-        </p>
+        </div>
       </div>
     </header>
 
@@ -107,34 +168,101 @@ const articleMeta = {
       </div>
     </div>
 
-    {
-      seriesInfo && (seriesInfo.prevGuide || seriesInfo.nextGuide) && (
-        <nav class="series-pagination" aria-label="Series guide navigation">
-          {seriesInfo.prevGuide ? (
-            <a href={withBase(`${seriesInfo.prevGuide.slug}/`)} class="series-nav-btn prev">
-              <span class="label">&larr; Previous in Series</span>
-              <span class="title">Guide {seriesInfo.prevGuide.order}</span>
-            </a>
-          ) : <div />}
-          {seriesInfo.nextGuide ? (
-            <a href={withBase(`${seriesInfo.nextGuide.slug}/`)} class="series-nav-btn next">
-              <span class="label">Next in Series &rarr;</span>
-              <span class="title">Guide {seriesInfo.nextGuide.order}</span>
-            </a>
-          ) : <div />}
-        </nav>
-      )
-    }
+    <!-- Author Byline Card -->
+    <AuthorByline />
 
+    <!-- Previous / Next Guide Navigation -->
+    <nav class="guide-pagination" aria-label="Article navigation">
+      {seriesInfo ? (
+        <>
+          {seriesInfo.prevGuide ? (
+            <a href={withBase(`${seriesInfo.prevGuide.slug}/`)} class="nav-card prev">
+              <span class="nav-sub">&larr; Previous in {seriesInfo.series.shortTitle}</span>
+              <span class="nav-title">Guide {seriesInfo.prevGuide.order}</span>
+            </a>
+          ) : (
+            <div />
+          )}
+          {seriesInfo.nextGuide ? (
+            <a href={withBase(`${seriesInfo.nextGuide.slug}/`)} class="nav-card next">
+              <span class="nav-sub">Next in {seriesInfo.series.shortTitle} &rarr;</span>
+              <span class="nav-title">Guide {seriesInfo.nextGuide.order}</span>
+            </a>
+          ) : (
+            <div />
+          )}
+        </>
+      ) : (
+        <>
+          {prevChronPost ? (
+            <a href={withBase(`${prevChronPost.id}/`)} class="nav-card prev">
+              <span class="nav-sub">&larr; Previous Guide</span>
+              <span class="nav-title">{prevChronPost.data.title}</span>
+            </a>
+          ) : (
+            <div />
+          )}
+          {nextChronPost ? (
+            <a href={withBase(`${nextChronPost.id}/`)} class="nav-card next">
+              <span class="nav-sub">Next Guide &rarr;</span>
+              <span class="nav-title">{nextChronPost.data.title}</span>
+            </a>
+          ) : (
+            <div />
+          )}
+        </>
+      )}
+    </nav>
+
+    <!-- Related Posts -->
     <RelatedPosts posts={related} />
   </article>
+
+  <!-- Sticky Table of Contents -->
   <TableOfContents headings={toc} />
+
+  <!-- Post Enhancements (Back-to-top, heading copy links, details persistence) -->
+  <PostEnhancements />
 </BaseLayout>
 
 <style>
   .post {
-    padding: 3rem 0 0;
+    padding: 2rem 0 4rem;
   }
+
+  .post-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .post-breadcrumb a:hover {
+    color: var(--accent);
+  }
+
+  .post-breadcrumb .sep {
+    color: var(--border);
+    flex-shrink: 0;
+  }
+
+  .post-breadcrumb .current {
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .series-callout {
     margin-bottom: 2rem;
     padding: 0.85rem 1.25rem;
@@ -143,14 +271,15 @@ const articleMeta = {
     border-radius: 0.35rem;
     background: var(--bg-subtle);
     min-height: 4.5rem;
-    contain: layout;
   }
+
   .series-callout-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0.35rem;
   }
+
   .series-pill {
     font-size: var(--text-xs);
     font-weight: 600;
@@ -158,56 +287,102 @@ const articleMeta = {
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
+
   .series-step {
     font-size: var(--text-xs);
     color: var(--text-muted);
     font-family: var(--font-mono);
   }
+
   .series-callout-body {
     font-size: var(--text-sm);
     color: var(--text);
   }
+
   .series-callout-body a {
     color: var(--accent);
     text-decoration: none;
   }
+
   .series-callout-body a:hover {
     text-decoration: underline;
   }
+
   .post-header {
     text-align: center;
+    margin-bottom: 2rem;
   }
+
   h1 {
-    margin: 0;
-    font-size: var(--text-3xl);
+    margin: 0 0 1rem;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
     line-height: 1.2;
     letter-spacing: -0.03em;
+    color: var(--text);
   }
+
   .post-meta {
     margin-top: 1rem;
   }
-  .details {
+
+  .meta-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .date-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .meta-divider {
+    color: var(--border);
+  }
+
+  .byline a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .byline a:hover {
+    color: var(--accent);
+  }
+
+  .links-group {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.5rem 1rem;
-    margin: 0;
-    font-size: var(--text-sm);
-    color: var(--text-muted);
+    gap: 1rem;
+    margin-top: 0.25rem;
   }
-  .details a {
+
+  .links-group a {
     color: var(--accent);
+    text-decoration: none;
   }
+
   .cover {
     width: 100%;
-    margin: 2rem 0 0;
+    margin: 2rem 0;
     border: 1px solid var(--border);
     border-radius: 0.5rem;
   }
+
   .prose :global(:is(h2, h3, h4, h5, h6)) {
     scroll-margin-top: calc(var(--header-height) + 1.5rem);
   }
-  .series-pagination {
+
+  /* Guide pagination (prev / next) */
+  .guide-pagination {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
@@ -215,30 +390,44 @@ const articleMeta = {
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
   }
-  .series-nav-btn {
+
+  .nav-card {
     display: flex;
     flex-direction: column;
-    padding: 0.85rem 1rem;
+    padding: 1rem 1.15rem;
     border: 1px solid var(--border);
-    border-radius: 0.35rem;
-    text-decoration: none;
+    border-radius: 0.375rem;
     background: var(--bg);
-    transition: border-color 0.15s;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
   }
-  .series-nav-btn:hover {
+
+  .nav-card:hover {
     border-color: var(--accent);
+    background: var(--bg-subtle);
   }
-  .series-nav-btn.next {
+
+  .nav-card.next {
     text-align: right;
   }
-  .series-nav-btn .label {
+
+  .nav-sub {
     font-size: var(--text-xs);
     color: var(--text-muted);
-    font-weight: 500;
+    font-family: var(--font-mono);
+    margin-bottom: 0.25rem;
   }
-  .series-nav-btn .title {
+
+  .nav-title {
     font-size: var(--text-sm);
     font-weight: 600;
     color: var(--accent);
+    line-height: 1.35;
+  }
+
+  @media (max-width: 40rem) {
+    .guide-pagination {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

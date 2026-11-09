@@ -1,0 +1,241 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../utils/url';
+
+const allPosts = await getCollection('posts');
+
+const title = 'About Mausam Giri | Cloud & DevOps Architect';
+const description = 'Cloud & DevOps Architect focusing on production AWS architectures, Amazon EKS operations, container platforms, and infrastructure runbooks.';
+const canonicalUrl = 'https://mausamgiri.in/blogs/about/';
+const breadcrumbs = [
+  { name: 'Home', url: 'https://mausamgiri.in/blogs/' },
+  { name: 'About', url: canonicalUrl },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  posts={allPosts}
+  canonicalUrl={canonicalUrl}
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container about-page">
+    <header class="about-header">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href={withBase()}>Home</a>
+        <span class="sep">/</span>
+        <span class="current">About</span>
+      </nav>
+      <div class="author-badge">Cloud &amp; DevOps Architect</div>
+      <h1>Mausam Giri</h1>
+      <p class="lead">
+        Building resilient, production-grade cloud infrastructure on AWS. Specializing in Amazon EKS, container networking, GitOps, and console-first engineering runbooks.
+      </p>
+    </header>
+
+    <div class="about-content">
+      <section class="bio-section">
+        <h2>Background &amp; Focus</h2>
+        <p>
+          I design, operate, and automate enterprise infrastructure on Amazon Web Services. This blog serves as a field manual of battle-tested configurations, step-by-step console procedures, and deep-dive architectural runbooks written for practicing cloud engineers, DevOps practitioners, and platform teams.
+        </p>
+        <p>
+          Every guide here is created with a console-first approach paired with production CLI snippets and Infrastructure as Code—focusing on real failure modes, zero-trust security postures, and repeatable operations.
+        </p>
+      </section>
+
+      <section class="focus-grid" aria-labelledby="focus-areas-heading">
+        <h2 id="focus-areas-heading">Core Technical Focus</h2>
+        <div class="grid">
+          <div class="focus-card">
+            <h3>Amazon EKS &amp; Kubernetes</h3>
+            <p>Production cluster lifecycle, Karpenter autoscaling, Kyverno admission controllers, Argo CD GitOps pipelines, and private cluster topologies.</p>
+          </div>
+          <div class="focus-card">
+            <h3>Container &amp; App Networking</h3>
+            <p>Amazon ECS on AWS Fargate, Service Connect discovery, Amazon VPC Lattice application networking, and centralized egress Transit Gateways.</p>
+          </div>
+          <div class="focus-card">
+            <h3>Cloud Security &amp; IAM</h3>
+            <p>Fine-grained IAM policy conditions, KMS envelope encryption, ACM private CA, Cognito federation, and Amazon Verified Permissions (Cedar).</p>
+          </div>
+          <div class="focus-card">
+            <h3>Serverless &amp; Applied AI</h3>
+            <p>AWS Lambda runtime optimization, AppSync GraphQL APIs, EventBridge schemas, and Amazon Bedrock AgentCore autonomous agent systems.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="connect-section">
+        <h2>Connect &amp; Resources</h2>
+        <div class="links-list">
+          <a href="https://github.com/mausamgiri" target="_blank" rel="noopener noreferrer" class="link-item">
+            <span class="platform">GitHub</span>
+            <span class="handle">github.com/mausamgiri &rarr;</span>
+          </a>
+          <a href="https://linkedin.com/in/mausamgiri" target="_blank" rel="noopener noreferrer" class="link-item">
+            <span class="platform">LinkedIn</span>
+            <span class="handle">linkedin.com/in/mausamgiri &rarr;</span>
+          </a>
+          <a href="https://mausamgiri.in" target="_blank" rel="noopener noreferrer" class="link-item">
+            <span class="platform">Website</span>
+            <span class="handle">mausamgiri.in &rarr;</span>
+          </a>
+          <a href={withBase('feed.xml')} class="link-item">
+            <span class="platform">RSS / Atom</span>
+            <span class="handle">RSS Feed &rarr;</span>
+          </a>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-page {
+    max-width: 48rem;
+    padding: 2.5rem 0 4rem;
+  }
+
+  .about-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+
+  .author-badge {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+    color: var(--accent);
+    background: var(--bg-subtle);
+  }
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .lead {
+    margin: 0;
+    font-size: var(--text-lg);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  p {
+    margin: 0 0 1rem;
+    font-size: var(--text-base);
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .focus-card {
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--bg-subtle);
+  }
+
+  .focus-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .focus-card p {
+    margin: 0;
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .links-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .link-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--bg);
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .link-item:hover {
+    border-color: var(--accent);
+  }
+
+  .platform {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .handle {
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+    color: var(--accent);
+    margin-top: 0.2rem;
+  }
+
+  @media (max-width: 40rem) {
+    .grid, .links-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

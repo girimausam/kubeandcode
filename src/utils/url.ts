@@ -15,7 +15,7 @@ export function withBase(path = '') {
 	return `${base}${suffix}`;
 }
 
-/** Homepage URL filtered by a single tag. */
+/** Tag page URL: /blogs/tags/<tag>/ */
 export function tagFilterUrl(tag: string) {
-	return withBase(`?tag=${encodeURIComponent(tag)}`);
+	return withBase(`tags/${encodeURIComponent(tag)}/`);
 }

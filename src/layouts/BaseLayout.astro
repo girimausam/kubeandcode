@@ -213,7 +213,7 @@ if (breadcrumbs.length > 0) {
 			)
 		}
 
-		<script is:inline>
+		<script is:inline define:vars={{ base }}>
 			(function () {
 				const storageKey = 'theme';
 				const theme =
@@ -221,8 +221,14 @@ if (breadcrumbs.length > 0) {
 					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 				document.documentElement.dataset.theme = theme;
 
-				// Dynamic robots meta update if query params exist on client navigation
+				// Instant redirect from ?tag=X to /blogs/tags/X/
 				if (window.location.search && window.location.search.length > 1) {
+					const params = new URLSearchParams(window.location.search);
+					const tag = params.get('tag');
+					if (tag) {
+						window.location.replace(`${base}tags/${encodeURIComponent(tag)}/`);
+						return;
+					}
 					const r = document.querySelector('meta[name="robots"]');
 					if (r) r.setAttribute('content', 'noindex, follow');
 				}
@@ -230,12 +236,13 @@ if (breadcrumbs.length > 0) {
 		</script>
 	</head>
 	<body>
+		<a href="#main-content" class="skip-link">Skip to main content</a>
 		<Header>
 			<ThemeToggle slot="actions" />
 		</Header>
 		<SearchModal />
 		<ContentPreview />
-		<main class="site-main">
+		<main class="site-main" id="main-content">
 			<slot />
 		</main>
 		<Footer posts={posts} />
@@ -243,3 +250,24 @@ if (breadcrumbs.length > 0) {
 		<Mermaid />
 	</body>
 </html>
+
+<style>
+	.skip-link {
+		position: absolute;
+		top: -9999px;
+		left: 1rem;
+		z-index: 1000;
+		padding: 0.6rem 1.2rem;
+		background: var(--accent);
+		color: #ffffff;
+		font-weight: 600;
+		font-size: var(--text-sm);
+		border-radius: 0.35rem;
+		text-decoration: none;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+	}
+
+	.skip-link:focus {
+		top: 1rem;
+	}
+</style>

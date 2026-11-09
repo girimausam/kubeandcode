@@ -13,33 +13,51 @@ export const GET: APIRoute = async () => {
 
   const urls: { loc: string; lastmod: string; changefreq: string; priority: string }[] = [];
 
+  const today = new Date().toISOString().split('T')[0];
+
   // 1. Homepage
   urls.push({
     loc: `${siteUrl}${baseUrl}/`,
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: today,
     changefreq: 'daily',
     priority: '1.0',
   });
 
-  // 2. Series Index
+  // 2. All Posts archive (/blogs/posts/)
+  urls.push({
+    loc: `${siteUrl}${baseUrl}/posts/`,
+    lastmod: today,
+    changefreq: 'daily',
+    priority: '0.9',
+  });
+
+  // 3. About page (/blogs/about/)
+  urls.push({
+    loc: `${siteUrl}${baseUrl}/about/`,
+    lastmod: today,
+    changefreq: 'monthly',
+    priority: '0.7',
+  });
+
+  // 4. Series Index (/blogs/series/)
   urls.push({
     loc: `${siteUrl}${baseUrl}/series/`,
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: today,
     changefreq: 'weekly',
     priority: '0.9',
   });
 
-  // 3. Series Hubs
+  // 5. Series Hubs (/blogs/series/<series>/)
   for (const series of SERIES_LIST) {
     urls.push({
       loc: `${siteUrl}${baseUrl}/series/${series.slug}/`,
-      lastmod: new Date().toISOString().split('T')[0],
+      lastmod: today,
       changefreq: 'weekly',
-      priority: '0.9',
+      priority: '0.85',
     });
   }
 
-  // 4. Posts
+  // 6. Posts (/blogs/<slug>/)
   for (const post of posts) {
     let lastmodDate = post.data.date;
     if (!lastmodDate) {
@@ -62,11 +80,11 @@ export const GET: APIRoute = async () => {
     });
   }
 
-  // 5. Tag pages
+  // 7. Dedicated Tag pages (/blogs/tags/<tag>/)
   for (const { tag } of tags) {
     urls.push({
-      loc: `${siteUrl}${baseUrl}/tag/${encodeURIComponent(tag)}/`,
-      lastmod: new Date().toISOString().split('T')[0],
+      loc: `${siteUrl}${baseUrl}/tags/${encodeURIComponent(tag)}/`,
+      lastmod: today,
       changefreq: 'weekly',
       priority: '0.6',
     });
@@ -93,4 +111,3 @@ ${urls
     },
   });
 };
-
