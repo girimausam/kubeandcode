@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amazon DocumentDB TLS: CA Bundle Connection Guide"
 description: "Connect applications securely to Amazon DocumentDB clusters using TLS encryption in transit and the AWS RDS global CA certificate bundle."
 date: 2026-09-22
@@ -45,7 +45,7 @@ curl -o global-bundle.pem \
 
 On Windows, PKCS#7 is also available: `https://truststore.pki.rds.amazonaws.com/global/global-bundle.p7b`.
 
-**Operational note:** The DocumentDB CA was updated in **2024**. The current `global-bundle.pem` includes **multiple** root CAs (legacy and new RSA/ECC roots). Trust the **bundle**, not an individual instance certificate—DocumentDB **rotates server certificates** automatically (~12 months); clients that pin only the leaf cert break after rotation. See [CA certificate rotation](https://docs.aws.amazon.com/documentdb/latest/devguide/ca_cert_rotation.html).
+**Operational note:** The DocumentDB CA was updated in **2024**. The current `global-bundle.pem` includes **multiple** root CAs (legacy and new RSA/ECC roots). Trust the **bundle**, not an individual instance certificate-DocumentDB **rotates server certificates** automatically (~12 months); clients that pin only the leaf cert break after rotation. See [CA certificate rotation](https://docs.aws.amazon.com/documentdb/latest/devguide/ca_cert_rotation.html).
 
 ## Cluster-side TLS parameter
 
@@ -91,7 +91,7 @@ DocumentDB-specific connection flags you should remember:
 | `tlsCAFile=global-bundle.pem` | Validates server against AWS CA |
 | `replicaSet=rs0` | DocumentDB replica set name |
 | `readPreference=secondaryPreferred` | Offload reads to replicas when safe |
-| `retryWrites=false` | **Required** — DocumentDB does not support MongoDB retryable writes |
+| `retryWrites=false` | **Required** - DocumentDB does not support MongoDB retryable writes |
 
 ## Python (PyMongo)
 
@@ -150,7 +150,7 @@ Either import the PEM into a **JKS truststore** with `keytool`, or build an `SSL
 2. Confirm **Encryption in transit** / TLS enabled (parameter group).
 3. **EC2** → Security groups → inbound **27017** from application tier only.
 4. Store credentials in **Secrets Manager**; rotate without embedding passwords in code.
-5. For compliance, enable **encryption at rest** (KMS) separately from TLS—both are recommended.
+5. For compliance, enable **encryption at rest** (KMS) separately from TLS-both are recommended.
 
 ## Summary
 

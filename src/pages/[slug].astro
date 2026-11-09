@@ -126,7 +126,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
           <div class="series-callout-body">
             <span>Part of the curriculum: </span>
             <a href={withBase(`series/${seriesInfo.series.slug}/`)}>
-              <strong>{seriesInfo.series.title}</strong> &rarr;
+              <strong>{seriesInfo.series.title}</strong> <span class="material-symbols-outlined">arrow_forward</span>
             </a>
           </div>
         </aside>
@@ -150,7 +150,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
               <div class="links-group">
                 {links.map((link) => (
                   <a href={link.url} target="_blank" rel="noopener noreferrer">
-                    {link.title} &rarr;
+                    {link.title} <span class="material-symbols-outlined">arrow_forward</span>
                   </a>
                 ))}
               </div>
@@ -177,7 +177,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
         <>
           {seriesInfo.prevGuide ? (
             <a href={withBase(`${seriesInfo.prevGuide.slug}/`)} class="nav-card prev">
-              <span class="nav-sub">&larr; Previous in {seriesInfo.series.shortTitle}</span>
+              <span class="nav-sub"><span class="material-symbols-outlined arrow-back">arrow_back</span> Previous in {seriesInfo.series.shortTitle}</span>
               <span class="nav-title">Guide {seriesInfo.prevGuide.order}</span>
             </a>
           ) : (
@@ -185,7 +185,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
           )}
           {seriesInfo.nextGuide ? (
             <a href={withBase(`${seriesInfo.nextGuide.slug}/`)} class="nav-card next">
-              <span class="nav-sub">Next in {seriesInfo.series.shortTitle} &rarr;</span>
+              <span class="nav-sub">Next in {seriesInfo.series.shortTitle} <span class="material-symbols-outlined">arrow_forward</span></span>
               <span class="nav-title">Guide {seriesInfo.nextGuide.order}</span>
             </a>
           ) : (
@@ -196,7 +196,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
         <>
           {prevChronPost ? (
             <a href={withBase(`${prevChronPost.id}/`)} class="nav-card prev">
-              <span class="nav-sub">&larr; Previous Guide</span>
+              <span class="nav-sub"><span class="material-symbols-outlined arrow-back">arrow_back</span> Previous Guide</span>
               <span class="nav-title">{prevChronPost.data.title}</span>
             </a>
           ) : (
@@ -204,7 +204,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
           )}
           {nextChronPost ? (
             <a href={withBase(`${nextChronPost.id}/`)} class="nav-card next">
-              <span class="nav-sub">Next Guide &rarr;</span>
+              <span class="nav-sub">Next Guide <span class="material-symbols-outlined">arrow_forward</span></span>
               <span class="nav-title">{nextChronPost.data.title}</span>
             </a>
           ) : (
@@ -227,16 +227,16 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
 
 <style>
   .post {
-    padding: 2rem 0 4rem;
+    padding: 1.25rem 0 2.5rem;
   }
 
   .post-breadcrumb {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     font-size: var(--text-xs);
     color: var(--text-muted);
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -264,20 +264,19 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
   }
 
   .series-callout {
-    margin-bottom: 2rem;
-    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.25rem;
+    padding: 0.65rem 1rem;
     border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
+    border-left: 3px solid var(--accent);
     border-radius: 0.35rem;
     background: var(--bg-subtle);
-    min-height: 4.5rem;
   }
 
   .series-callout-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.25rem;
   }
 
   .series-pill {
@@ -295,7 +294,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
   }
 
   .series-callout-body {
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     color: var(--text);
   }
 
@@ -310,26 +309,26 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
 
   .post-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
   }
 
   h1 {
-    margin: 0 0 1rem;
-    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-    line-height: 1.2;
-    letter-spacing: -0.03em;
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    line-height: 1.25;
+    letter-spacing: -0.025em;
     color: var(--text);
   }
 
   .post-meta {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 
   .meta-row {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
     font-size: var(--text-xs);
     color: var(--text-muted);
     font-family: var(--font-mono);
@@ -340,7 +339,7 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .meta-divider {
@@ -372,31 +371,31 @@ const nextChronPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
 
   .cover {
     width: 100%;
-    margin: 2rem 0;
+    margin: 1.25rem 0;
     border: 1px solid var(--border);
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
   }
 
   .prose :global(:is(h2, h3, h4, h5, h6)) {
-    scroll-margin-top: calc(var(--header-height) + 1.5rem);
+    scroll-margin-top: calc(var(--header-height) + 1rem);
   }
 
   /* Guide pagination (prev / next) */
   .guide-pagination {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin: 2.5rem 0 1rem;
-    padding-top: 1.5rem;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0.75rem;
+    padding-top: 1rem;
     border-top: 1px solid var(--border);
   }
 
   .nav-card {
     display: flex;
     flex-direction: column;
-    padding: 1rem 1.15rem;
+    padding: 0.65rem 0.85rem;
     border: 1px solid var(--border);
-    border-radius: 0.375rem;
+    border-radius: 0.35rem;
     background: var(--bg);
     text-decoration: none;
     transition: border-color 0.15s ease, background-color 0.15s ease;

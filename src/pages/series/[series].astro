@@ -110,23 +110,25 @@ const breadcrumbs = [
     </div>
 
     <footer class="hub-footer">
-      <a href={withBase('series/')} class="back-link">&larr; Back to all series</a>
+      <a href={withBase('series/')} class="back-link">
+        <span class="material-symbols-outlined arrow-back">arrow_back</span>
+        Back to all series
+      </a>
     </footer>
   </div>
 </BaseLayout>
 
 <style>
   .series-hub {
-    padding: 2rem 0 4rem;
-    max-width: 52rem;
+    padding: 1.5rem 0 2.5rem;
   }
   .hub-breadcrumb {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     font-size: var(--text-xs);
     color: var(--text-muted);
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
   }
   .hub-breadcrumb a {
     color: var(--text-muted);

@@ -1,5 +1,5 @@
-/**
- * Viewer response — add CORS if origin did not send Access-Control-Allow-Origin.
+﻿/**
+ * Viewer response - add CORS if origin did not send Access-Control-Allow-Origin.
  * Runtime: cloudfront-js-2.0
  *
  * Set ALLOWED_ORIGIN to your web app origin (not * in production with credentials).

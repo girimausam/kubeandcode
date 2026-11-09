@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amazon EKS VPC Lattice Gateway API: Service Controller"
 description: "Walkthrough of AWS Gateway API Controller on Amazon EKS: custom resource definitions (CRDs), Lattice service networks, and multi-cluster routing."
 tags:
@@ -25,7 +25,7 @@ Gateway API objects → **Amazon VPC Lattice Gateway API Controller** → Lattic
 
 Pair with the app lab: [VPC Lattice application networking](/aws-vpc-lattice-application-networking/) (service network name **`lattice-sn`**). This page uses the same network name so EKS inventory shares the network with ECS/EC2 services.
 
-Official walkthrough: [Getting started](https://www.gateway-api-controller.eks.aws.dev/latest/guides/getstarted/) (upstream examples use service network **`my-hotel`** — name is arbitrary).
+Official walkthrough: [Getting started](https://www.gateway-api-controller.eks.aws.dev/latest/guides/getstarted/) (upstream examples use service network **`my-hotel`** - name is arbitrary).
 
 ---
 ## 1. Cluster context and Lattice security groups
@@ -79,7 +79,7 @@ kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/re
 
 Chart version: use the value in [Install the controller](https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/#install-the-controller) (currently **v2.1.3**). Set `serviceAccount.create=false` because the SA already exists from Pod Identity / IRSA.
 
-On **Amazon EKS**, the chart reads account, Region, VPC, and cluster name from the control plane — **do not** pass empty `clusterVpcId` / `awsAccountId` placeholders.
+On **Amazon EKS**, the chart reads account, Region, VPC, and cluster name from the control plane - **do not** pass empty `clusterVpcId` / `awsAccountId` placeholders.
 
 ```bash
 aws ecr-public get-login-password --region us-east-1 | \
@@ -113,7 +113,7 @@ Apply the manifest from the controller repo (after Helm pods are running):
 kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/files/controller-installation/gatewayclass.yaml
 ```
 
-Same content (cluster-scoped — no namespace):
+Same content (cluster-scoped - no namespace):
 
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
@@ -187,7 +187,7 @@ Create namespace `networking` (optional; keeps Gateway separate from app namespa
 kubectl create namespace networking
 ```
 
-Minimal Gateway (matches [upstream `my-hotel-gateway.yaml`](https://github.com/aws/aws-application-networking-k8s/blob/main/files/examples/my-hotel-gateway.yaml)). Custom `hostname` and cross-namespace routes are optional — see collapsible note below.
+Minimal Gateway (matches [upstream `my-hotel-gateway.yaml`](https://github.com/aws/aws-application-networking-k8s/blob/main/files/examples/my-hotel-gateway.yaml)). Custom `hostname` and cross-namespace routes are optional - see collapsible note below.
 
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
@@ -270,9 +270,9 @@ spec:
 <details>
 <summary>parentRefs, hostnames, backendRefs</summary>
 
-- **parentRefs** — Gateway name; `sectionName` binds listener `http`. Cross-namespace attach requires Gateway `allowedRoutes.namespaces.from: All`.
-- **hostnames** — optional; must overlap Gateway listener hostname when both are set.
-- **backendRefs** — Kubernetes Service name and **Service port** (80 here, not 8080).
+- **parentRefs** - Gateway name; `sectionName` binds listener `http`. Cross-namespace attach requires Gateway `allowedRoutes.namespaces.from: All`.
+- **hostnames** - optional; must overlap Gateway listener hostname when both are set.
+- **backendRefs** - Kubernetes Service name and **Service port** (80 here, not 8080).
 
 </details>
 

@@ -1,4 +1,4 @@
-# ShopFlow on ECS — reference artifacts
+﻿# ShopFlow on ECS - reference artifacts
 
 Companion to the blog post **ShopFlow: a production ECS Fargate walkthrough**.
 

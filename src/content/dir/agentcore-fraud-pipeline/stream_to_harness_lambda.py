@@ -1,4 +1,4 @@
-"""
+﻿"""
 DynamoDB Streams → AgentCore Harness → write FraudAssessments.
 
 Env:
@@ -151,7 +151,7 @@ def lambda_handler(event, context):
         try:
             verdict = _invoke_harness(new_image)
             _save_result(verdict)
-        except Exception as exc:  # noqa: BLE001 — batch partial failure
+        except Exception as exc:  # noqa: BLE001 - batch partial failure
             failures.append(f"{new_image.get('transactionId')}: {exc}")
 
     if failures:

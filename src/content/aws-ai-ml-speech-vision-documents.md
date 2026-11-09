@@ -1,4 +1,4 @@
----
+﻿---
 title: "AWS AI Services: Polly, Transcribe & Rekognition"
 description: "Integrate Amazon Polly, Transcribe, Rekognition, and Textract for speech synthesis, transcription, computer vision, and document analysis."
 tags:
@@ -23,9 +23,9 @@ Part **2 of 3** in the AWS managed AI/ML series.
 
 | Part | Topic |
 | --- | --- |
-| [1 — Text and chatbots](/aws-ai-ml-text-and-chatbots/) | Comprehend, Translate, Lex |
+| [1 - Text and chatbots](/aws-ai-ml-text-and-chatbots/) | Comprehend, Translate, Lex |
 | **2 (this page)** | Polly, Transcribe, Rekognition, Textract |
-| [3 — Search and recommendations](/aws-ai-ml-search-and-recommendations/) | Kendra, Personalize |
+| [3 - Search and recommendations](/aws-ai-ml-search-and-recommendations/) | Kendra, Personalize |
 
 ## Prerequisites
 
@@ -185,7 +185,7 @@ Docs: [detect-labels](https://docs.aws.amazon.com/cli/latest/reference/rekogniti
 
 ## Amazon Textract
 
-**Use when:** forms, tables, or layout on **documents** (PDF/TIFF/PNG/JPEG)—more structure than plain Rekognition OCR.
+**Use when:** forms, tables, or layout on **documents** (PDF/TIFF/PNG/JPEG)-more structure than plain Rekognition OCR.
 
 ### Console
 
@@ -236,4 +236,4 @@ Docs: [analyze-document](https://docs.aws.amazon.com/cli/latest/reference/textra
 
 ## Next
 
-Continue with [Part 3 — Kendra and Personalize](/aws-ai-ml-search-and-recommendations/).
+Continue with [Part 3 - Kendra and Personalize](/aws-ai-ml-search-and-recommendations/).

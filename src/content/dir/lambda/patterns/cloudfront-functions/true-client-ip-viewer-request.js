@@ -1,5 +1,5 @@
-/**
- * Viewer request — forward viewer IP to origin (when origin needs client IP).
+﻿/**
+ * Viewer request - forward viewer IP to origin (when origin needs client IP).
  * Runtime: cloudfront-js-2.0
  *
  * CloudFront also provides CloudFront-Viewer-Address on origin request;

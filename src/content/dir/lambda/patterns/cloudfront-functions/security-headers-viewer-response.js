@@ -1,5 +1,5 @@
-/**
- * Viewer response — add common HTTP security headers.
+﻿/**
+ * Viewer response - add common HTTP security headers.
  * Runtime: cloudfront-js-2.0
  */
 async function handler(event) {

@@ -1,5 +1,5 @@
-"""
-ShopFlow sample microservices — one image, role selected by APP_ROLE.
+﻿"""
+ShopFlow sample microservices - one image, role selected by APP_ROLE.
 
 Roles: storefront | orders | payments | inventory
 East-west calls use Service Connect DNS names (orders, payments, inventory).

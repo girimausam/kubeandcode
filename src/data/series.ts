@@ -1,4 +1,4 @@
-export interface SeriesGuide {
+﻿export interface SeriesGuide {
   slug: string;
   order: number;
   stage: string;
@@ -23,7 +23,7 @@ export const SERIES_LIST: Series[] = [
     title: 'Amazon EKS Production Runbook Series',
     shortTitle: 'Amazon EKS',
     badge: 'Kubernetes & EKS',
-    description: 'A structured, end-to-end curriculum for running production Kubernetes workloads on Amazon EKS—from cluster bootstrap and workloads to Karpenter scaling, Kyverno governance, storage CSI, and GitOps.',
+    description: 'A structured, end-to-end curriculum for running production Kubernetes workloads on Amazon EKS-from cluster bootstrap and workloads to Karpenter scaling, Kyverno governance, storage CSI, and GitOps.',
     metaDescription: 'Complete Amazon EKS runbook series: cluster provisioning, Karpenter autoscaling, AWS Load Balancer Controller, Kyverno policies, and day-2 operations.',
     guides: [
       { slug: 'eks-getting-started', order: 1, stage: 'Fundamentals', summary: 'Provision your first production-ready EKS cluster with eksctl, VPC subnets, and kubectl configuration.' },

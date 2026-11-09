@@ -1,4 +1,4 @@
----
+﻿---
 title: "Bedrock AgentCore Fraud Pipeline: DynamoDB Streams & AI"
 description: "Build a serverless real-time fraud detection pipeline using DynamoDB Streams, AWS Lambda triggers, and Amazon Bedrock AgentCore multi-agents."
 tags:
@@ -60,7 +60,7 @@ Sample code: [`dir/agentcore-fraud-pipeline/`](./dir/agentcore-fraud-pipeline/).
                                                └──────────────────────┘
 ```
 
-Each specialist is a **focused agent** (single responsibility, structured JSON output). The **harness** is the only component that runs the multi-tool reasoning loop—you do not hand-write that loop in Lambda.
+Each specialist is a **focused agent** (single responsibility, structured JSON output). The **harness** is the only component that runs the multi-tool reasoning loop-you do not hand-write that loop in Lambda.
 
 ---
 
@@ -97,21 +97,21 @@ Enable **DynamoDB Streams** (`NEW_AND_OLD_IMAGES` or `NEW_IMAGE` only).
 
 ---
 
-## Step 1 — Identity (Build → Identity)
+## Step 1 - Identity (Build → Identity)
 
 This pipeline is **service-to-service** (stream → Lambda → AgentCore). You typically **do not** need an end-user JWT on the harness path.
 
 **Do this:**
 
 1. Use **IAM** on the stream Lambda execution role (`bedrock-agentcore:InvokeHarness`).
-2. Register **credential providers** in Identity only if a specialist agent must call external fraud APIs (e.g. device intelligence SaaS) with OAuth—then attach outbound auth on the **Gateway** target, not in Lambda.
+2. Register **credential providers** in Identity only if a specialist agent must call external fraud APIs (e.g. device intelligence SaaS) with OAuth-then attach outbound auth on the **Gateway** target, not in Lambda.
 3. Set harness **`actorId`** to `merchantId` for audit and optional Memory namespaces if you add merchant-scoped memory later.
 
 ---
 
-## Step 2 — Memory (Build → Memory)
+## Step 2 - Memory (Build → Memory)
 
-Fraud scoring is **one-shot per transaction**—do not reuse chat history across payments.
+Fraud scoring is **one-shot per transaction**-do not reuse chat history across payments.
 
 **Do this:**
 
@@ -120,7 +120,7 @@ Fraud scoring is **one-shot per transaction**—do not reuse chat history across
 
 ---
 
-## Step 3 — Gateways (Build → Gateways)
+## Step 3 - Gateways (Build → Gateways)
 
 Expose the **four specialist agents** as Gateway tools (Lambda targets with OpenAPI schemas).
 
@@ -137,11 +137,11 @@ Expose the **four specialist agents** as Gateway tools (Lambda targets with Open
 
 Tool names appear to the harness as `fraud-gateway___velocity_check`, etc. (gateway name + target name). Match these in `allowedTools` on the harness and stream Lambda.
 
-**Alternative:** Register four **AgentCore Runtime** agents as gateway targets instead of Lambdas if specialists need custom Strands/LangGraph code—the orchestration pattern is unchanged.
+**Alternative:** Register four **AgentCore Runtime** agents as gateway targets instead of Lambdas if specialists need custom Strands/LangGraph code-the orchestration pattern is unchanged.
 
 ---
 
-## Step 4 — Policy (Build → Policy)
+## Step 4 - Policy (Build → Policy)
 
 Fraud needs **deterministic guardrails** on tool calls.
 
@@ -156,13 +156,13 @@ Fraud needs **deterministic guardrails** on tool calls.
 
 ---
 
-## Step 5 — Built-in tools (Build → Built-in tools)
+## Step 5 - Built-in tools (Build → Built-in tools)
 
 Not required for this scenario. Skip Browser, Code Interpreter, and KB unless you add **merchant policy documents** via a managed KB connector on the same gateway.
 
 ---
 
-## Step 6 — Runtime (Build → Runtime)
+## Step 6 - Runtime (Build → Runtime)
 
 Optional. Use **Runtime** only for specialists that need a custom container loop. For this lab, **Lambda specialists + Gateway** are enough and cheaper to iterate.
 
@@ -170,20 +170,20 @@ If you later move a specialist to Runtime, add it as a **gateway runtime target*
 
 ---
 
-## Step 7 — Harness (Build → Harness)
+## Step 7 - Harness (Build → Harness)
 
 Create the **fraud orchestrator** harness.
 
 **Do this:**
 
 1. **Build → Harness → Create** using [`harness-create.json`](./dir/agentcore-fraud-pipeline/harness-create.json) as a template (update ARNs and model ID).
-2. **System prompt** — require calling **all four** tools before emitting JSON verdict.
-3. **Tools** — one `agentcore_gateway` entry pointing at `fraud-gateway`.
-4. **`allowedTools`** — restrict to the four fraud tools (no shell in production).
+2. **System prompt** - require calling **all four** tools before emitting JSON verdict.
+3. **Tools** - one `agentcore_gateway` entry pointing at `fraud-gateway`.
+4. **`allowedTools`** - restrict to the four fraud tools (no shell in production).
 5. Create harness endpoint **`prod`** pinned to a tested version.
 
 <details>
-<summary>CLI — create harness (after editing JSON)</summary>
+<summary>CLI - create harness (after editing JSON)</summary>
 
 ```bash
 export AWS_REGION=us-east-1
@@ -198,7 +198,7 @@ Poll `get-harness` until `status` is `READY`, then create endpoint `prod`.
 
 ---
 
-## Step 8 — Test, assess, and operate
+## Step 8 - Test, assess, and operate
 
 | Check | Action |
 |-------|--------|
@@ -211,7 +211,7 @@ Poll `get-harness` until `status` is `READY`, then create endpoint `prod`.
 
 ## Wire DynamoDB Stream → Lambda
 
-### IAM — stream Lambda role
+### IAM - stream Lambda role
 
 In addition to DynamoDB stream read and `FraudAssessments` write:
 
@@ -279,21 +279,21 @@ aws dynamodb put-item --table-name PaymentEvents --item '{
 
 ## Production checklist (this scenario)
 
-1. **Identity** — IAM-only on Lambda; OAuth only for external fraud vendors via Gateway.
-2. **Memory** — disabled on orchestrator harness.
-3. **Gateway** — four Lambda specialists; least-privilege gateway role.
-4. **Policy** — ENFORCE on gateway; amount and field guards.
-5. **Harness** — `allowedTools` whitelist; endpoint `prod` version pinned.
-6. **Lambda** — timeout ≥ harness `timeoutSeconds` + buffer; stream batch size tuned.
-7. **DynamoDB** — idempotent writes on `transactionId`; TTL on old assessments if required.
-8. **Observability** — correlate `transactionId` in Lambda logs with AgentCore trace IDs.
+1. **Identity** - IAM-only on Lambda; OAuth only for external fraud vendors via Gateway.
+2. **Memory** - disabled on orchestrator harness.
+3. **Gateway** - four Lambda specialists; least-privilege gateway role.
+4. **Policy** - ENFORCE on gateway; amount and field guards.
+5. **Harness** - `allowedTools` whitelist; endpoint `prod` version pinned.
+6. **Lambda** - timeout ≥ harness `timeoutSeconds` + buffer; stream batch size tuned.
+7. **DynamoDB** - idempotent writes on `transactionId`; TTL on old assessments if required.
+8. **Observability** - correlate `transactionId` in Lambda logs with AgentCore trace IDs.
 
 ---
 
 ## Related patterns
 
-- [Part 4 - Integrate with Lambda and compute](./bedrock-agentcore-production-guide.md#integrate-with-lambda-and-other-compute) — BFF and `InvokeHarness` details.
-- [Lambda event-driven pipelines](./aws-lambda-event-pipeline.md) — stream and partial failure patterns.
-- [Step Functions + InvokeHarness](https://docs.aws.amazon.com/step-functions/latest/dg/connect-bedrockagentcore.html) — replace stream Lambda with a state machine if you need human review between specialist calls.
+- [Part 4 - Integrate with Lambda and compute](./bedrock-agentcore-production-guide.md#integrate-with-lambda-and-other-compute) - BFF and `InvokeHarness` details.
+- [Lambda event-driven pipelines](./aws-lambda-event-pipeline.md) - stream and partial failure patterns.
+- [Step Functions + InvokeHarness](https://docs.aws.amazon.com/step-functions/latest/dg/connect-bedrockagentcore.html) - replace stream Lambda with a state machine if you need human review between specialist calls.
 
 [← Part 4 - AgentCore in production](./bedrock-agentcore-production-guide.md)

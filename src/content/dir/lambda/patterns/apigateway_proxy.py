@@ -1,7 +1,7 @@
-"""API Gateway HTTP API / REST proxy integration.
+﻿"""API Gateway HTTP API / REST proxy integration.
 
 Reads httpMethod + body/query; returns API Gateway response object.
-Env: TABLE_NAME optional — if set, GET ?id= reads DynamoDB (demo).
+Env: TABLE_NAME optional - if set, GET ?id= reads DynamoDB (demo).
 """
 
 import json

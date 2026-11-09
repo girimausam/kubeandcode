@@ -1,14 +1,14 @@
-"""
+﻿"""
 Lambda@Edge: SPA routing for S3 + CloudFront (OAC).
 
 Use on **viewer request** (preferred for URI rewrites) or origin request.
 
 Two deploy styles (set REWRITE_MODE):
 
-  root — One index.html at bucket root (Vite, CRA, Angular CLI default).
+  root - One index.html at bucket root (Vite, CRA, Angular CLI default).
          /dashboard  →  /index.html
 
-  path — Per-route index files (Gatsby/Hugo export, aws-samples SPA rewrite).
+  path - Per-route index files (Gatsby/Hugo export, aws-samples SPA rewrite).
          /dashboard  →  /dashboard/index.html
          /docs/      →  /docs/index.html
 
@@ -25,7 +25,7 @@ Deploy:
        404 → /index.html, response code 200
      (Use with REWRITE_MODE=root; optional if rewrite covers all routes.)
 
-Lambda@Edge has no environment variables — edit constants below.
+Lambda@Edge has no environment variables - edit constants below.
 """
 
 REWRITE_MODE = "root"  # "root" | "path"

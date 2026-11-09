@@ -1,5 +1,5 @@
-/**
- * CloudFront Functions (viewer request) — AWS official SPA URL rewrite pattern.
+﻿/**
+ * CloudFront Functions (viewer request) - AWS official SPA URL rewrite pattern.
  * Cheaper/lighter than Lambda@Edge for URI rewrites only.
  *
  * Deploy: Runtime cloudfront-js-2.0, associate with viewer-request on S3 behavior.

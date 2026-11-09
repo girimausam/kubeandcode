@@ -1,4 +1,4 @@
----
+﻿---
 title: "AWS AI NLP: Comprehend, Translate & Amazon Lex"
 description: "Build conversational interfaces and NLP pipelines using Amazon Comprehend for sentiment analysis, Translate for localization, and Lex for chatbots."
 tags:
@@ -26,8 +26,8 @@ Part **1 of 3** in the AWS managed AI/ML series.
 | Part | Topic |
 | --- | --- |
 | **1 (this page)** | Comprehend, Translate, Lex |
-| [2 — Speech, vision, documents](/aws-ai-ml-speech-vision-documents/) | Polly, Transcribe, Rekognition, Textract |
-| [3 — Search and recommendations](/aws-ai-ml-search-and-recommendations/) | Kendra, Personalize |
+| [2 - Speech, vision, documents](/aws-ai-ml-speech-vision-documents/) | Polly, Transcribe, Rekognition, Textract |
+| [3 - Search and recommendations](/aws-ai-ml-search-and-recommendations/) | Kendra, Personalize |
 
 Console steps come first. Copy-paste **AWS CLI** lives in `<details>` blocks.
 
@@ -48,7 +48,7 @@ export AWS_REGION=us-east-1
 
 ## Amazon Comprehend
 
-**Use when:** you need sentiment, entities, key phrases, or language from short text—no model training required.
+**Use when:** you need sentiment, entities, key phrases, or language from short text-no model training required.
 
 ### Console
 
@@ -156,7 +156,7 @@ Lex has many CLI steps (`lexv2-models` create bot, locale, build, version, alias
 Reference: [Creating a bot using the Lex V2 console](https://docs.aws.amazon.com/lexv2/latest/dg/create-bot-console.html).
 
 <details>
-<summary>AWS CLI (Lex — test only)</summary>
+<summary>AWS CLI (Lex - test only)</summary>
 
 After the bot is **Built** and you have a **bot alias**, send text to the runtime API. Replace placeholders from the Lex console (**Bot ID**, **Bot alias ID**):
 
@@ -200,4 +200,4 @@ Docs: [Lex V2 API](https://docs.aws.amazon.com/lexv2/latest/APIReference/welcome
 
 ## Next
 
-Continue with [Part 2 — Polly, Transcribe, Rekognition, Textract](/aws-ai-ml-speech-vision-documents/).
+Continue with [Part 2 - Polly, Transcribe, Rekognition, Textract](/aws-ai-ml-speech-vision-documents/).

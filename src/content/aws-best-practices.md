@@ -1,4 +1,4 @@
----
+﻿---
 title: "AWS Service Best Practices: Enterprise Architecture"
 description: "Essential AWS production best practices across compute, storage, networking, security, IAM privilege separation, and cost governance."
 tags:
@@ -49,7 +49,7 @@ Actionable defaults for production workloads. Apply what fits your risk tier; us
 
 - **Enable versioning** on buckets that hold user data, configs, or anything you cannot recreate from source. Recover from accidental deletes and overwrites; pair with lifecycle rules so old versions do not grow forever.
 - **Use S3 Object Lock** (Governance or Compliance) for audit logs, regulatory archives, and ransomware-resistant retention when requirements demand immutability. Object Lock must be enabled at bucket creation (or on existing buckets that support it) before you rely on it.
-- **Turn on MFA Delete** only where policy requires it; it complicates automation—document who holds MFA for production buckets.
+- **Turn on MFA Delete** only where policy requires it; it complicates automation-document who holds MFA for production buckets.
 
 ### Lifecycle and cost
 
@@ -74,10 +74,10 @@ Actionable defaults for production workloads. Apply what fits your risk tier; us
 
 ### Observability and governance
 
-- **Server access logging** or **CloudTrail data events** for sensitive buckets (data events have cost—scope to prefixes).
+- **Server access logging** or **CloudTrail data events** for sensitive buckets (data events have cost-scope to prefixes).
 - **Event notifications** to SQS, SNS, or Lambda for ingest pipelines, virus scan, or index updates.
 - **Inventory** and **Storage Class Analysis** for large estates; **S3 Storage Lens** for organization-wide visibility.
-- **Tags**: `Environment`, `Owner`, `CostCenter`, `DataClassification`, `Application`—feed into Cost Allocation Tags and backup policies.
+- **Tags**: `Environment`, `Owner`, `CostCenter`, `DataClassification`, `Application`-feed into Cost Allocation Tags and backup policies.
 - **AWS Backup** for centralized backup plans when S3 is in scope for your compliance framework.
 
 ### Example: versioning + lifecycle (CLI)
@@ -109,7 +109,7 @@ aws s3api put-bucket-lifecycle-configuration \
 - **No inline `AdministratorAccess`** on daily roles; break glass account/role with MFA and session logging.
 - **Permission boundaries** on roles that third parties or developers can edit.
 - **Service control policies (SCPs)** at org level for guardrails (e.g. deny unencrypted S3, deny root API keys).
-- **Separate roles per workload** (Lambda, EC2, ECS task role)—no shared “super role.”
+- **Separate roles per workload** (Lambda, EC2, ECS task role)-no shared “super role.”
 - **Regular access reviews**; remove unused roles and policies; use **IAM Access Analyzer** for external access.
 - **Tag IAM roles** (`Owner`, `Service`) for ownership and cleanup.
 
@@ -123,7 +123,7 @@ aws s3api put-bucket-lifecycle-configuration \
 - **Disable public IPs** on private subnet instances; outbound via **NAT** or **egress-only** patterns.
 - **Default VPC security group**: no inbound rules; do not use as application SG.
 - **VPC Flow Logs** to S3 or CloudWatch for forensics and anomaly detection.
-- **NACLs** as coarse guardrails; **security groups** for application rules—document why each port is open.
+- **NACLs** as coarse guardrails; **security groups** for application rules-document why each port is open.
 - **Stop or terminate** idle instances; use **Instance Scheduler** or Auto Scaling for variable load.
 - **Launch templates** (not launch configurations) with **detailed monitoring** where metrics drive scaling.
 - **Tags** on instances, volumes, ENIs for cost and automation.
@@ -163,7 +163,7 @@ aws s3api put-bucket-lifecycle-configuration \
 
 - **Dead-letter queue (DLQ)** or **on-failure destination** for async invokes.
 - **Reserved concurrency** for critical functions; **provisioned concurrency** for latency-sensitive paths.
-- Set **timeout** and **memory** from load testing—not defaults.
+- Set **timeout** and **memory** from load testing-not defaults.
 - **VPC** only when accessing private resources (adds ENI cold start); use **RDS Proxy**.
 - **No public function URLs** without auth; API Gateway or ALB with authorizers preferred.
 - **Environment variables** for non-secret config; **Secrets Manager** / **Parameter Store** for secrets.
@@ -178,7 +178,7 @@ aws s3api put-bucket-lifecycle-configuration \
 ### ECS
 
 - **awsvpc** networking for Fargate and most new designs.
-- **Task roles** (app) vs **execution roles** (pull image, logs)—never one role for both.
+- **Task roles** (app) vs **execution roles** (pull image, logs)-never one role for both.
 - **Read-only root filesystem** and **non-root user** in task definitions where possible.
 - **Container Insights** or equivalent metrics; log drivers to CloudWatch.
 - **Fargate platform version** current; pin only after regression testing.
@@ -189,7 +189,7 @@ aws s3api put-bucket-lifecycle-configuration \
 - **Control plane logging** (api, audit, authenticator) to CloudWatch.
 - **Secrets encryption** with KMS for etcd.
 - **Restrict public API endpoint**; private endpoint + VPN/SSO for admin.
-- **IRSA** for pod AWS API access—not node instance role for app permissions.
+- **IRSA** for pod AWS API access-not node instance role for app permissions.
 - **Pod Security Standards** / admission policy (Kyverno, Gatekeeper) for baseline.
 - **Tag** clusters and node groups for chargeback.
 
@@ -220,7 +220,7 @@ aws s3api put-bucket-lifecycle-configuration \
 ## CloudFront
 
 - **HTTPS only** viewer policy; redirect HTTP to HTTPS.
-- **Origin Access Control (OAC)** for S3 origins—no public S3 for static sites.
+- **Origin Access Control (OAC)** for S3 origins-no public S3 for static sites.
 - **WAF** on distributions serving browsers.
 - **Access logs** or real-time logs for security review.
 - **Default root object** for SPA static hosting.
@@ -230,7 +230,7 @@ aws s3api put-bucket-lifecycle-configuration \
 
 ## API Gateway
 
-- **Authorization** on every route (JWT/Cognito, IAM, Lambda authorizer)—no anonymous production APIs unless intentional.
+- **Authorization** on every route (JWT/Cognito, IAM, Lambda authorizer)-no anonymous production APIs unless intentional.
 - **Throttling** and **usage plans** for partner APIs.
 - **Execution logging** and **access logging** to CloudWatch.
 - **WAF** on HTTP APIs and REST API stages exposed to the internet.
@@ -241,7 +241,7 @@ aws s3api put-bucket-lifecycle-configuration \
 ## ElastiCache
 
 - **Auth token** (Redis) and **TLS in transit** for production.
-- **Custom subnet groups** in private subnets—not default.
+- **Custom subnet groups** in private subnets-not default.
 - **Multi-AZ** with automatic failover for Redis replication groups.
 - **Automatic backups** and snapshot window defined.
 - **Encryption at rest**; security groups limited to application tiers.
@@ -262,7 +262,7 @@ aws s3api put-bucket-lifecycle-configuration \
 ## Auto Scaling
 
 - **Multiple AZs** in every ASG tied to a load balancer.
-- **ELB/target group health checks**—not EC2 status checks alone when behind ALB.
+- **ELB/target group health checks**-not EC2 status checks alone when behind ALB.
 - **Launch templates** with current AMIs and instance metadata settings.
 - **Predictive scaling** or scheduled scaling where traffic is predictable.
 - **Instance refresh** for rolling AMI/security updates.
@@ -282,7 +282,7 @@ aws s3api put-bucket-lifecycle-configuration \
 
 - **Rotation** enabled for RDS and custom Lambdas where supported.
 - **Resource policies** restrict which roles can read each secret.
-- **No secrets in CodeBuild plaintext**—use Secrets Manager or SSM SecureString.
+- **No secrets in CodeBuild plaintext**-use Secrets Manager or SSM SecureString.
 - **Tag** secrets with owning service.
 
 ---

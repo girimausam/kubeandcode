@@ -1,5 +1,5 @@
-/**
- * Viewer request — drop marketing query params to improve cache hit ratio.
+﻿/**
+ * Viewer request - drop marketing query params to improve cache hit ratio.
  * Runtime: cloudfront-js-2.0
  *
  * Example: /page?utm_source=x&id=1 → /page?id=1

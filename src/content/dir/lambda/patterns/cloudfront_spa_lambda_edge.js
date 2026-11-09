@@ -1,5 +1,5 @@
-/**
- * Lambda@Edge (viewer request) — single root index.html (typical React/Vite SPA on S3).
+﻿/**
+ * Lambda@Edge (viewer request) - single root index.html (typical React/Vite SPA on S3).
  *
  * Deploy: us-east-1, Node.js 20.x, publish version, viewer-request trigger.
  */

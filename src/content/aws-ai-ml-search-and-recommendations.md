@@ -1,4 +1,4 @@
----
+﻿---
 title: "AWS Kendra & Personalize: Search & Recommendations"
 description: "Implement intelligent enterprise search with Amazon Kendra and real-time personalized recommendations using Amazon Personalize."
 tags:
@@ -23,8 +23,8 @@ Part **3 of 3** in the AWS managed AI/ML series.
 
 | Part | Topic |
 | --- | --- |
-| [1 — Text and chatbots](/aws-ai-ml-text-and-chatbots/) | Comprehend, Translate, Lex |
-| [2 — Speech, vision, documents](/aws-ai-ml-speech-vision-documents/) | Polly, Transcribe, Rekognition, Textract |
+| [1 - Text and chatbots](/aws-ai-ml-text-and-chatbots/) | Comprehend, Translate, Lex |
+| [2 - Speech, vision, documents](/aws-ai-ml-speech-vision-documents/) | Polly, Transcribe, Rekognition, Textract |
 | **3 (this page)** | Kendra, Personalize |
 
 These services take longer to provision than Comprehend or Polly. Plan extra wait time after **Create**.
@@ -44,7 +44,7 @@ export AWS_REGION=us-east-1
 
 ## Amazon Kendra
 
-**Use when:** enterprise search over documents in S3, SharePoint, web crawlers, and other connectors—with ranking and FAQ-style answers.
+**Use when:** enterprise search over documents in S3, SharePoint, web crawlers, and other connectors-with ranking and FAQ-style answers.
 
 ### Console
 
@@ -63,7 +63,7 @@ Reference: [Getting started with the Kendra console](https://docs.aws.amazon.com
 <details>
 <summary>AWS CLI (Kendra)</summary>
 
-Create index (IAM role must trust `kendra.amazonaws.com` and allow Kendra + CloudWatch Logs—see [IAM roles for indexes](https://docs.aws.amazon.com/kendra/latest/dg/iam-roles.html)):
+Create index (IAM role must trust `kendra.amazonaws.com` and allow Kendra + CloudWatch Logs-see [IAM roles for indexes](https://docs.aws.amazon.com/kendra/latest/dg/iam-roles.html)):
 
 ```bash
 aws kendra create-index \
@@ -135,7 +135,7 @@ Reference: [Getting started (console)](https://docs.aws.amazon.com/personalize/l
 <details>
 <summary>AWS CLI (Personalize)</summary>
 
-Personalize uses the `personalize` control plane and `personalize-runtime` for recommendations. The official CLI tutorial uses the [Movie Lens sample](https://docs.aws.amazon.com/personalize/latest/dg/getting-started-cli.html)—follow that for schema ARNs and recipe ARNs in your Region.
+Personalize uses the `personalize` control plane and `personalize-runtime` for recommendations. The official CLI tutorial uses the [Movie Lens sample](https://docs.aws.amazon.com/personalize/latest/dg/getting-started-cli.html)-follow that for schema ARNs and recipe ARNs in your Region.
 
 Skeleton sequence:
 
@@ -185,4 +185,4 @@ Docs: [Getting started (CLI)](https://docs.aws.amazon.com/personalize/latest/dg/
 
 ## Series complete
 
-Back to [Part 1 — Comprehend, Translate, Lex](/aws-ai-ml-text-and-chatbots/) or [CLI snippets index](/aws-cli-snippets/).
+Back to [Part 1 - Comprehend, Translate, Lex](/aws-ai-ml-text-and-chatbots/) or [CLI snippets index](/aws-cli-snippets/).

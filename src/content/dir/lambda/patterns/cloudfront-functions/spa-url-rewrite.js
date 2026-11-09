@@ -1,5 +1,5 @@
-/**
- * Viewer request — SPA / static site path rewrite (per-route index.html in S3).
+﻿/**
+ * Viewer request - SPA / static site path rewrite (per-route index.html in S3).
  * Runtime: cloudfront-js-2.0
  *
  * /about     → /about/index.html

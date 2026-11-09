@@ -1,5 +1,5 @@
-/**
- * Viewer request — simple shared-secret gate via query param (demo only).
+﻿/**
+ * Viewer request - simple shared-secret gate via query param (demo only).
  * Runtime: cloudfront-js-2.0
  *
  * NOT a replacement for real auth. For production use Cognito, signed cookies, or JWT.

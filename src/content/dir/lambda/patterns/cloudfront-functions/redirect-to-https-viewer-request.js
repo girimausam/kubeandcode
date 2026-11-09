@@ -1,5 +1,5 @@
-/**
- * Viewer request — redirect HTTP to HTTPS (if behavior still accepts HTTP).
+﻿/**
+ * Viewer request - redirect HTTP to HTTPS (if behavior still accepts HTTP).
  * Runtime: cloudfront-js-2.0
  *
  * Prefer "Redirect HTTP to HTTPS" on the distribution viewer policy when possible;

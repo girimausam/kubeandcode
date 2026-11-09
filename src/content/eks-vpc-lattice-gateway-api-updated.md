@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amazon EKS VPC Lattice: Gateway API & HTTPRoute Setup"
 description: "Modern Amazon EKS application networking using AWS Gateway API Controller, EKS Pod Identity, HTTPRoute rules, and Route 53 private DNS."
 tags:
@@ -14,7 +14,7 @@ date: 2026-09-20
 resources:
   - title: Controller installation (EKS)
     url: https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/
-  - title: Gateway API type — Gateway
+  - title: Gateway API type - Gateway
     url: https://www.gateway-api-controller.eks.aws.dev/latest/api-types/gateway/
   # - title: Earlier guide (unchanged)
   #   url: /eks-vpc-lattice-gateway-api/
@@ -32,7 +32,7 @@ This page supersedes the **operational** details for new clusters; the [original
 | --- | --- | --- |
 | ServiceAccount | `serviceAccount.create=false` after manual SA | **Helm `serviceAccount.create=true`**; bind IAM with **EKS Pod Identity** (no hand-written SA YAML) |
 | Service network | `defaultServiceNetwork` / `lattice-sn` | **Gateway `metadata.name` = VPC Lattice service network name** (e.g. Gateway `lattice-gateway` → SN `lattice-gateway`) |
-| Helm account ID | Numeric `awsAccountId` in values | Use **`helm --set-string awsAccountId=...`** or omit on EKS — bare numbers can become `2.71e+11` in pod env |
+| Helm account ID | Numeric `awsAccountId` in values | Use **`helm --set-string awsAccountId=...`** or omit on EKS - bare numbers can become `2.71e+11` in pod env |
 | HTTPRoute errors | Generic troubleshooting | **IMDS timeout** on `Resource Groups Tagging API` / target group synthesis → missing Pod Identity/IRSA on controller SA |
 | Unhealthy Lattice targets | Often blamed on health path only | **`ConnectionTimeout`** on pod IP **:8080** → missing **Step 1** SG rule (validated `lab-cluster` 2026-09-19) |
 

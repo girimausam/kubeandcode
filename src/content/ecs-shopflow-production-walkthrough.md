@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amazon ECS ShopFlow: Fargate Microservices Walkthrough"
 description: "End-to-end production walkthrough: build the four-service ShopFlow application on Amazon ECS Fargate with Service Connect, ALB, and EFS."
 tags:
@@ -18,7 +18,7 @@ links:
 
 # ShopFlow on ECS: end-to-end production walkthrough
 
-This post implements a **realistic** workload—not a single “hello task.” **ShopFlow** is a simplified e-commerce checkout path:
+This post implements a **realistic** workload-not a single “hello task.” **ShopFlow** is a simplified e-commerce checkout path:
 
 - **Storefront** (public) accepts `POST /api/checkout`.
 - **Orders** orchestrates inventory reservation and payment capture.
@@ -26,7 +26,7 @@ This post implements a **realistic** workload—not a single “hello task.” *
 - **Settlement** is a **VPC Lambda** that health-checks Orders over **Cloud Map DNS** (not Service Connect).
 - **EFS** stores append-only **audit JSONL** from Orders (shared, durable, multi-task safe).
 
-You will configure **Service Connect** for east-west HTTP, **Service Discovery** for non-ECS callers, **EFS** for shared files, and an **ALB** for north-south traffic—following AWS rollout order and production guardrails.
+You will configure **Service Connect** for east-west HTTP, **Service Discovery** for non-ECS callers, **EFS** for shared files, and an **ALB** for north-south traffic-following AWS rollout order and production guardrails.
 
 **Theory reference:** [ECS at production scale](./ecs-production-service-connect-discovery-storage.md) · [Service Connect vs Discovery cheat sheet](./aws-ecs-service-connect-vs-discovery.md)
 
@@ -125,15 +125,15 @@ Attach AWS managed **`AmazonECSTaskExecutionRolePolicy`** to execution role; add
 
 ### 3.4 CloudWatch log groups
 
-Create `/ecs/shopflow/storefront`, `orders`, `payments`, `inventory`, `/ecs/shopflow/service-connect` before first deploy (or let execution role create—explicit is cleaner for retention policies).
+Create `/ecs/shopflow/storefront`, `orders`, `payments`, `inventory`, `/ecs/shopflow/service-connect` before first deploy (or let execution role create-explicit is cleaner for retention policies).
 
 ---
 
-## 4. Storage — EFS for audit (production pattern)
+## 4. Storage - EFS for audit (production pattern)
 
 Orders appends JSON lines to `/mnt/efs/audit/orders-YYYY-MM-DD.jsonl` ([`app.py`](./dir/shopflow-ecs/app.py)).
 
-### Console — EFS
+### Console - EFS
 
 1. Open [EFS console](https://console.aws.amazon.com/efs/home) → **Create file system**.
 2. **VPC:** same as ECS; mount targets in **each AZ** used by tasks.
@@ -149,13 +149,13 @@ Orders appends JSON lines to `/mnt/efs/audit/orders-YYYY-MM-DD.jsonl` ([`app.py`
 
 See [`task-def-orders.json`](./dir/shopflow-ecs/task-def-orders.json): `efsVolumeConfiguration` with `transitEncryption: ENABLED` and `accessPointId`.
 
-**Best practice:** Only **Orders** mounts EFS. Storefront, Payments, and Inventory stay ephemeral—smaller blast radius.
+**Best practice:** Only **Orders** mounts EFS. Storefront, Payments, and Inventory stay ephemeral-smaller blast radius.
 
 ---
 
 ## 5. Service Connect namespace and port naming
 
-### Console — HTTP namespace for Service Connect
+### Console - HTTP namespace for Service Connect
 
 1. [ECS console](https://console.aws.amazon.com/ecs/v2) → **Namespaces** → **Create**.
 2. Name: `shopflow-mesh` (HTTP namespace for Service Connect).
@@ -172,7 +172,7 @@ Every task definition **must** name ports and set `appProtocol: http`:
 | Payments | 8082 | `payments-8082-tcp` | `payments` |
 | Inventory | 8083 | `inventory-8083-tcp` | `inventory` |
 
-Register task definitions in the console (**Task definitions** → **Create**) or register JSON revisions. Templates: [`task-def-storefront.json`](./dir/shopflow-ecs/task-def-storefront.json), [`task-def-orders.json`](./dir/shopflow-ecs/task-def-orders.json)—duplicate pattern for payments/inventory with `APP_ROLE` and ports.
+Register task definitions in the console (**Task definitions** → **Create**) or register JSON revisions. Templates: [`task-def-storefront.json`](./dir/shopflow-ecs/task-def-storefront.json), [`task-def-orders.json`](./dir/shopflow-ecs/task-def-orders.json)-duplicate pattern for payments/inventory with `APP_ROLE` and ports.
 
 **Environment variables** must match Service Connect aliases (`ORDERS_HOST=orders`, not `orders.shopflow`).
 
@@ -182,14 +182,14 @@ Register task definitions in the console (**Task definitions** → **Create**) o
 
 Orders is **also** registered in a **DNS private** namespace for non-ECS consumers.
 
-### Console — Cloud Map private namespace
+### Console - Cloud Map private namespace
 
 1. [Cloud Map](https://console.aws.amazon.com/cloudmap/home) → **Create namespace**.
 2. Type: **DNS private**.
 3. Name: `shopflow.prod.internal`.
 4. VPC: your ECS VPC.
 
-### Console — Cloud Map service
+### Console - Cloud Map service
 
 1. Inside namespace, create service **`orders-api`**.
 2. DNS routing: **Multivalue** with low TTL if you want faster convergence.
@@ -212,15 +212,15 @@ Resulting FQDN: `orders-api.shopflow.prod.internal` → task IPs.
 
 AWS recommends enabling **client-server Service Connect on backends before clients** ([rollout guidance](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-concepts-deploy.html)).
 
-### Phase A — Internal backends (no ALB)
+### Phase A - Internal backends (no ALB)
 
 Deploy in this order; wait for **steady state** between each:
 
-1. **inventory** — SC client-server, alias `inventory:8083`
-2. **payments** — SC client-server, alias `payments:8082`
-3. **orders** — SC client-server, alias `orders:8081` + **EFS mount** + **service discovery** `orders-api`
+1. **inventory** - SC client-server, alias `inventory:8083`
+2. **payments** - SC client-server, alias `payments:8082`
+3. **orders** - SC client-server, alias `orders:8081` + **EFS mount** + **service discovery** `orders-api`
 
-**Console — create `orders` service (excerpt)**
+**Console - create `orders` service (excerpt)**
 
 1. **Clusters** → `shopflow-prod` → **Create service**.
 2. **Compute:** Launch type Fargate, task definition `shopflow-orders`.
@@ -235,17 +235,17 @@ Deploy in this order; wait for **steady state** between each:
 
 JSON reference: [`service-connect-orders.json`](./dir/shopflow-ecs/service-connect-orders.json).
 
-### Phase B — Storefront (ALB + SC client)
+### Phase B - Storefront (ALB + SC client)
 
 1. Create **ALB** (internet-facing), **HTTPS listener**, target group **IP mode** port 8080, health check path `/ready`.
 2. Create **storefront** service:
    - Load balancer: attach to target group.
-   - Service Connect: **enabled**, same namespace, **no** published endpoints (`services: []`) — see [`service-connect-storefront-client.json`](./dir/shopflow-ecs/service-connect-storefront-client.json).
+   - Service Connect: **enabled**, same namespace, **no** published endpoints (`services: []`) - see [`service-connect-storefront-client.json`](./dir/shopflow-ecs/service-connect-storefront-client.json).
 3. **Security groups:**
    - ALB SG → storefront SG on 8080.
-   - Storefront SG → orders SG on 8081 (if not using SC proxy-only paths, still allow task-to-task; SC proxy listens on alias ports inside task—follow [SC security group guidance](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)).
+   - Storefront SG → orders SG on 8081 (if not using SC proxy-only paths, still allow task-to-task; SC proxy listens on alias ports inside task-follow [SC security group guidance](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)).
 
-### Phase C — Force client redeploy if needed
+### Phase C - Force client redeploy if needed
 
 If Storefront was deployed before Orders finished registering, run **Update service** → **Force new deployment** on Storefront ([`/etc/hosts` caveat](./ecs-production-service-connect-discovery-storage.md)).
 
@@ -258,12 +258,12 @@ If Storefront was deployed before Orders finished registering, run **Update serv
 | `alb-sg` | 443 from `0.0.0.0/0` | storefront:8080 |
 | `storefront-sg` | 8080 from `alb-sg` | 443 to VPC endpoints / NAT |
 | `orders-sg` | 8081 from `storefront-sg` (+ SC mesh) | payments, inventory, EFS 2049 |
-| `payments-sg` | 8082 from `orders-sg` | — |
-| `inventory-sg` | 8083 from `orders-sg` | — |
-| `efs-sg` | 2049 from `orders-sg` | — |
-| `lambda-settlement-sg` | — | orders:8081, logs, NAT |
+| `payments-sg` | 8082 from `orders-sg` | - |
+| `inventory-sg` | 8083 from `orders-sg` | - |
+| `efs-sg` | 2049 from `orders-sg` | - |
+| `lambda-settlement-sg` | - | orders:8081, logs, NAT |
 
-Use **separate SGs per tier**—never one shared “ecs-sg” with wide ingress.
+Use **separate SGs per tier**-never one shared “ecs-sg” with wide ingress.
 
 ---
 
@@ -299,7 +299,7 @@ tail -n 3 /mnt/efs/audit/orders-$(date -u +%F).jsonl
 
 ### 9.4 Service Discovery (Lambda)
 
-Deploy [`lambda_settlement.py`](./dir/shopflow-ecs/lambda_settlement.py) in VPC private subnets with `ORDERS_DNS=orders-api.shopflow.prod.internal`. Invoke test event—should return Orders `/health` body.
+Deploy [`lambda_settlement.py`](./dir/shopflow-ecs/lambda_settlement.py) in VPC private subnets with `ORDERS_DNS=orders-api.shopflow.prod.internal`. Invoke test event-should return Orders `/health` body.
 
 ### 9.5 Observability
 
@@ -321,7 +321,7 @@ Deploy [`lambda_settlement.py`](./dir/shopflow-ecs/lambda_settlement.py) in VPC 
 | **EFS backups** | AWS Backup plan on file system; lifecycle to IA for old audit files |
 | **Multi-AZ** | `desiredCount >= 2` per service across subnets |
 
-**CodePipeline sketch:** Source → CodeBuild (docker build/push) → ECS deploy action with `imagedefinitions.json` per service—four deploy stages or matrix for `storefront`, `orders`, `payments`, `inventory` (same image, different task defs).
+**CodePipeline sketch:** Source → CodeBuild (docker build/push) → ECS deploy action with `imagedefinitions.json` per service-four deploy stages or matrix for `storefront`, `orders`, `payments`, `inventory` (same image, different task defs).
 
 ---
 

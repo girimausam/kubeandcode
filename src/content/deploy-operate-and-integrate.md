@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amazon Bedrock Operations: Deployment & Guardrails Guide"
 description: "Operationalize Amazon Bedrock foundation models: configure Bedrock Guardrails, monitor CloudWatch invocations, and enforce data privacy."
 tags:
@@ -52,7 +52,7 @@ Otherwise prefer **Converse + Knowledge Base Retrieve** from Part 2.
 
 ### AgentCore (Harness, Gateway, Memory)
 
-For **production agents** on **Amazon Bedrock AgentCore**—console **Build** items (Harness, Runtime, Gateways, Memory, Policy, Identity, built-in Browser/Code Interpreter/KB), **IAM roles**, and **Lambda/API Gateway integration**—see [Part 4 - Amazon Bedrock AgentCore in Production](./bedrock-agentcore-production-guide.md).
+For **production agents** on **Amazon Bedrock AgentCore**-console **Build** items (Harness, Runtime, Gateways, Memory, Policy, Identity, built-in Browser/Code Interpreter/KB), **IAM roles**, and **Lambda/API Gateway integration**-see [Part 4 - Amazon Bedrock AgentCore in Production](./bedrock-agentcore-production-guide.md).
 
 ---
 

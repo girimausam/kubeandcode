@@ -1,5 +1,5 @@
-/**
- * Viewer request — redirect viewers in a country to a locale prefix.
+﻿/**
+ * Viewer request - redirect viewers in a country to a locale prefix.
  * Runtime: cloudfront-js-2.0
  *
  * Uses CloudFront-Viewer-Country (present on viewer request).

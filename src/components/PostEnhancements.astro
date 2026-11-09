@@ -147,18 +147,22 @@
 	}
 
 	:global(.heading-actions) {
+		position: absolute;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
 		display: inline-flex;
 		align-items: center;
 		gap: 0.35rem;
-		margin-left: 0.65rem;
 		opacity: 0;
 		transition: opacity 0.15s ease;
-		vertical-align: middle;
+		pointer-events: none;
 	}
 
 	:global(.prose :is(h2, h3):hover .heading-actions),
 	:global(.heading-actions:focus-within) {
 		opacity: 1;
+		pointer-events: auto;
 	}
 
 	:global(.heading-anchor) {

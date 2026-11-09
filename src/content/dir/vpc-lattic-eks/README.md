@@ -1,4 +1,4 @@
-# VPC Lattice on `lab-cluster` — two Python apps + private hosted zone
+﻿# VPC Lattice on `lab-cluster` - two Python apps + private hosted zone
 
 **Assumes:** EKS cluster `lab-cluster`, worker VPC, and `kubectl` access already exist. This lab does **not** create VPC or EKS.
 
@@ -13,7 +13,7 @@ Extended reference: [Gateway API guide (updated)](/eks-vpc-lattice-gateway-api-u
 
 ---
 
-## Step 0 — Variables
+## Step 0 - Variables
 
 ```bash
 export AWS_REGION=us-east-1
@@ -26,7 +26,7 @@ export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
 ---
 
-## Step 1 — Cluster access + Lattice prefix lists on pod SG
+## Step 1 - Cluster access + Lattice prefix lists on pod SG
 
 ```bash
 aws eks update-kubeconfig --name "${EKS_CLUSTER_NAME}" --region "${AWS_REGION}"
@@ -56,7 +56,7 @@ aws ec2 describe-security-groups --group-ids "${CLUSTER_SG}" --region "${AWS_REG
 
 ---
 
-## Step 2 — Service network + VPC association
+## Step 2 - Service network + VPC association
 
 ```bash
 aws vpc-lattice create-service-network --name "${SERVICE_NETWORK_NAME}" --region "${AWS_REGION}" 2>/dev/null || true
@@ -83,7 +83,7 @@ aws vpc-lattice list-service-network-vpc-associations \
 
 ---
 
-## Step 3 — Gateway API CRDs
+## Step 3 - Gateway API CRDs
 
 ```bash
 kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml
@@ -91,7 +91,7 @@ kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/re
 
 ---
 
-## Step 4 — Controller IAM + EKS Pod Identity (no hand-written ServiceAccount manifest)
+## Step 4 - Controller IAM + EKS Pod Identity (no hand-written ServiceAccount manifest)
 
 ```bash
 curl -fsSL -o /tmp/vpc-lattice-controller-policy.json \
@@ -123,7 +123,7 @@ Ensure **eks-pod-identity-agent** add-on is on the cluster.
 
 ---
 
-## Step 5 — Helm: Gateway API controller (`serviceAccount.create=true`)
+## Step 5 - Helm: Gateway API controller (`serviceAccount.create=true`)
 
 Helm creates the ServiceAccount; Pod Identity binds IAM to `gateway-api-controller`.
 
@@ -145,7 +145,7 @@ Values file: [`controller/helm-values.yaml`](./controller/helm-values.yaml).
 
 ---
 
-## Step 6 — GatewayClass + Gateway
+## Step 6 - GatewayClass + Gateway
 
 ```bash
 kubectl apply -f manifests/namespaces.yaml
@@ -158,7 +158,7 @@ Wait for `PROGRAMMED=True`.
 
 ---
 
-## Step 7 — Build and push images
+## Step 7 - Build and push images
 
 From this directory:
 
@@ -177,14 +177,14 @@ docker push "${ECR_REGISTRY}/${BACKEND_REPO}:latest"
 docker push "${ECR_REGISTRY}/${FRONTEND_REPO}:latest"
 ```
 
-Edit manifests — replace image placeholders:
+Edit manifests - replace image placeholders:
 
 - `manifests/backend.yaml` → `REPLACE_WITH_BACKEND_ECR_IMAGE`
 - `manifests/frontend.yaml` → `REPLACE_WITH_FRONTEND_ECR_IMAGE`
 
 ---
 
-## Step 8 — Deploy workloads + HTTPRoute + TargetGroupPolicy
+## Step 8 - Deploy workloads + HTTPRoute + TargetGroupPolicy
 
 ```bash
 kubectl apply -f manifests/backend.yaml
@@ -202,7 +202,7 @@ echo "${BACKEND_LATTICE_FQDN}"
 
 ---
 
-## Step 9 — Route 53 private hosted zone → VPC Lattice
+## Step 9 - Route 53 private hosted zone → VPC Lattice
 
 Create a **private** zone linked to the cluster VPC (once per lab):
 
@@ -225,7 +225,7 @@ Name `catalog.lattice.lab.internal` must match `BACKEND_HOST` in [`manifests/fro
 
 ---
 
-## Step 10 — Verify
+## Step 10 - Verify
 
 From a pod or host in the cluster VPC:
 
@@ -258,7 +258,7 @@ vpc-lattic-eks/
 | Symptom | Check |
 | --- | --- |
 | Controller crash | Pod Identity association + `VPCLatticeControllerIAMPolicy` |
-| Unhealthy targets (`ConnectionTimeout`) | **Step 1** TCP **8080** from vpc-lattice prefix list on `clusterSecurityGroupId`; plus TargetGroupPolicy `/health` on **8080** — see [troubleshooting](/eks-vpc-lattice-gateway-api-updated/#unhealthy-targets-connectiontimeout) |
+| Unhealthy targets (`ConnectionTimeout`) | **Step 1** TCP **8080** from vpc-lattice prefix list on `clusterSecurityGroupId`; plus TargetGroupPolicy `/health` on **8080** - see [troubleshooting](/eks-vpc-lattice-gateway-api-updated/#unhealthy-targets-connectiontimeout) |
 | Pod health OK, Lattice UNHEALTHY | Usually missing Step 1 SG rule, not wrong health path |
 | Frontend 502 | PHZ CNAME → correct backend Lattice FQDN; zone associated with VPC |
 | Gateway not programmed | `defaultServiceNetwork=lattice-sn`; VPC association **ACTIVE** |

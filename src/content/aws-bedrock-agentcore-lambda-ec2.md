@@ -1,4 +1,4 @@
----
+﻿---
 title: "AWS Bedrock AgentCore: Lambda & EC2 Walkthrough"
 description: "Deploy AI agents on AgentCore Runtime via microVM or EC2 instances, invoke sessions with AWS Lambda and CLI, and manage cleanup policies."
 date: 2026-09-22
@@ -22,7 +22,7 @@ resources:
     url: https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-permissions.html
   - title: Get started with the AgentCore CLI
     url: https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-get-started-cli.html
-  - title: AWS samples — Lambda AgentCore invocation
+  - title: AWS samples - Lambda AgentCore invocation
     url: https://github.com/awslabs/agentcore-samples/tree/main/06-workshops/06-AgentCore-observability/05-Lambda-AgentCore-invocation
 ---
 
@@ -43,8 +43,8 @@ flowchart TB
   subgraph agentcore["AgentCore Runtime"]
     RT[Agent runtime]
     subgraph compute["Compute (pick one)"]
-      MV[microVMs — serverless]
-      EC2[Instances — EC2 in your VPC]
+      MV[microVMs - serverless]
+      EC2[Instances - EC2 in your VPC]
     end
   end
 
@@ -84,7 +84,7 @@ export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output tex
 
 ---
 
-## Part 1 — Fast path: microVM runtime with AgentCore CLI
+## Part 1 - Fast path: microVM runtime with AgentCore CLI
 
 Use this when you want a **serverless** agent without managing EC2. AWS recommends microVMs for lightweight, API-driven agents.
 
@@ -153,7 +153,7 @@ The CLI writes the **agent body** to `response.json`; stdout shows metadata such
 
 ---
 
-## Part 2 — EC2 Instances: capacity provider + runtime
+## Part 2 - EC2 Instances: capacity provider + runtime
 
 Choose **Instances** when you need **long-lived sessions (up to 14 days)**, **GPU** instance types, **persistent EBS** scratch space, or **multiple agents** on one EC2 instance sharing a volume.
 
@@ -167,8 +167,8 @@ Important constraints from AWS docs:
 
 Besides the **agent runtime execution role**, Instances use:
 
-- **Capacity provider operator role** — AgentCore uses it to manage the provider.
-- **Infrastructure role** — AgentCore assumes it to launch and manage EC2 in your account.
+- **Capacity provider operator role** - AgentCore uses it to manage the provider.
+- **Infrastructure role** - AgentCore assumes it to launch and manage EC2 in your account.
 
 The console can create default roles when you create a capacity provider. For CLI, create roles first and pass ARNs in `permissionsConfiguration.capacityProviderOperatorRoleArn`.
 
@@ -299,7 +299,7 @@ Invoke two **different** runtime ARNs that share the **same capacity provider** 
 
 ---
 
-## Part 3 — Invoke from Lambda
+## Part 3 - Invoke from Lambda
 
 Lambda is a common **front door**: API Gateway, EventBridge, or direct invoke → Lambda → AgentCore Runtime.
 

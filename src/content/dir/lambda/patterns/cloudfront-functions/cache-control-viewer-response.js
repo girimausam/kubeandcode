@@ -1,5 +1,5 @@
-/**
- * Viewer response — set Cache-Control for static assets (long TTL) vs HTML (no cache).
+﻿/**
+ * Viewer response - set Cache-Control for static assets (long TTL) vs HTML (no cache).
  * Runtime: cloudfront-js-2.0
  */
 async function handler(event) {

@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amazon Bedrock AgentCore: Production Architecture Guide"
 description: "Deploy autonomous AI agents in production with Amazon Bedrock AgentCore: session management, memory persistence, action groups, and guardrails."
 tags:
@@ -21,7 +21,7 @@ links:
 
 **Amazon Bedrock AgentCore** is a modular platform for building, deploying, and operating agents at scale. In the console, the **Build** menu is where you wire the moving parts together: **Harness**, **Runtime**, **Gateways**, **Memory**, **Policy**, **Identity**, and **Built-in tools** (Browser, Code Interpreter, Knowledge Bases).
 
-This guide walks through those components in a **production order**—identity and governance first, then durable state and tools, then the agent surface (Harness or Runtime), then **IAM**, **Lambda/compute integration**, and operate.
+This guide walks through those components in a **production order**-identity and governance first, then durable state and tools, then the agent surface (Harness or Runtime), then **IAM**, **Lambda/compute integration**, and operate.
 
 **Series:** [Part 1 - Nova](./building-with-nova.md) · [Part 2 - Embeddings and RAG](./embeddings-and-rag.md) · [Part 3 - Deploy and integrate](./deploy-operate-and-integrate.md)
 
@@ -67,16 +67,16 @@ This guide walks through those components in a **production order**—identity a
 
 ## Prerequisites
 
-1. **Region** — Enable AgentCore and your models in the same region (check [AgentCore regional availability](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)).
-2. **Model access** — Bedrock model access for Nova/Claude/etc., or credentials for OpenAI/Gemini if the harness uses external providers.
-3. **IAM** — Separate roles for harness/runtime **execution**, gateway **service role**, and Memory access (least privilege).
-4. **IdP** (production) — Amazon Cognito, Okta, Entra ID, or Auth0 for **CUSTOM_JWT** on Gateway and Runtime where end users call the agent.
+1. **Region** - Enable AgentCore and your models in the same region (check [AgentCore regional availability](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)).
+2. **Model access** - Bedrock model access for Nova/Claude/etc., or credentials for OpenAI/Gemini if the harness uses external providers.
+3. **IAM** - Separate roles for harness/runtime **execution**, gateway **service role**, and Memory access (least privilege).
+4. **IdP** (production) - Amazon Cognito, Okta, Entra ID, or Auth0 for **CUSTOM_JWT** on Gateway and Runtime where end users call the agent.
 
-Optional: install the **AgentCore CLI** for repeatable setup (`pip install bedrock-agentcore-starter-toolkit` — confirm package name in [Get started with AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/get-started.html)).
+Optional: install the **AgentCore CLI** for repeatable setup (`pip install bedrock-agentcore-starter-toolkit` - confirm package name in [Get started with AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/get-started.html)).
 
 ---
 
-## Step 1 — Identity (Build → Identity)
+## Step 1 - Identity (Build → Identity)
 
 Production agents rarely run as a single shared IAM user. **AgentCore Identity** provides workload identities, inbound JWT validation, outbound OAuth/API keys, and a **Consent Portal** for user-delegated access.
 
@@ -91,7 +91,7 @@ Production agents rarely run as a single shared IAM user. **AgentCore Identity**
 
 ---
 
-## Step 2 — Memory (Build → Memory)
+## Step 2 - Memory (Build → Memory)
 
 **AgentCore Memory** holds **short-term** turn-by-turn context and **long-term** extracted facts (preferences, summaries) across sessions.
 
@@ -104,7 +104,7 @@ Production agents rarely run as a single shared IAM user. **AgentCore Identity**
 
 ---
 
-## Step 3 — Gateways (Build → Gateways)
+## Step 3 - Gateways (Build → Gateways)
 
 **AgentCore Gateway** is the governed front door: OpenAPI/Lambda/Smithy → MCP tools, passthrough to other agents, model routing, Memory and **managed Knowledge Base** connectors, plus inbound/outbound auth.
 
@@ -115,15 +115,15 @@ Production agents rarely run as a single shared IAM user. **AgentCore Identity**
    - **IAM (SigV4)** for service-to-service from your VPC/Lambda.
 2. Attach a **gateway execution role** (`GATEWAY_IAM_ROLE`) scoped to only the targets you add (`bedrock:Retrieve` for KB, Memory actions for memory connector, etc.).
 3. **Add targets** (Build → Gateways → your gateway → Targets):
-   - **OpenAPI / Lambda / Smithy** — existing enterprise APIs.
-   - **MCP servers** — remote tool servers.
-   - **Managed Knowledge Base** — exposes `Retrieve` and `AgenticRetrieveStream` MCP tools ([KB connector](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-connector-managed-kb.html)).
-   - **AgentCore Runtime** — route to a deployed runtime agent (GA; optional API schema for Policy).
-   - **agentcore-memory** — Memory with OAuth-aware FGAC.
+   - **OpenAPI / Lambda / Smithy** - existing enterprise APIs.
+   - **MCP servers** - remote tool servers.
+   - **Managed Knowledge Base** - exposes `Retrieve` and `AgenticRetrieveStream` MCP tools ([KB connector](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-connector-managed-kb.html)).
+   - **AgentCore Runtime** - route to a deployed runtime agent (GA; optional API schema for Policy).
+   - **agentcore-memory** - Memory with OAuth-aware FGAC.
 4. Note tool names exposed via `tools/list` (KB tools are prefixed with the target name).
 
 <details>
-<summary>Example — create gateway (CLI sketch)</summary>
+<summary>Example - create gateway (CLI sketch)</summary>
 
 Replace placeholders with your account, region, and IdP settings. See [Set up an AgentCore gateway](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-setup.html).
 
@@ -143,9 +143,9 @@ aws bedrock-agentcore-control create-gateway \
 
 ---
 
-## Step 4 — Policy (Build → Policy)
+## Step 4 - Policy (Build → Policy)
 
-**Policy** attaches **policy engines** to Gateways. Every tool call is evaluated in **Cedar** (or authored from natural language) **before** execution—deny-by-default, with audit logs in CloudWatch.
+**Policy** attaches **policy engines** to Gateways. Every tool call is evaluated in **Cedar** (or authored from natural language) **before** execution-deny-by-default, with audit logs in CloudWatch.
 
 **Do this:**
 
@@ -159,17 +159,17 @@ aws bedrock-agentcore-control create-gateway \
 
 **Example pattern (Memory):** permit only when `context.input.actorId == principal.getTag("sub")` so users cannot read another user’s memory ([Memory FGAC](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/memory-gateway-fgac.html)).
 
-**Critical:** Restrict **Runtime** (and sensitive targets) so invocations cannot bypass the Gateway—IAM `aws:SourceArn` for SigV4 runtimes, or `allowedWorkloadConfiguration` for JWT runtimes ([Runtime security best practices](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-security-best-practices.html)).
+**Critical:** Restrict **Runtime** (and sensitive targets) so invocations cannot bypass the Gateway-IAM `aws:SourceArn` for SigV4 runtimes, or `allowedWorkloadConfiguration` for JWT runtimes ([Runtime security best practices](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-security-best-practices.html)).
 
 ---
 
-## Step 5 — Built-in tools (Build → Built-in tools)
+## Step 5 - Built-in tools (Build → Built-in tools)
 
-These are first-class capabilities you attach to **Harness** or call from **Runtime** agents—not replacements for Gateway, but complements.
+These are first-class capabilities you attach to **Harness** or call from **Runtime** agents-not replacements for Gateway, but complements.
 
 ### Browser
 
-- **Build → Built-in tools → Browser** — use `aws.browser.v1` for quick setup or a custom browser (recording, custom network, execution role).
+- **Build → Built-in tools → Browser** - use `aws.browser.v1` for quick setup or a custom browser (recording, custom network, execution role).
 - Sessions are isolated (default TTL 15 minutes, max 8 hours); use for form fill, navigation, and screenshots with Live View and CloudTrail ([Browser tool](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/browser-tool.html)).
 
 ### Code Interpreter
@@ -181,11 +181,11 @@ These are first-class capabilities you attach to **Harness** or call from **Runt
 - Prefer **managed Knowledge Bases** + **Gateway connector** so agents discover `Retrieve` / `AgenticRetrieveStream` as MCP tools.
 - Requires gateway IAM permission to `bedrock:Retrieve` on the KB ARN ([KB gateway target](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-gateway-target.html)).
 
-**Harness wiring:** declare tools in harness config—`agentcore_gateway` (gateway ARN), `agentcore_browser`, `agentcore_code_interpreter`, etc. Default **shell** and **file_operations** are on unless restricted with `allowedTools` ([Harness tools](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/harness-tools.html)).
+**Harness wiring:** declare tools in harness config-`agentcore_gateway` (gateway ARN), `agentcore_browser`, `agentcore_code_interpreter`, etc. Default **shell** and **file_operations** are on unless restricted with `allowedTools` ([Harness tools](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/harness-tools.html)).
 
 ---
 
-## Step 6 — Runtime (Build → Runtime) when you need custom code
+## Step 6 - Runtime (Build → Runtime) when you need custom code
 
 Use **Runtime** to deploy containerized agents (Strands, LangGraph, CrewAI, OpenAI Agents SDK, etc.).
 
@@ -193,13 +193,13 @@ Use **Runtime** to deploy containerized agents (Strands, LangGraph, CrewAI, Open
 
 1. Package your agent (`CreateAgentRuntime` / console **Create runtime**).
 2. Configure **inbound auth** (IAM or OAuth) consistent with Gateway.
-3. Use **`runtimeSessionId`** for conversation isolation; microVM sessions are ephemeral (up to ~8 hours)—persist durable context in **Memory**, not in the session filesystem alone ([Runtime how it works](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-how-it-works.html)).
+3. Use **`runtimeSessionId`** for conversation isolation; microVM sessions are ephemeral (up to ~8 hours)-persist durable context in **Memory**, not in the session filesystem alone ([Runtime how it works](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-how-it-works.html)).
 4. Create **versioned endpoints** (`DEFAULT` tracks latest; named endpoints for dev/stage/prod).
 5. Expose the runtime **only through Gateway** in production (Step 4).
 
 ---
 
-## Step 7 — Harness (Build → Harness) for the managed agent loop
+## Step 7 - Harness (Build → Harness) for the managed agent loop
 
 **Harness** is the fastest path to a production agent when configuration is enough: model (Bedrock, OpenAI, Gemini, LiteLLM-compatible), system prompt, tools, skills, memory, limits.
 
@@ -207,26 +207,26 @@ Use **Runtime** to deploy containerized agents (Strands, LangGraph, CrewAI, Open
 
 1. **Build → Harness → Create**
    - **Model** and **system prompt**
-   - **Tools** — gateway ARN, browser, code interpreter, MCP, inline functions
-   - **Memory** — managed (default), disabled, or BYO ARN
-   - **Skills** — Git, S3, or AWS skills catalog (optional)
-   - **Execution role** — IAM permissions for gateway invoke, built-in tools, and any AWS APIs you allow
-   - **Limits** — `maxIterations`, `maxTokens`, `timeoutSeconds`, truncation
+   - **Tools** - gateway ARN, browser, code interpreter, MCP, inline functions
+   - **Memory** - managed (default), disabled, or BYO ARN
+   - **Skills** - Git, S3, or AWS skills catalog (optional)
+   - **Execution role** - IAM permissions for gateway invoke, built-in tools, and any AWS APIs you allow
+   - **Limits** - `maxIterations`, `maxTokens`, `timeoutSeconds`, truncation
 2. **Invoke** with `sessionId`, optional `actorId`, and the new user message only.
-3. **Versioning** — each update creates an immutable **harness version**; create **named endpoints** pointing at approved versions for rollout/rollback.
+3. **Versioning** - each update creates an immutable **harness version**; create **named endpoints** pointing at approved versions for rollout/rollback.
 4. **Test → Harness playground** for iterative prompts; move to API/Step Functions (`InvokeHarness`) for production traffic.
 
 <details>
-<summary>Example — create and invoke harness (control plane API sketch)</summary>
+<summary>Example - create and invoke harness (control plane API sketch)</summary>
 
-Use the [CreateHarness](https://docs.aws.amazon.com/bedrock-agentcore-control/latest/APIReference/API_CreateHarness.html) and InvokeHarness APIs (exact service prefix and CLI commands may vary by SDK version—verify in your region’s API reference).
+Use the [CreateHarness](https://docs.aws.amazon.com/bedrock-agentcore-control/latest/APIReference/API_CreateHarness.html) and InvokeHarness APIs (exact service prefix and CLI commands may vary by SDK version-verify in your region’s API reference).
 
 ```bash
 export AWS_REGION=us-east-1
 export EXEC_ROLE_ARN=arn:aws:iam::123456789012:role/AgentCoreHarnessExecutionRole
 export GATEWAY_ARN=arn:aws:bedrock-agentcore:us-east-1:123456789012:gateway/abcdef
 
-# Create (JSON body simplified — expand model, tools, memory in production)
+# Create (JSON body simplified - expand model, tools, memory in production)
 aws bedrock-agentcore-control create-harness \
   --region "$AWS_REGION" \
   --harness-name prod-support-agent \
@@ -262,7 +262,7 @@ Invoke with a stable `sessionId` per chat and `actorId` per authenticated user.
 
 ---
 
-## Step 8 — Test, assess, and operate
+## Step 8 - Test, assess, and operate
 
 | Console area | Production use |
 |--------------|----------------|
@@ -294,7 +294,7 @@ AgentCore touches **three IAM boundaries** in most deployments. Keep them separa
 | **Compute invocation role** | Lambda, ECS task, Step Functions | `bedrock-agentcore:InvokeHarness`, `bedrock-agentcore:InvokeAgentRuntime` on specific harness/runtime ARNs; **no** blanket `*` on AgentCore |
 
 <details>
-<summary>IAM — Lambda function that calls InvokeHarness</summary>
+<summary>IAM - Lambda function that calls InvokeHarness</summary>
 
 Trust policy (Lambda assumes this role):
 
@@ -339,7 +339,7 @@ Confirm exact action names and ARN patterns in [InvokeHarness](https://docs.aws.
 </details>
 
 <details>
-<summary>IAM — Gateway service role (KB + Lambda tools)</summary>
+<summary>IAM - Gateway service role (KB + Lambda tools)</summary>
 
 ```json
 {
@@ -389,7 +389,7 @@ Your product API usually lives in **your** compute layer. AgentCore runs the **a
   DynamoDB (optional sessionId ↔ user mapping)
 ```
 
-### Pattern A — API Gateway + Lambda → Harness (most common)
+### Pattern A - API Gateway + Lambda → Harness (most common)
 
 **Flow**
 
@@ -406,7 +406,7 @@ Your product API usually lives in **your** compute layer. AgentCore runs the **a
 - Set Lambda timeout **below** harness `timeoutSeconds`, with headroom for cold start (often 60–120s+ for tool-heavy turns).
 
 <details>
-<summary>Python — Lambda handler (InvokeHarness)</summary>
+<summary>Python - Lambda handler (InvokeHarness)</summary>
 
 ```python
 import json
@@ -464,7 +464,7 @@ Environment variables: `HARNESS_ARN`, optional `HARNESS_QUALIFIER`. Wire the fun
 
 </details>
 
-### Pattern B — Lambda → AgentCore Runtime (custom agent code)
+### Pattern B - Lambda → AgentCore Runtime (custom agent code)
 
 Use when the agent loop lives in **your container** on Runtime (Strands, LangGraph, etc.) instead of Harness.
 
@@ -487,7 +487,7 @@ resp = client.invoke_agent_runtime(
 
 For **OAuth inbound** on the runtime, call the HTTPS InvokeAgentRuntime endpoint with the **user’s bearer token** instead of SigV4 from Lambda ([Inbound Auth](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-security-best-practices.html)).
 
-### Pattern C — Lambda **as** a Gateway tool (not the caller)
+### Pattern C - Lambda **as** a Gateway tool (not the caller)
 
 Expose existing microservices to the harness **without** embedding business logic in the agent VM:
 
@@ -497,7 +497,7 @@ Expose existing microservices to the harness **without** embedding business logi
 
 The harness invokes tools through Gateway; your **chat Lambda** only calls `InvokeHarness`. This mirrors classic Bedrock Agents “action groups → Lambda” but with MCP and Policy on the gateway path.
 
-### Pattern D — Step Functions orchestration
+### Pattern D - Step Functions orchestration
 
 For workflows that mix **deterministic steps** with **agent steps**, use the optimized integration:
 
@@ -505,9 +505,9 @@ For workflows that mix **deterministic steps** with **agent steps**, use the opt
 - Reuse **`RuntimeSessionId`** across states for multi-turn continuity within one execution.
 - Grant the state machine role `bedrock-agentcore:InvokeHarness` on the harness ARN.
 
-See [Invoke harness with Step Functions](https://docs.aws.amazon.com/step-functions/latest/dg/connect-bedrockagentcore.html) and the [support-ticket sample](https://docs.aws.amazon.com/step-functions/latest/dg/sample-bedrock-agentcore-invoke-harness.html). Note: the integration is **request/response** (final message), not a live token stream—use Lambda + `InvokeHarness` streaming for chat UIs.
+See [Invoke harness with Step Functions](https://docs.aws.amazon.com/step-functions/latest/dg/connect-bedrockagentcore.html) and the [support-ticket sample](https://docs.aws.amazon.com/step-functions/latest/dg/sample-bedrock-agentcore-invoke-harness.html). Note: the integration is **request/response** (final message), not a live token stream-use Lambda + `InvokeHarness` streaming for chat UIs.
 
-### Pattern E — ECS, App Runner, EC2, or Kubernetes
+### Pattern E - ECS, App Runner, EC2, or Kubernetes
 
 Any compute that can use the AWS SDK follows the **same** patterns as Lambda:
 
@@ -518,7 +518,7 @@ Any compute that can use the AWS SDK follows the **same** patterns as Lambda:
 | Timeouts | Tasks can run longer than Lambda’s 15-minute cap; align with harness `timeoutSeconds` |
 | Scale | AgentCore scales agent sessions; your BFF scales on request rate |
 
-### Pattern F — EventBridge and async jobs
+### Pattern F - EventBridge and async jobs
 
 Trigger harness work from schedules or domain events:
 
@@ -526,15 +526,15 @@ Trigger harness work from schedules or domain events:
 EventBridge rule → Lambda or Step Functions → InvokeHarness
 ```
 
-Pass a stable `runtimeSessionId` derived from `event.id` for idempotent retries. Good for nightly report agents, ticket triage, or pipeline gates—not for sub-second interactive chat unless combined with a queue and polling.
+Pass a stable `runtimeSessionId` derived from `event.id` for idempotent retries. Good for nightly report agents, ticket triage, or pipeline gates-not for sub-second interactive chat unless combined with a queue and polling.
 
 ### Integration checklist
 
-1. **Auth at the edge** — Cognito/API Gateway JWT; forward `sub` as `actorId` only (never trust client-supplied actor id without verification).
-2. **Session ownership** — DynamoDB item `{ sessionId, userId, createdAt }` before calling AgentCore.
-3. **Least privilege** — BFF role invokes one harness endpoint; tool Lambdas have their own roles; gateway role scoped per target.
-4. **Observability** — Propagate `X-Amzn-Trace-Id` / W3C `traceparent` on `InvokeHarness` when supported; correlate Lambda request id with AgentCore traces in **Assess → Observability**.
-5. **Cost and limits** — Rate-limit at API Gateway; cap `maxIterations` on harness; use Haiku/Nova Lite for routing and Sonnet/Pro for complex turns via per-invocation `model` override.
+1. **Auth at the edge** - Cognito/API Gateway JWT; forward `sub` as `actorId` only (never trust client-supplied actor id without verification).
+2. **Session ownership** - DynamoDB item `{ sessionId, userId, createdAt }` before calling AgentCore.
+3. **Least privilege** - BFF role invokes one harness endpoint; tool Lambdas have their own roles; gateway role scoped per target.
+4. **Observability** - Propagate `X-Amzn-Trace-Id` / W3C `traceparent` on `InvokeHarness` when supported; correlate Lambda request id with AgentCore traces in **Assess → Observability**.
+5. **Cost and limits** - Rate-limit at API Gateway; cap `maxIterations` on harness; use Haiku/Nova Lite for routing and Sonnet/Pro for complex turns via per-invocation `model` override.
 
 **Sample:** [Serverless image-editing agent with Harness + Lambda tools](https://github.com/aws-samples/sample-serverless-image-editing-agent-bedrock-agentcore-harness) (BFF + gateway tool Lambdas).
 

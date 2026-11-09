@@ -34,7 +34,7 @@ const canonicalUrl = 'https://mausamgiri.in/blogs/series/';
             <p>{series.description}</p>
             <div class="series-card-footer">
               <a class="read-series-btn" href={withBase(`series/${series.slug}/`)}>
-                Explore Series &rarr;
+                Explore Series <span class="material-symbols-outlined">arrow_forward</span>
               </a>
             </div>
           </article>
@@ -46,12 +46,12 @@ const canonicalUrl = 'https://mausamgiri.in/blogs/series/';
 
 <style>
   .series-index {
-    padding: 3rem 0;
+    padding: 1.5rem 0 2.5rem;
   }
   .series-header {
     text-align: center;
-    max-width: 48rem;
-    margin: 0 auto 3rem;
+    max-width: 44rem;
+    margin: 0 auto 1.75rem;
   }
   .badge {
     display: inline-block;

@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amazon ECS Production: Service Connect, Discovery & Storage"
 description: "Production Amazon ECS architecture: compare Service Connect vs Cloud Map discovery, and attach persistent EBS, EFS, and S3 storage."
 tags:
@@ -35,47 +35,47 @@ Running Amazon ECS in production means answering three questions that beginners 
 
 **Service Discovery** (AWS Cloud Map + Route 53 private DNS) answers (1) for any VPC consumer. **Service Connect** answers (1) and (2) for ECS-to-ECS HTTP/gRPC inside a namespace. **Storage** is a separate layer: ephemeral task disk, per-task EBS, shared EFS, Windows FSx, or S3-backed file interfaces.
 
-This post is written for teams shipping **multi-service Fargate or EC2 clusters**—not a minimal “hello world” task. Console paths are included where AWS documents them; CLI appears only where the console hides detail (for example `volumeConfigurations` on services).
+This post is written for teams shipping **multi-service Fargate or EC2 clusters**-not a minimal “hello world” task. Console paths are included where AWS documents them; CLI appears only where the console hides detail (for example `volumeConfigurations` on services).
 
 **Shorter reference:** [ECS Service Connect vs Cloud Map](./aws-ecs-service-connect-vs-discovery.md) (troubleshooting cheat sheet).
 
-**Full example:** [ShopFlow on ECS — end-to-end walkthrough](./ecs-shopflow-production-walkthrough.md) (four services, ALB, EFS, Lambda settlement).
+**Full example:** [ShopFlow on ECS - end-to-end walkthrough](./ecs-shopflow-production-walkthrough.md) (four services, ALB, EFS, Lambda settlement).
 
 ---
 ## Mental model: three layers
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
-│  Layer 3 — Ingress (north-south)                                       │
+│  Layer 3 - Ingress (north-south)                                       │
 │  Internet / corporate network → ALB / NLB / API Gateway → ECS service   │
 └────────────────────────────────────────────────────────────────────────┘
                                     │
 ┌────────────────────────────────────────────────────────────────────────┐
-│  Layer 2 — East-west connectivity (pick one or combine)                 │
+│  Layer 2 - East-west connectivity (pick one or combine)                 │
 │  • Service Connect: short names + Envoy proxy + L7 metrics/retries      │
 │  • Service Discovery: VPC DNS names (Cloud Map A/AAAA/SRV)              │
 │  • Load balancer target groups between tiers (classic, still valid)     │
 └────────────────────────────────────────────────────────────────────────┘
                                     │
 ┌────────────────────────────────────────────────────────────────────────┐
-│  Layer 1 — Data (per task vs shared vs ephemeral)                       │
+│  Layer 1 - Data (per task vs shared vs ephemeral)                       │
 │  Fargate ephemeral / EBS per task / EFS RWX / FSx / S3 Files / bind     │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
 <img src="/blogs/images/ecs-service-connect-architecture.webp" alt="Service Connect east-west mesh" width="1280" height="720" loading="lazy" decoding="async" />
 
-Official overview (WordPress → MySQL with short name `mysql`): [Use Service Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html) — AWS documents the proxy path, round-robin, and outlier detection in the same page.
+Official overview (WordPress → MySQL with short name `mysql`): [Use Service Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html) - AWS documents the proxy path, round-robin, and outlier detection in the same page.
 
 ---
-## Part 1 — Service Discovery (Cloud Map) in production
+## Part 1 - Service Discovery (Cloud Map) in production
 
 ### What it actually does
 
 **ECS Service Discovery** registers **task IP addresses** in **AWS Cloud Map** and publishes **DNS records** in a **Route 53 private hosted zone** tied to your VPC.
 
 - No sidecar is injected.
-- No retries, timeouts, or TLS termination—your client library or ALB does that.
+- No retries, timeouts, or TLS termination-your client library or ALB does that.
 - **Any** resource using the VPC resolver (`169.254.169.253` with `AmazonProvidedDNS`) can resolve the name: ECS tasks, EC2, Lambda in the VPC, batch jobs.
 
 Typical FQDN:
@@ -95,16 +95,16 @@ orders-api.svc.prod.internal  →  10.0.42.15, 10.0.88.3  (multivalue A records)
 
 ### Production nuances most tutorials skip
 
-**DNS TTL and caching.** Clients cache answers. When tasks churn, some callers see stale IPs until TTL expires. For long-lived connections, use connection pooling with short idle timeouts or retry on connection failure—Service Connect’s proxy handles endpoint churn more aggressively for SC-enabled clients.
+**DNS TTL and caching.** Clients cache answers. When tasks churn, some callers see stale IPs until TTL expires. For long-lived connections, use connection pooling with short idle timeouts or retry on connection failure-Service Connect’s proxy handles endpoint churn more aggressively for SC-enabled clients.
 
 **Cloud Map health checks.** Configure custom health checks when tasks should be removed from DNS before ECS marks the service unhealthy. Align **container health check**, **ELB health check** (if used), and **Cloud Map** thresholds or you get flapping registrations.
 
-**Namespace per environment.** Use `svc.prod.internal` vs `svc.staging.internal`—never share a private namespace across prod and non-prod VPCs unless you enjoy incident archaeology.
+**Namespace per environment.** Use `svc.prod.internal` vs `svc.staging.internal`-never share a private namespace across prod and non-prod VPCs unless you enjoy incident archaeology.
 
 **Name is not the ECS service name.** The DNS label comes from the **Cloud Map service** you attach in `serviceRegistries`, not from `my-service-abc123` auto-suffixes in the ECS console.
 
 ---
-### Console walkthrough — Service Discovery
+### Console walkthrough - Service Discovery
 
 Open the [ECS console](https://console.aws.amazon.com/ecs/v2) and work **top down**.
 
@@ -149,7 +149,7 @@ curl -sS "http://orders-api.svc.prod.internal:8080/health"
 If `nslookup` fails, check VPC **DNS hostnames/support** and that the querying task uses `AmazonProvidedDNS`.
 
 ---
-## Part 2 — Service Connect in production
+## Part 2 - Service Connect in production
 
 ### What it adds beyond discovery
 
@@ -178,9 +178,9 @@ When adopting Service Connect on a **live** chain (frontend → backend):
 1. Add **client-server** SC config to the **backend** first, using a `clientAlias` DNS name the frontend already uses.
 2. Validate backend deployment (metrics, errors, rollback if needed).
 3. Add **client** (or client-server) SC to the **frontend**.
-4. Only **new tasks** run the proxy—plan for rolling deployments.
+4. Only **new tasks** run the proxy-plan for rolling deployments.
 
-Source: [Service Connect components — rollout](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-concepts-deploy.html).
+Source: [Service Connect components - rollout](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-concepts-deploy.html).
 
 ### The `/etc/hosts` startup caveat
 
@@ -195,9 +195,9 @@ Service Connect aliases are applied when the **task starts**. If a **client** ta
 - **Cross-account:** Share Cloud Map namespace via **RAM**; use **namespace ARN** in SC config ([shared namespaces](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-shared-namespaces-setup.html)).
 
 ---
-### Console walkthrough — Service Connect
+### Console walkthrough - Service Connect
 
-#### Step 1 — Task definition: named port mappings
+#### Step 1 - Task definition: named port mappings
 
 Service Connect **requires** named ports and L7 protocol on the **application container** port mapping.
 
@@ -210,15 +210,15 @@ Service Connect **requires** named ports and L7 protocol on the **application co
    - **App protocol:** `http` or `grpc`
 4. Register the task definition.
 
-Reference: [Service Connect configuration overview — port names](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-concepts.html).
+Reference: [Service Connect configuration overview - port names](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-concepts.html).
 
-#### Step 2 — Create or pick an HTTP namespace
+#### Step 2 - Create or pick an HTTP namespace
 
 1. ECS console → **Namespaces** → **Create namespace**.
-2. Type: suitable for Service Connect (ECS creates/associates **HTTP** namespace for SC—follow console prompts; do not reuse your **DNS private** discovery namespace unless you understand the split).
+2. Type: suitable for Service Connect (ECS creates/associates **HTTP** namespace for SC-follow console prompts; do not reuse your **DNS private** discovery namespace unless you understand the split).
 3. Name example: `mesh-prod`.
 
-#### Step 3 — Create a client-server service (backend)
+#### Step 3 - Create a client-server service (backend)
 
 1. **Clusters** → **Create service**.
 2. **Task definition:** revision with named port.
@@ -228,17 +228,17 @@ Reference: [Service Connect configuration overview — port names](https://docs.
 6. **Service Connect configuration** → add a row:
    - **Port name:** `orders-api-8080-tcp` (must match task definition exactly)
    - **Discovery name / DNS name:** `orders` (short name clients will use)
-   - **Port:** `8080` (client alias port—what callers connect to)
+   - **Port:** `8080` (client alias port-what callers connect to)
 7. Optional: enable **access logs** and **traffic encryption**.
 8. Create service and wait until **steady state**.
 
-#### Step 4 — Create a client service (caller)
+#### Step 4 - Create a client service (caller)
 
 1. Create another service with SC **enabled** on the **same namespace**.
 2. Leave **Service Connect service configuration** empty (client-only) unless this service also exposes ports.
 3. Ensure the application environment uses `http://orders:8080` (matching **client alias**, not a typo like `orders.mesh-prod` unless you configured that FQDN-style alias).
 
-#### Step 5 — Validate inside the client task
+#### Step 5 - Validate inside the client task
 
 ```sh
 cat /etc/hosts | grep orders
@@ -248,7 +248,7 @@ curl -v "http://orders:8080/health"
 Check **CloudWatch** → Service Connect metrics for the namespace ([monitoring](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)).
 
 ---
-## Part 3 — Using Service Connect **and** Service Discovery together
+## Part 3 - Using Service Connect **and** Service Discovery together
 
 Production clusters often run **both**:
 
@@ -285,10 +285,10 @@ Production clusters often run **both**:
 | Spark job on EC2 → Orders API | **Service Discovery** FQDN |
 | Public users → Frontend | **ALB** (Service Connect does not replace this) |
 
-Attach **service registry** to `orders-api` **in addition to** Service Connect if non-ECS callers need DNS—two registration paths, one task.
+Attach **service registry** to `orders-api` **in addition to** Service Connect if non-ECS callers need DNS-two registration paths, one task.
 
 ---
-## Part 4 — Production storage for ECS tasks
+## Part 4 - Production storage for ECS tasks
 
 Storage choice drives **availability**, **backup**, **cost**, and **blast radius** on deploy. ECS supports multiple volume types; Fargate and EC2 differ.
 
@@ -311,21 +311,21 @@ Authoritative matrix: [Storage options for Amazon ECS tasks](https://docs.aws.am
 
 ### Fargate ephemeral storage (still “filesystem”)
 
-In the console: **Task definition** → container → **Storage and logging** → **Ephemeral storage** (GiB). Use for writable layers, temp files, and caches—not for data you cannot lose.
+In the console: **Task definition** → container → **Storage and logging** → **Ephemeral storage** (GiB). Use for writable layers, temp files, and caches-not for data you cannot lose.
 
 Reference: [Fargate task storage](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-task-storage.html).
 
-### Managed EBS per task — production pattern
+### Managed EBS per task - production pattern
 
 EBS on ECS is **managed attachment**: you declare mount points in the task definition, then supply **volume size/type/IOPS** at **service create/update** or `run-task`.
 
-**Console — task definition**
+**Console - task definition**
 
 1. **Task definitions** → **Create** → container → **Volumes** → **Add volume**.
 2. **Volume type:** configure at deployment (wording: **Configure at deployment** / `configuredAtLaunch`).
 3. **Mount points:** container path e.g. `/var/lib/postgresql/data`, `readOnly: false`.
 
-**Console — service with EBS**
+**Console - service with EBS**
 
 1. **Create service** → select task definition with deferred EBS config.
 2. Section **Volume** (appears when task definition supports it):
@@ -333,17 +333,17 @@ EBS on ECS is **managed attachment**: you declare mount points in the task defin
    - **Size (GiB), IOPS, throughput**
    - **Encrypted:** on + KMS key
    - **Infrastructure role:** `ecsInfrastructureRole` ([EBS volumes](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-volumes.html))
-3. Optional **snapshot ID** to seed data (new volume from snapshot—cannot attach existing volume ID).
+3. Optional **snapshot ID** to seed data (new volume from snapshot-cannot attach existing volume ID).
 
-**Critical production fact:** For tasks under a **service**, attached EBS is treated as **ephemeral** at the task lifecycle level—when the task stops, the volume is torn down unless you use patterns documented for standalone tasks and snapshots. **Do not put a multi-AZ database solely on per-task EBS behind a scaled service** without understanding replacement behavior—use RDS/Aurora or EFS/shared storage architecturally.
+**Critical production fact:** For tasks under a **service**, attached EBS is treated as **ephemeral** at the task lifecycle level-when the task stops, the volume is torn down unless you use patterns documented for standalone tasks and snapshots. **Do not put a multi-AZ database solely on per-task EBS behind a scaled service** without understanding replacement behavior-use RDS/Aurora or EFS/shared storage architecturally.
 
 Reference: [Configure EBS at deployment](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/configure-ebs-volume.html), [Defer volume configuration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specify-ebs-config.html).
 
-### Amazon EFS — shared production filesystem
+### Amazon EFS - shared production filesystem
 
 Use when **multiple tasks** must read/write the same files (uploads, ML features, WordPress `wp-content`, shared config).
 
-**Console — task definition**
+**Console - task definition**
 
 1. **Volumes** → **Add volume** → **EFS**.
 2. **File system ID**, **Access point ID** (recommended for least privilege), **Transit encryption:** enabled.
@@ -373,13 +373,13 @@ Mount bucket-backed file interface for workloads that need **high-throughput S3 
 | Anti-pattern | Why it hurts |
 |--------------|--------------|
 | Storing DB primary data on **ephemeral** Fargate disk only | Data loss on every deploy |
-| **EFS** for latency-sensitive random IOPS DB | Wrong tool—use block + RDS |
+| **EFS** for latency-sensitive random IOPS DB | Wrong tool-use block + RDS |
 | **Per-task EBS** for a 50-replica stateful service | Each task has different disk; scaling does not share state |
 | Service Connect **without** redeploying clients after new backend | Mystery `Name or service not known` |
 | One security group `0.0.0.0/0` for “simplicity” | East-west compromise blast radius |
 
 ---
-## Part 5 — End-to-end production reference
+## Part 5 - End-to-end production reference
 
 ### Networking + storage on one service
 
@@ -388,8 +388,8 @@ Example: **orders-api** on Fargate
 - **Ingress:** public ALB → target group → task port 8080.
 - **East-west:** Service Connect name `orders` in `mesh-prod`; payments calls `http://orders:8080`.
 - **Discovery:** Cloud Map `orders-api.svc.prod.internal` for Lambda settlement job.
-- **Storage:** EFS access point `/orders/uploads` for invoice PDFs; **no** database files on EFS—Aurora for OLTP.
-- **Secrets:** Secrets Manager or SSM via task execution role—not on disk.
+- **Storage:** EFS access point `/orders/uploads` for invoice PDFs; **no** database files on EFS-Aurora for OLTP.
+- **Secrets:** Secrets Manager or SSM via task execution role-not on disk.
 
 ### Security groups (minimum)
 
