@@ -1,6 +1,6 @@
 ---
-title: "ECS service autoscaling from SQS queue depth"
-description: "Scale an ECS service on messages waiting in SQS: backlog per task, Container Insights, step scaling to zero, and the capacity provider underneath."
+title: "Amazon ECS Autoscaling: SQS Queue Depth Target Tracking"
+description: "Configure Amazon ECS task autoscaling driven by Amazon SQS backlog per task metrics using CloudWatch alarms and target tracking policies."
 tags:
   - ecs
   - sqs

@@ -1,6 +1,6 @@
 ---
-title: "Lambda Event-Driven Pipeline Patterns"
-description: "EventBridge, SQS, DynamoDB, and RDS event pipeline patterns."
+title: "AWS Lambda Event Pipelines: SQS, DynamoDB & EventBridge"
+description: "Architect event-driven serverless pipelines with AWS Lambda event source mappings for Amazon SQS, DynamoDB Streams, and EventBridge buses."
 categories:
   - Lambda
   - AWS

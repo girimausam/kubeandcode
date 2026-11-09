@@ -1,6 +1,6 @@
 ---
-title: "Migrate servers, databases, and files (console)"
-description: "Northwind lift-and-shift: Application Migration Service, DMS for MySQL, and DataSync for a file share. Cutover, test, and settings people skip."
+title: "AWS Migration Tools: AWS MGN, DMS & DataSync Runbook"
+description: "Execute cloud migrations with AWS Application Migration Service (MGN) for servers, Database Migration Service (DMS), and DataSync for storage."
 tags:
   - aws
   - migration

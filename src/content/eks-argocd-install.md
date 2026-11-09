@@ -1,6 +1,6 @@
 ---
-title: "Install Argo CD on Amazon EKS"
-description: "Install Argo CD on EKS, expose the server with a LoadBalancer, retrieve the admin password, and log in from the CLI."
+title: "Amazon EKS Argo CD: Step-by-Step Installation Runbook"
+description: "Install Argo CD on Amazon EKS: namespace setup, Helm chart deployment, admin secret retrieval, and exposing the UI via Network Load Balancer."
 tags:
   - eks
   - argocd
@@ -13,6 +13,9 @@ links:
   - title: Amazon EKS
     url: https://docs.aws.amazon.com/eks/
 ---
+:::note[Complete GitOps Pipeline]
+To connect Argo CD into a complete automated GitOps delivery pipeline with AWS CodeCommit and Amazon ECR, see the comprehensive runbook: [Amazon EKS GitOps: Argo CD & AWS CodeCommit CI/CD Guide](/blogs/eks-argocd-codecommit-pipeline/).
+:::
 
 # ArgoCD on EKS
 

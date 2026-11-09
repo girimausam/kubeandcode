@@ -1,6 +1,6 @@
 ---
-title: "SQS and SNS with KMS encryption and IAM"
-description: "Console and policy patterns for encrypted SNS topics and SQS queues - key policies, subscriptions, and cross-service permissions teams miss."
+title: "Amazon SQS & SNS Encryption: KMS Keys & IAM Policies"
+description: "Secure distributed messaging with Amazon SQS and SNS using AWS KMS customer managed keys, queue access policies, and publisher IAM roles."
 tags:
  - aws
  - sqs

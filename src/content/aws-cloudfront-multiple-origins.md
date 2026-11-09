@@ -1,6 +1,6 @@
 ---
-title: "CloudFront with Multiple Origins: Path Routing, Failover, and Origin Selection"
-description: "One CloudFront distribution in front of S3, ALB, and API origins. Cache behavior order, origin groups, OAC, VPC origins, and CloudFront Functions origin selection, with console and CLI steps."
+title: "AWS CloudFront Multiple Origins: Routing & Failover"
+description: "Configure CloudFront with multiple origins (S3, ALB, API Gateway), path-based cache behaviors, origin failover groups, and OAC."
 date: 2026-09-24
 tags:
   - aws

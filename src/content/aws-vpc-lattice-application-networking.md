@@ -1,6 +1,6 @@
 ---
-title: "VPC Lattice Application Networking"
-description: "Order-management lab: ECS then service network, Lattice services, security groups, EKS in VPC-A, EC2/Lambda, and RDS/private resources via resource configurations."
+title: "AWS VPC Lattice: Multi-VPC Service Network Guide"
+description: "Connect services across multiple VPCs and compute types (ECS, EKS, EC2, Lambda) using AWS VPC Lattice service networks and IAM auth."
 tags:
   - vpc-lattice
   - networking

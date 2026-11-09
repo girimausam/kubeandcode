@@ -1,6 +1,6 @@
 ---
-title: "ECR lifecycle and repository policies - console guide"
-description: "Production ECR - immutable tags, scanning, lifecycle expiration rules, and cross-account pull policies via the console."
+title: "Amazon ECR Policies: Access & Lifecycle Console Guide"
+description: "Console runbook for Amazon ECR: cross-account repository policies, KMS encryption, scan on push, and image lifecycle retention rules."
 tags:
  - aws
  - ecr
@@ -9,6 +9,9 @@ tags:
  - cicd
  - devops
 ---
+:::note[Primary Guide]
+For detailed Amazon ECR lifecycle policy JSON syntax, prefix matching rule traps, and image expiry logic, see the primary guide: [Amazon ECR Lifecycle Policies: Syntax & Retention Rules](/blogs/aws-ecr-lifecycle-policy/).
+:::
 
 # ECR lifecycle and repository policies - console guide
 
@@ -18,7 +21,6 @@ tags:
 **Checklist:** [DevOps checklist](./aws-devops-system-design-checklist.md)
 
 ---
-
 ## Use cases
 
 | Need | Control |
@@ -29,7 +31,6 @@ tags:
 | Central registry account | Repository policy for spoke accounts |
 
 ---
-
 ## Console - create repository
 
 1. **ECR** → **Create repository**.
@@ -38,7 +39,6 @@ tags:
 4. **KMS encryption:** CMK optional.
 
 ---
-
 ## Console - lifecycle policy
 
 1. Repository → **Lifecycle policies** → **Create rule**.
@@ -53,7 +53,6 @@ tags:
 See [lifecycle doc](./aws-ecr-lifecycle-policy.md) for JSON.
 
 ---
-
 ## Console - repository permissions (cross-account)
 
 1. Repository → **Permissions** → **Edit**.
@@ -78,7 +77,6 @@ See [lifecycle doc](./aws-ecr-lifecycle-policy.md) for JSON.
 Spoke roles still need `ecr:GetAuthorizationToken` on `*`.
 
 ---
-
 ## IAM for CI (push)
 
 ```json
@@ -99,7 +97,6 @@ Spoke roles still need `ecr:GetAuthorizationToken` on `*`.
 Scope `PutImage` to repository ARN when possible.
 
 ---
-
 ## Security
 
 - Block public repositories (account setting).
@@ -107,7 +104,6 @@ Scope `PutImage` to repository ARN when possible.
 - Deny `latest` in prod deploy - pin digest or semver tag.
 
 ---
-
 ## Commonly missed
 
 | Miss | Impact |
@@ -118,7 +114,6 @@ Scope `PutImage` to repository ARN when possible.
 | Scan findings ignored | CVEs ship to prod |
 
 ---
-
 ## Troubleshooting
 
 | Symptom | Fix |

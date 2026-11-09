@@ -1,6 +1,6 @@
 ---
-title: "IAM Policies: Examples and Triage Guide"
-description: "Copy-paste trust, identity, resource, boundary, SCP, session, and VPC endpoint policies with a rapid troubleshooting checklist."
+title: "AWS IAM Policy Triage: Debugging & Access Control"
+description: "Debug AWS IAM permission errors: policy evaluation logic, explicit denies, boundary policies, service control policies (SCPs), and conditions."
 tags:
   - iam
   - policies

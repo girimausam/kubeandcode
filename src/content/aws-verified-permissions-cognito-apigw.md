@@ -1,6 +1,6 @@
 ---
-title: "Verified Permissions with Cognito and API Gateway"
-description: "Group-based API access with Amazon Verified Permissions, Cognito User Pool groups, Cedar policies, and API Gateway authorizers."
+title: "Amazon Verified Permissions: Cedar Policies & Cognito"
+description: "Implement fine-grained authorization for API Gateway using Amazon Verified Permissions, Cedar policy language, and Cognito user tokens."
 tags:
   - avp
   - verified-permissions

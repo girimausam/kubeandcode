@@ -1,6 +1,6 @@
 ---
-title: "S3 encryption with KMS - console, policies, and access"
-description: "SSE-KMS on S3 buckets - default encryption, bucket policies, KMS key policies, and decryption paths for apps and analytics."
+title: "Amazon S3 KMS Encryption: Bucket Policies & KMS Grants"
+description: "Implement server-side encryption with AWS KMS (SSE-KMS) on Amazon S3: custom key policies, cross-account access, and S3 Bucket Keys."
 tags:
  - aws
  - s3

@@ -1,6 +1,6 @@
 ---
-title: "Deploy, Operate, and Integrate Amazon Bedrock"
-description: "Production Bedrock patterns—Agents, IAM, Lambda, API Gateway, S3, DynamoDB, OpenSearch, and EventBridge."
+title: "Amazon Bedrock Operations: Deployment & Guardrails Guide"
+description: "Operationalize Amazon Bedrock foundation models: configure Bedrock Guardrails, monitor CloudWatch invocations, and enforce data privacy."
 tags:
   - aws
   - bedrock

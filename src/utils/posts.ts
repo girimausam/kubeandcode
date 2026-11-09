@@ -35,15 +35,16 @@ export function getAllResources(posts: Post[]) {
 	return resources.sort((a, b) => a.title.localeCompare(b.title));
 }
 
-export function getRelatedPosts(post: Post, posts: Post[], limit = 3) {
+export function getRelatedPosts(post: Post, posts: Post[], limit = 4) {
+	const stopWords = new Set(['and', 'the', 'with', 'for', 'from', 'into', 'using', 'guide', 'runbook', 'aws']);
 	const words = new Set(
 		post.data.title
 			.toLowerCase()
 			.split(/\W+/)
-			.filter((word) => word.length > 2)
+			.filter((word) => word.length > 2 && !stopWords.has(word))
 	);
 
-	return posts
+	const scored = posts
 		.filter((entry) => entry.id !== post.id)
 		.map((entry) => {
 			const sharedTags = entry.data.tags.filter((tag) => post.data.tags.includes(tag)).length;
@@ -52,15 +53,29 @@ export function getRelatedPosts(post: Post, posts: Post[], limit = 3) {
 				.split(/\W+/)
 				.filter((word) => words.has(word)).length;
 
-			return { entry, score: sharedTags * 3 + titleOverlap };
+			return { entry, score: sharedTags * 4 + titleOverlap * 2 };
 		})
-		.filter(({ score }) => score > 0)
-		.sort((a, b) => b.score - a.score || (b.entry.data.date?.getTime() ?? 0) - (a.entry.data.date?.getTime() ?? 0))
-		.slice(0, limit)
-		.map(({ entry }) => entry);
+		.sort((a, b) => b.score - a.score || (b.entry.data.date?.getTime() ?? 0) - (a.entry.data.date?.getTime() ?? 0));
+
+	const filtered = scored.filter(({ score }) => score > 0).slice(0, limit).map(({ entry }) => entry);
+
+	// Ensure at least 4 related posts if total posts allow
+	if (filtered.length < limit) {
+		for (const { entry } of scored) {
+			if (!filtered.some((f) => f.id === entry.id)) {
+				filtered.push(entry);
+				if (filtered.length >= limit) break;
+			}
+		}
+	}
+
+	return filtered;
 }
 
-export function formatDate(date?: Date) {
-	if (!date) return undefined;
-	return new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(date);
+export function formatDate(date: Date) {
+	return date.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	});
 }

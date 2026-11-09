@@ -1,6 +1,6 @@
 ---
-title: "Centralized Egress with Transit Gateway and Network Firewall"
-description: "Inspect spoke internet traffic in a dedicated inspection VPC, then NAT out from an egress VPC. CloudFormation order, TGW association vs propagation, appliance mode, and the templates in dir/vpc/egress-firewall."
+title: "AWS Centralized Egress: Transit Gateway & Firewall"
+description: "Build a centralized multi-VPC egress inspection architecture using AWS Transit Gateway Appliance Mode and AWS Network Firewall."
 tags:
   - vpc
   - transit-gateway

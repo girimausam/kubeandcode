@@ -1,6 +1,6 @@
 ---
-title: "IAM Policy Conditions Reference"
-description: "Common IAM policy condition keys and copy-paste examples for S3 encryption, date/time, tags, IP, MFA, region, and other scenarios."
+title: "AWS IAM Policy Conditions: Syntax & Evaluation Guide"
+description: "Complete reference for AWS IAM condition operators: StringEquals, ArnEquals, IpAddress, DateGreaterThan, aws:PrincipalTag, and aws:SourceIp."
 tags:
   - iam
   - policies

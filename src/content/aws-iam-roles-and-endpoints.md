@@ -1,6 +1,6 @@
 ---
-title: "IAM Roles, Policies, and VPC Endpoints"
-description: "Identity and resource-based IAM policies, cross-account AssumeRole, sts:AssumeRole allow/deny patterns, and VPC endpoint policies for S3 and DynamoDB."
+title: "AWS IAM Roles & VPC Endpoints: Private Cloud Security"
+description: "Secure private AWS network traffic using IAM assume role trust policies and VPC Gateway/Interface Endpoints with custom endpoint policies."
 tags:
   - iam
   - policies

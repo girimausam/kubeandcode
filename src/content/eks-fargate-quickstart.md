@@ -1,6 +1,6 @@
 ---
-title: "Run Workloads on AWS Fargate with Amazon EKS"
-description: "Quick start for EKS Fargate profiles-pod execution role, private subnets, eksctl, sample Deployment, networking pitfalls."
+title: "Amazon EKS on Fargate: Serverless Kubernetes Quickstart"
+description: "Run serverless Kubernetes pods on Amazon EKS using AWS Fargate profiles, custom namespaces, IAM execution roles, and CoreDNS patching."
 tags:
   - eks
   - fargate

@@ -1,6 +1,6 @@
 ---
-title: "Lab Notes: EventBridge, RDS, Backup, and JAM"
-description: "Lab notes and medium-to-hard Jam troubleshooting: IAM, delivery, and VPC edge associations on internet and virtual private gateways."
+title: "AWS Lab Notes: EventBridge, RDS, Backup & Jam Runbook"
+description: "Practical lab notes and troubleshooting solutions covering EventBridge custom buses, RDS failover, AWS Backup plans, and JAM challenges."
 tags:
   - aws
   - labs

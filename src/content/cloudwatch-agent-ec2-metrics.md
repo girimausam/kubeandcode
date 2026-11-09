@@ -1,6 +1,6 @@
 ---
-title: "CloudWatch agent on EC2, step by step"
-description: "Install the current CloudWatch agent on EC2, publish memory and disk metrics, and confirm them in the CWAgent namespace. Console and SSM."
+title: "AWS CloudWatch Agent on EC2: Memory & Disk Metric Setup"
+description: "Install, configure, and automate the AWS CloudWatch unified agent on Linux EC2 instances to capture custom memory and disk utilization metrics."
 tags:
   - aws
   - cloudwatch

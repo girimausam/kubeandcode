@@ -1,6 +1,6 @@
 ---
-title: "AI/ML: Search and Recommendations (Kendra, Personalize)"
-description: "Console-first guide to Amazon Kendra and Amazon Personalize. AWS CLI in collapsible sections."
+title: "AWS Kendra & Personalize: Search & Recommendations"
+description: "Implement intelligent enterprise search with Amazon Kendra and real-time personalized recommendations using Amazon Personalize."
 tags:
   - aws
   - kendra

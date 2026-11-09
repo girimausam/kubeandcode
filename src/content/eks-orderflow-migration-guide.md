@@ -1,6 +1,6 @@
 ---
-title: "OrderFlow: Migrate Workloads to Amazon EKS"
-description: "Phase-by-phase migration from in-cluster PostgreSQL to RDS, Secrets Manager, SQS, SNS, and DynamoDB on Amazon EKS."
+title: "Amazon EKS Migration Guide: OrderFlow Workload Runbook"
+description: "Step-by-step migration guide moving containerized workloads to Amazon EKS: Docker image builds, Helm chart packaging, and zero-downtime cutover."
 tags:
   - orderflow
   - eks

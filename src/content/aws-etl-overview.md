@@ -1,6 +1,6 @@
 ---
-title: "ETL in Brief: Glue, DMS, EMR, and When to Use Each"
-description: "A concise map of extract-transform-load on AWS: service choices, DocumentDB-to-lake patterns, Glue workflows, and ELT vs ETL."
+title: "AWS ETL Guide: AWS Glue vs Amazon EMR vs AWS DMS"
+description: "Decision guide for choosing the right AWS data integration tool: AWS Glue for serverless Spark, EMR for big data clusters, and DMS for migration."
 date: 2026-09-22
 tags:
  - aws

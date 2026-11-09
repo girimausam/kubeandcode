@@ -1,6 +1,6 @@
 ---
-title: "VPC peering (console guide)"
-description: "When to use VPC peering, console steps, routing and DNS, and non-transitive routing traps for multi-VPC system designs."
+title: "AWS VPC Peering Guide: Console Routing & Security Groups"
+description: "Establish and troubleshoot AWS VPC Peering connections from the console: CIDR block non-overlap, route table entries, and security groups."
 tags:
  - aws
  - vpc

@@ -1,6 +1,6 @@
 ---
-title: "Prometheus Alerts with SNS and SQS"
-description: Wire Prometheus Alertmanager to SNS and SQS on EKS.
+title: "Amazon Prometheus Alerts: SNS & SQS Notification Flow"
+description: "Configure alertmanager in Amazon Managed Service for Prometheus to route critical operational alerts through Amazon SNS topics and SQS queues."
 tags:
   - eks
   - prometheus

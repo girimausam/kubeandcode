@@ -1,6 +1,6 @@
 ---
-title: "Monitoring with Grafana and Prometheus"
-description: Set up Grafana and Prometheus on EKS with CloudWatch observability.
+title: "AWS Prometheus & Grafana: Managed Metrics & Dashboards"
+description: "Set up cloud observability using Amazon Managed Service for Prometheus (AMP) and Amazon Managed Grafana (AMG) for EKS and EC2 metrics."
 tags:
   - eks
   - prometheus

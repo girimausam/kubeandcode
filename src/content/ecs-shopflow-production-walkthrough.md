@@ -1,6 +1,6 @@
 ---
-title: "ShopFlow on ECS: end-to-end production walkthrough"
-description: "Build ShopFlow—a four-service Fargate storefront on ECS with Service Connect, Cloud Map discovery for settlement Lambda, EFS audit storage, ALB ingress, and production IAM and deployment order."
+title: "Amazon ECS ShopFlow: Fargate Microservices Walkthrough"
+description: "End-to-end production walkthrough: build the four-service ShopFlow application on Amazon ECS Fargate with Service Connect, ALB, and EFS."
 tags:
   - ecs
   - fargate
@@ -10,7 +10,7 @@ tags:
   - alb
   - production
   - walkthrough
-image: /images/shopflow-ecs-architecture.png
+image: /images/shopflow-ecs-architecture.webp
 links:
   - title: ECS production networking and storage
     url: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html
@@ -32,7 +32,7 @@ You will configure **Service Connect** for east-west HTTP, **Service Discovery**
 
 **Code and JSON artifacts:** [`dir/shopflow-ecs/`](./dir/shopflow-ecs/)
 
-![ShopFlow architecture](/images/shopflow-ecs-architecture.png)
+<img src="/blogs/images/shopflow-ecs-architecture.webp" alt="ShopFlow architecture" width="1280" height="720" loading="lazy" decoding="async" />
 
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "EKS Workloads Quick Reference"
-description: "EKS Notes"
+title: "Amazon EKS Workloads Reference: Deployment & StatefulSet"
+description: "Reference guide for Kubernetes workloads on Amazon EKS covering Deployments, StatefulSets, DaemonSets, Jobs, CronJobs, probes, and resource limits."
 tags: 
     - eks
     

@@ -1,6 +1,6 @@
 ---
-title: "Install Karpenter on Amazon EKS"
-description: Install Karpenter on an existing EKS cluster for node autoscaling.
+title: "Amazon EKS Karpenter: Autoscaling Installation Runbook"
+description: "Install Karpenter on Amazon EKS: IAM roles with EKS Pod Identity, SQS interruption handling, Helm charts, NodePools, and EC2NodeClasses."
 tags:
   - eks
   - vpc

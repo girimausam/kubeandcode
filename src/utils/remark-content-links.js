@@ -74,6 +74,15 @@ export function remarkContentLinks(options = {}) {
 
 			if (url.startsWith('./dir/') || url.startsWith('./images/') || resolved.startsWith('dir/') || resolved.startsWith('images/')) {
 				const assetPath = resolved.startsWith('dir/') || resolved.startsWith('images/') ? resolved : url.replace(/^\.\//, '');
+
+				// If linking to a directory under dir/ (no file extension), link to code-dir
+				const isDirectory = !ext || assetPath.endsWith('/');
+				if (isDirectory && (assetPath.startsWith('dir/') || url.startsWith('./dir/'))) {
+					const sub = assetPath.replace(/^dir\/?/, '').replace(/\/$/, '');
+					node.url = joinBase(base, `code-dir/${sub ? '#' + encodeURIComponent(sub) : ''}`);
+					return;
+				}
+
 				node.url = joinBase(base, `content/${assetPath}`);
 
 				if (IMAGE_EXTENSIONS.has(ext)) {

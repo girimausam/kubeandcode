@@ -1,6 +1,6 @@
 ---
-title: "Embeddings and RAG with Amazon Nova"
-description: "Vector embeddings, knowledge bases, and retrieval-augmented generation on Amazon Bedrock."
+title: "Amazon Nova Embeddings & RAG: Vector Search Architecture"
+description: "Build Retrieval-Augmented Generation (RAG) pipelines using Amazon Nova Multimodal Embeddings on Bedrock with OpenSearch Serverless vector search."
 tags:
   - aws
   - bedrock

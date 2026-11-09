@@ -1,6 +1,6 @@
 ---
-title: "EKS with Keycloak - production console walkthrough"
-description: "Run Keycloak on EKS for OIDC - console and cluster steps, ALB ingress, database, HA, and integration with apps and Cognito federation."
+title: "Amazon EKS Keycloak: Production IAM & Ingress Walkthrough"
+description: "Deploy production-grade Keycloak on Amazon EKS: external Aurora PostgreSQL database, ACM certificates, ALB Ingress, and realm configuration."
 tags:
  - eks
  - keycloak

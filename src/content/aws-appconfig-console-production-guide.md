@@ -1,6 +1,6 @@
 ---
-title: "AppConfig - production console guide"
-description: "Hosted configuration and feature flags - applications, environments, deployment strategies, and safe rollouts for live systems."
+title: "AWS AppConfig Console Guide: Safe Feature Flags"
+description: "Deploy dynamic configurations and feature flags safely using AWS AppConfig with validators, deployment strategies, and CloudWatch alarms."
 tags:
  - aws
  - appconfig

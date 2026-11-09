@@ -1,6 +1,6 @@
 ---
-title: "Kubernetes and AWS CLI Snippets"
-description: "Quick-reference kubectl, eksctl, ECR, FSx, EBS, and VPC Flow Logs commands for EKS day-2 operations."
+title: "AWS CLI & kubectl Snippets: DevOps Runbook Commands"
+description: "Essential AWS CLI and kubectl command cheat sheet for EKS clusters, IAM roles, S3 data sync, and EC2 instance management."
 tags:
   - cli
   - kubectl

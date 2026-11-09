@@ -1,6 +1,6 @@
 ---
-title: "VPC Lattice on EKS with Gateway API (updated)"
-description: "lab-cluster walkthrough: Pod Identity + Helm serviceAccount.create=true, Gateway name = service network, two Python apps, Route 53 private zone, HTTPRoute troubleshooting."
+title: "Amazon EKS VPC Lattice: Gateway API & HTTPRoute Setup"
+description: "Modern Amazon EKS application networking using AWS Gateway API Controller, EKS Pod Identity, HTTPRoute rules, and Route 53 private DNS."
 tags:
   - vpc-lattice
   - eks

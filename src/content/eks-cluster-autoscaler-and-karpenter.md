@@ -1,6 +1,6 @@
 ---
-title: "EKS Cluster Autoscaler and Karpenter"
-description: "When pods are pending, who adds nodes: Cluster Autoscaler on managed node groups versus Karpenter NodePools. IAM, tags, interruption queue, and how not to run both on the same capacity."
+title: "Amazon EKS Cluster Autoscaler vs Karpenter Node Pools"
+description: "Compare Kubernetes scaling on Amazon EKS: Cluster Autoscaler on managed node groups versus Karpenter just-in-time node provisioning."
 tags:
   - eks
   - cluster-autoscaler

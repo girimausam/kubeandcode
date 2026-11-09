@@ -1,6 +1,6 @@
 ---
-title: "Cognito and Keycloak Federation"
-description: "Keycloak on EKS with RDS PostgreSQL, Cognito OIDC federation, and how app pods validate Cognito JWTs."
+title: "AWS Cognito Keycloak Federation: OIDC Identity Pool"
+description: "Federate Keycloak OpenID Connect (OIDC) with Amazon Cognito User Pools and Identity Pools for enterprise single sign-on (SSO)."
 tags:
   - keycloak
   - eks

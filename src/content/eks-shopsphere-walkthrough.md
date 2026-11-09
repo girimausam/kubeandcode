@@ -1,6 +1,6 @@
 ---
-title: "ShopSphere on Amazon EKS (End-to-End Walkthrough)"
-description: "Complete microservices lab on EKS-VPC, Flask backend, ALB ingress patterns, autoscaling, Prometheus, Grafana, GitOps, and secrets."
+title: "Amazon EKS ShopSphere: Microservices Deployment Guide"
+description: "End-to-end deployment of ShopSphere e-commerce application on Amazon EKS: multi-tier frontend/backend pods, ConfigMaps, and ALB Ingress."
 tags:
   - shopsphere
   - eks

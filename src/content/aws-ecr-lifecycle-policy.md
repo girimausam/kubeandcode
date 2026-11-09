@@ -1,6 +1,6 @@
 ---
-title: "ECR: Repository Settings and Lifecycle Policy"
-description: "Scan on push, tag mutability, resource tags, and a lifecycle policy that expires untagged, branch, and excess production images - with prefix rules split (ECR matches all prefixes on a rule)."
+title: "Amazon ECR Lifecycle Policies: Syntax & Retention Rules"
+description: "Write precise Amazon ECR lifecycle policies: tag prefix matching traps, untagged image purging, and production image retention rules."
 tags:
   - ecr
   - lifecycle
@@ -9,6 +9,9 @@ tags:
   - notes
 date: 2026-08-29
 ---
+:::note[Console Runbook]
+For step-by-step AWS Management Console repository configuration, cross-account permissions, and KMS encryption, see [Amazon ECR Policies: Access & Lifecycle Console Guide](/blogs/aws-ecr-access-lifecycle-console-guide/).
+:::
 
 ## Repository
 
@@ -27,7 +30,6 @@ aws ecr create-repository \
 ```
 
 ---
-
 ## Lifecycle policy
 
 Rules run by `rulePriority` (lower first). `expire` deletes the **image**, not a single tag.
@@ -128,7 +130,6 @@ aws ecr put-lifecycle-policy \
 ```
 
 ---
-
 ## References
 
 - [Lifecycle policies](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html)

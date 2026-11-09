@@ -1,6 +1,6 @@
 ---
-title: "Lambda and RDS: IAM Database Authentication"
-description: "EventBridge, SQS, DynamoDB, and RDS event pipeline patterns."
+title: "AWS Lambda RDS IAM Authentication: MySQL & PostgreSQL"
+description: "Connect AWS Lambda functions securely to Amazon RDS MySQL and PostgreSQL using IAM database authentication without hardcoded credentials."
 categories:
   - Lambda
   - AWS

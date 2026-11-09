@@ -1,6 +1,6 @@
 ---
-title: "CI/CD: CodePipeline, CodeBuild, and CodeDeploy"
-description: Quick-reference patterns for CodePipeline, CodeBuild, and CodeDeploy setups.
+title: "AWS CI/CD Pipeline: CodePipeline, Build & Deploy"
+description: "End-to-end continuous delivery pipeline on AWS using CodePipeline, CodeBuild artifacts, and automated CodeDeploy blue/green deployments."
 tags:
   - codepipeline
   - codebuild

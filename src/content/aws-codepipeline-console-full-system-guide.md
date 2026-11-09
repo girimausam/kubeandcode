@@ -1,6 +1,6 @@
 ---
-title: "CodePipeline full-system console guide"
-description: "Build a multi-stage CI/CD pipeline in the console - source, CodeBuild, approvals, ECS/EKS deploy, artifacts, KMS, and cross-service IAM."
+title: "AWS CodePipeline Guide: Full CI/CD System Setup"
+description: "Console walkthrough for building multi-stage CI/CD pipelines with GitHub sources, CodeBuild test suites, manual approvals, and ECS targets."
 tags:
  - aws
  - codepipeline

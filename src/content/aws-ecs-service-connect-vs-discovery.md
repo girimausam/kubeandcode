@@ -1,6 +1,6 @@
 ---
-title: "ECS Service Connect vs Cloud Map Service Discovery"
-description: "When to use Service Connect vs Cloud Map, wiring, and common failure modes on ECS."
+title: "Amazon ECS Service Connect vs Cloud Map Discovery"
+description: "Detailed comparison of Amazon ECS Service Connect and Cloud Map Service Discovery: Envoy proxy mesh, DNS resolution, traffic metrics, and costs."
 tags:
   - ecs
   - service-connect
@@ -10,6 +10,9 @@ tags:
   - notes
 date: 2026-09-12
 ---
+:::note[Production Storage Guide]
+For attaching persistent volumes (Amazon EBS, EFS, FSx, and S3 Files) to ECS tasks alongside Service Connect, see [Amazon ECS Production: Service Connect, Discovery & Storage](/blogs/ecs-production-service-connect-discovery-storage/).
+:::
 
 # ECS Service Connect vs Service Discovery: A Practical Guide
 
@@ -20,7 +23,6 @@ This guide explains what each one does, when to choose which, how to wire them u
 **Production deep dive (console + storage):** [ECS at production scale: Service Connect, Discovery, and storage](./ecs-production-service-connect-discovery-storage.md).
 
 ---
-
 ## TL;DR
 
 | | **Service Connect** | **Service Discovery (Cloud Map)** |
@@ -34,7 +36,6 @@ This guide explains what each one does, when to choose which, how to wire them u
 **Rule of thumb:** Use **Service Connect** when ECS services call each other by name and you want AWS-managed connectivity. Use **Service Discovery** when you need a DNS record that anything in the VPC can resolve - or when the caller is not part of Service Connect.
 
 ---
-
 ## What Is ECS Service Connect?
 
 Service Connect is a **service mesh layer** built into ECS. When enabled on a service, ECS adds an **Envoy-based sidecar** (`ecs-service-connect-*` container) to each task.
@@ -75,7 +76,6 @@ Each **client** service enables Service Connect on the **same namespace** but le
 - Service Connect enabled on **both** client and server services
 
 ---
-
 ## What Is ECS Service Discovery?
 
 Service Discovery uses **AWS Cloud Map** to register task IP addresses and expose them as **DNS records** in a private hosted zone.
@@ -91,7 +91,6 @@ Any resource in the associated VPC that uses the VPC DNS resolver (`169.254.169.
 Service Discovery does **not** add a sidecar. It does **not** proxy traffic. It is DNS + health-checked registration, full stop.
 
 ---
-
 ## When to Use Service Connect
 
 Choose Service Connect when:
@@ -115,7 +114,6 @@ Choose Service Connect when:
 - Services that must be reachable by name from on-prem over VPN without ECS involvement
 
 ---
-
 ## When to Use Service Discovery
 
 Choose Service Discovery when:
@@ -138,7 +136,6 @@ Choose Service Discovery when:
 - You expect DNS to update in running containers without redeploying clients (same limitation as SC for dynamic discovery)
 
 ---
-
 ## How to Set Up Service Connect (Step by Step)
 
 ### 1. Create a Cloud Map HTTP namespace
@@ -236,7 +233,6 @@ curl http://payments:8082/
 ```
 
 ---
-
 ## How to Set Up Service Discovery (Step by Step)
 
 ### 1. Create a Cloud Map private DNS namespace
@@ -282,7 +278,6 @@ curl http://ecs-app-service.ecs-app:8000/health
 If your code or docs say `ecs-service-app.ecs-app` but Cloud Map registered `ecs-app-service`, DNS will fail with **NXDOMAIN**. The fix is either rename the Cloud Map service or update the client.
 
 ---
-
 ## Common Caveats (Read These First)
 
 ### 1. Service Connect DNS is injected at startup - not live-updated
@@ -304,7 +299,6 @@ aws ecs update-service --cluster CLUSTER --service frontend-service --force-new-
 Reference: [AWS containers-roadmap #2692](https://github.com/aws/containers-roadmap/issues/2692)
 
 ---
-
 ### 2. Client alias must match what your app calls
 
 Service Connect registers exactly the `dnsName` you configure - not what you wish you configured.
@@ -318,7 +312,6 @@ Service Connect registers exactly the `dnsName` you configure - not what you wis
 Always align `clientAliases[].dnsName` with `ORDERS_HOST`, `PAYMENTS_HOST`, or hard-coded URLs in code.
 
 ---
-
 ### 3. `portName` must match the task definition port mapping name
 
 Task definition:
@@ -336,7 +329,6 @@ Service Connect config must use the same string:
 A typo like `payments-8081-tcp` for container port 8082 will break registration silently or fail deployment validation.
 
 ---
-
 ### 4. Do not mix up namespace types
 
 | Namespace type | Used by | DNS behaviour |
@@ -347,7 +339,6 @@ A typo like `payments-8081-tcp` for container port 8082 will break registration 
 Using a DNS_PRIVATE namespace for Service Connect (or vice versa) leads to confusing failures. Keep them separate unless you know exactly what you are doing.
 
 ---
-
 ### 5. Service Discovery name ≠ ECS service name
 
 Cloud Map service name defines DNS, not the ECS service name.
@@ -359,7 +350,6 @@ Cloud Map service name defines DNS, not the ECS service name.
 The random suffix on the ECS service name is irrelevant to DNS.
 
 ---
-
 ### 6. Both require network prerequisites
 
 - Tasks in **same VPC** (or peered VPCs with DNS resolution enabled)
@@ -368,7 +358,6 @@ The random suffix on the ECS service name is irrelevant to DNS.
 - VPC **enableDnsSupport** and **enableDnsHostnames** should be true for Service Discovery
 
 ---
-
 ### 7. Service Connect does not replace a load balancer for public traffic
 
 Internal mesh:
@@ -386,7 +375,6 @@ Internet ──???──► frontend   ❌ (no ALB attached)
 Attach an ALB/NLB to services that need external ingress. Service Connect handles **east-west** traffic inside the mesh.
 
 ---
-
 ### 8. Health checks and base images matter
 
 If you use container health checks with `curl`, the binary must exist in the image. `python:3.14-slim` does not include `curl`; `python:3.14` does.
@@ -394,7 +382,6 @@ If you use container health checks with `curl`, the binary must exist in the ima
 Failed health checks cause task churn and can interrupt Service Connect registration timing - which feeds back into caveat #1.
 
 ---
-
 ### 9. Logging and debugging
 
 - Service Connect sidecar logs go to the log group configured on the **service** SC config (e.g. `/ecs/frontend-service`)
@@ -404,7 +391,6 @@ Failed health checks cause task churn and can interrupt Service Connect registra
 Enable app logging on every task definition you need to debug.
 
 ---
-
 ### 10. ECS Exec requires extra setup
 
 Interactive debugging (`aws ecs execute-command`) needs:
@@ -416,7 +402,6 @@ Interactive debugging (`aws ecs execute-command`) needs:
 Without Exec, you are limited to CloudWatch logs and `describe-*` API calls.
 
 ---
-
 ## Use Case Matrix
 
 | Scenario | Recommended approach |
@@ -430,7 +415,6 @@ Without Exec, you are limited to CloudWatch logs and `describe-*` API calls.
 | gRPC between ECS services | **Service Connect** with `appProtocol: grpc` |
 
 ---
-
 ## Reference Architecture (Combined)
 
 It is normal to use **both** in one cluster:
@@ -454,7 +438,6 @@ It is normal to use **both** in one cluster:
 Microservices talk via **short SC names**. The pipeline app is reachable via **Cloud Map FQDN** from anywhere in the VPC.
 
 ---
-
 ## Deployment Checklist
 
 Before declaring Service Connect "working":
@@ -481,7 +464,6 @@ Before declaring Service Discovery "working":
 - [ ] Security groups allow traffic on the target port
 
 ---
-
 ## Quick Troubleshooting
 
 | Symptom | Likely cause | Fix |
@@ -495,7 +477,6 @@ Before declaring Service Discovery "working":
 | External users cannot reach service | No load balancer | Attach ALB/NLB |
 
 ---
-
 ## Further Reading
 
 - [Amazon ECS Service Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
@@ -504,5 +485,4 @@ Before declaring Service Discovery "working":
 - [Service Connect dynamic /etc/hosts feature request](https://github.com/aws/containers-roadmap/issues/2692)
 
 ---
-
 *Based on a real ECS Fargate setup: `frontend-service` → `orders-service` → `payments-service` (Service Connect) and `ecs-app-td-service` (Service Discovery on `ecs-app-service.ecs-app`).*

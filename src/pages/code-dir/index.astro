@@ -1,12 +1,12 @@
 ---
-import { isTextFile, pathsToTree } from '../../utils/code-dir';
-import { withBase } from '../../utils/url';
+import { isTextFile, pathsToTree } from "../../utils/code-dir";
+import { withBase } from "../../utils/url";
 
-const files = Object.keys(import.meta.glob('../../content/dir/**/*'))
-	.map((key) => key.replace('../../content/dir/', ''))
+const files = Object.keys(import.meta.glob("../../content/dir/**/*"))
+	.map((key) => key.replace("../../content/dir/", ""))
 	.filter(isTextFile);
 const tree = pathsToTree(files);
-const fileBase = withBase('content/dir/');
+const fileBase = withBase("content/dir/");
 ---
 
 <!doctype html>
@@ -14,13 +14,17 @@ const fileBase = withBase('content/dir/');
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>dir</title>
-		<link rel="icon" type="image/svg+xml" href={withBase('favicon.svg')} />
+		<title>Source Code Directory | Mausam Giri</title>
+		<meta name="robots" content="noindex, follow" />
+		<link rel="canonical" href="https://mausamgiri.in/blogs/code-dir/" />
+		<link rel="icon" type="image/svg+xml" href={withBase("favicon.svg")} />
 		<script is:inline>
 			(function () {
 				var theme =
-					localStorage.getItem('theme') ||
-					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+					localStorage.getItem("theme") ||
+					(window.matchMedia("(prefers-color-scheme: dark)").matches
+						? "dark"
+						: "light");
 				document.documentElement.dataset.theme = theme;
 			})();
 		</script>
@@ -33,9 +37,10 @@ const fileBase = withBase('content/dir/');
 				--line: #e5e7eb;
 				--on: #e8eef8;
 				--hover: #f3f4f6;
-				--mono: ui-monospace, 'IBM Plex Mono', Menlo, Consolas, monospace;
+				--mono:
+					ui-monospace, "IBM Plex Mono", Menlo, Consolas, monospace;
 			}
-			:root[data-theme='dark'] {
+			:root[data-theme="dark"] {
 				--bg: #0c0d10;
 				--panel: #14151a;
 				--text: #eceef2;
@@ -53,7 +58,10 @@ const fileBase = withBase('content/dir/');
 				height: 100%;
 				background: var(--bg);
 				color: var(--text);
-				font: 13px/1.4 ui-sans-serif, system-ui, sans-serif;
+				font:
+					13px/1.4 ui-sans-serif,
+					system-ui,
+					sans-serif;
 			}
 			.browser {
 				height: 100%;
@@ -97,7 +105,9 @@ const fileBase = withBase('content/dir/');
 			}
 			.split {
 				display: grid;
-				grid-template-columns: minmax(14rem, var(--tree-w, 18rem)) 6px 1fr;
+				grid-template-columns:
+					minmax(14rem, var(--tree-w, 18rem))
+					6px 1fr;
 				min-height: 0;
 			}
 			.tree {
@@ -150,19 +160,19 @@ const fileBase = withBase('content/dir/');
 				display: none;
 			}
 			.tree summary::before {
-				content: '▸';
+				content: "\1F4C1";
 				display: inline-block;
 				width: 0.85rem;
 				color: var(--muted);
 				font-size: 10px;
 			}
 			.tree details[open] > summary::before {
-				content: '▾';
+				content: "\1F4C2";
 			}
 			.tree .file::before {
-				content: '';
-				width: 0.55rem;
-				height: 0.55rem;
+				content: "\1F4C4";
+				/* width: 0.55rem;
+				height: 0.55rem; */
 				border-radius: 2px;
 				background: var(--line);
 				flex-shrink: 0;
@@ -221,43 +231,53 @@ const fileBase = withBase('content/dir/');
 			<div class="split">
 				<nav class="tree" data-tree></nav>
 				<div class="gutter" data-gutter></div>
-				<div class="pane" data-view><p class="hint">Select a file</p></div>
+				<div class="pane" data-view>
+					<p class="hint">Select a file</p>
+				</div>
 			</div>
 		</div>
 		<script>
-			document.querySelector('[data-theme-toggle]')?.addEventListener('click', (event) => {
-				event.stopPropagation();
-				const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-				document.documentElement.dataset.theme = next;
-				localStorage.setItem('theme', next);
-			});
+			document
+				.querySelector("[data-theme-toggle]")
+				?.addEventListener("click", (event) => {
+					event.stopPropagation();
+					const next =
+						document.documentElement.dataset.theme === "dark"
+							? "light"
+							: "dark";
+					document.documentElement.dataset.theme = next;
+					localStorage.setItem("theme", next);
+				});
 
-			const split = document.querySelector('.split');
-			const gutter = document.querySelector('[data-gutter]');
+			const split = document.querySelector<HTMLElement>(".split");
+			const gutter = document.querySelector<HTMLElement>("[data-gutter]");
 			const minW = 224;
 			let drag = false;
-			gutter?.addEventListener('pointerdown', (e) => {
+			gutter?.addEventListener("pointerdown", (e: PointerEvent) => {
 				drag = true;
-				gutter.classList.add('drag');
+				gutter.classList.add("drag");
 				gutter.setPointerCapture(e.pointerId);
 			});
-			gutter?.addEventListener('pointermove', (e) => {
+			gutter?.addEventListener("pointermove", (e: PointerEvent) => {
 				if (!drag || !split) return;
 				const left = split.getBoundingClientRect().left;
-				const max = Math.min(split.clientWidth * 0.7, split.clientWidth - 160);
+				const max = Math.min(
+					split.clientWidth * 0.7,
+					split.clientWidth - 160,
+				);
 				const w = Math.min(max, Math.max(minW, e.clientX - left));
-				split.style.setProperty('--tree-w', `${w}px`);
+				split.style.setProperty("--tree-w", `${w}px`);
 			});
-			gutter?.addEventListener('pointerup', () => {
+			gutter?.addEventListener("pointerup", () => {
 				drag = false;
-				gutter?.classList.remove('drag');
+				gutter?.classList.remove("drag");
 			});
 		</script>
 		<script define:vars={{ payload: { tree, files, fileBase } }}>
 			window.__CODE_DIR = payload;
 		</script>
 		<script>
-			const { initCodeDir } = await import('../../scripts/code-dir-app');
+			const { initCodeDir } = await import("../../scripts/code-dir-app");
 			initCodeDir(window.__CODE_DIR);
 		</script>
 	</body>

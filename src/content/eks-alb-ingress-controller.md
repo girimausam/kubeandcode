@@ -1,6 +1,6 @@
 ---
-title: "EKS ALB Ingress with AWS Load Balancer Controller"
-description: Expose services on EKS via the AWS Load Balancer Controller and ALB Ingress.
+title: "Amazon EKS ALB Ingress: Load Balancer Controller Setup"
+description: "Install and configure AWS Load Balancer Controller on Amazon EKS: IAM Roles for Service Accounts (IRSA), Ingress manifests, and TLS certs."
 tags:
   - eks
   - alb

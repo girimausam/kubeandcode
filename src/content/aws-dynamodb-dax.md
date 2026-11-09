@@ -1,6 +1,6 @@
 ---
-title: "DynamoDB Accelerator (DAX): Use and Integrate"
-description: "Swap the DynamoDB client for a DAX client: cluster in a VPC, IAM, Lambda packaging, item vs query cache, write-through, and when to call DynamoDB directly for strong reads."
+title: "Amazon DynamoDB DAX: In-Memory Accelerator Setup"
+description: "Accelerate DynamoDB read latency to microseconds with DAX in VPC: IAM roles, cluster endpoints, query vs item cache, and write-through."
 tags:
   - dynamodb
   - dax

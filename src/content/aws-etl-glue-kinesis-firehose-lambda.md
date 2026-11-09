@@ -1,6 +1,6 @@
 ---
-title: "ETL with Glue, crawlers, Kinesis, Firehose, and Lambda"
-description: "Northwind Retail clickstream: Kinesis Data Streams, Firehose, Lambda transform, S3, Glue crawler, and Glue ETL job. Console steps, IAM, and mistakes."
+title: "AWS ETL Pipeline: Glue, Kinesis, Firehose & Lambda"
+description: "Build real-time streaming ETL pipelines with Amazon Kinesis Data Streams, Firehose data transformation Lambda, and AWS Glue data catalog."
 date: 2026-09-23
 tags:
  - aws

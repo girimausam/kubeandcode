@@ -1,6 +1,6 @@
 ---
-title: "What Is a vCPU on Amazon EC2?"
-description: "How virtual CPUs map to physical cores on Intel, AMD, and Graviton instances-and how vCPU limits affect EC2 capacity."
+title: "Amazon EC2 vCPU Architecture: Cores, Threads & Sizing"
+description: "Understand EC2 vCPU architecture: physical CPU cores, hyperthreading, NUMA nodes, compute sizing, and CPU credit burstable models."
 tags:
   - ec2
   - compute

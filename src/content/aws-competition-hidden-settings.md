@@ -1,6 +1,6 @@
 ---
-title: "Hidden AWS settings competitions actually score"
-description: "Console checkboxes and small services that decide a full-system build: encryption, IMDSv2, deletion protection, private DNS, DLQs, backups, and logging."
+title: "AWS GameDay & Jam: Hidden Scoring Settings Runbook"
+description: "Tips and hidden console configuration settings scored in AWS GameDay and Jam competitions across VPC, IAM, and database scenarios."
 tags:
   - aws
   - exam-prep

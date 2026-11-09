@@ -1,6 +1,6 @@
 ---
-title: "EKS with Kyverno - console-oriented production guide"
-description: "Policy-as-code on EKS - install verification, representative ClusterPolicies, and governance patterns beyond the Helm install steps."
+title: "Amazon EKS Kyverno Guide: Policy Management & Admission"
+description: "Implement Kubernetes governance on Amazon EKS using Kyverno: validate non-root pods, enforce read-only filesystems, and generate default configs."
 tags:
  - eks
  - kyverno

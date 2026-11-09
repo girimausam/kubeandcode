@@ -1,6 +1,6 @@
 ---
-title: "EKS Ingress with VPC Lattice - console guide"
-description: "Expose Kubernetes services through VPC Lattice - service networks, associations, Gateway API, and how this differs from ALB Ingress alone."
+title: "Amazon EKS VPC Lattice Ingress: Console Runbook Guide"
+description: "Configure Amazon EKS cluster ingress using AWS VPC Lattice from the AWS console: target groups, VPC associations, and service routing."
 tags:
  - eks
  - vpc-lattice
@@ -9,6 +9,9 @@ tags:
  - networking
  - devops
 ---
+:::note[Kubernetes Gateway API]
+For declarative Kubernetes manifests and HTTPRoute configurations on Amazon EKS, refer to [Amazon EKS VPC Lattice: Gateway API & HTTPRoute Setup](/blogs/eks-vpc-lattice-gateway-api-updated/).
+:::
 
 # EKS Ingress with VPC Lattice - console guide
 
@@ -20,7 +23,6 @@ tags:
 Official: [What is VPC Lattice?](https://docs.aws.amazon.com/vpc-lattice/latest/ug/what-is-vpc-lattice.html)
 
 ---
-
 ## Use cases
 
 | Scenario | Why Lattice |
@@ -33,7 +35,6 @@ Official: [What is VPC Lattice?](https://docs.aws.amazon.com/vpc-lattice/latest/
 **When ALB alone is enough:** single VPC, north-south HTTP only - use [ALB Ingress Controller](./eks-alb-ingress-controller.md).
 
 ---
-
 ## Architecture
 
 ```text
@@ -41,7 +42,6 @@ Consumer VPC (Lambda/ECS) ──► VPC Lattice service network ──► Lattic
 ```
 
 ---
-
 ## Console - service network
 
 1. **VPC Lattice** console → **Service networks** → **Create**.
@@ -49,7 +49,6 @@ Consumer VPC (Lambda/ECS) ──► VPC Lattice service network ──► Lattic
 3. **Auth policy** (optional): IAM-based access - define who can invoke.
 
 ---
-
 ## Console - register EKS workload
 
 Paths vary by integration generation; typical flow:
@@ -65,7 +64,6 @@ Paths vary by integration generation; typical flow:
 3. Apply `Gateway` + `HTTPRoute` manifests pointing to `Service`.
 
 ---
-
 ## Configuration details
 
 | Item | Note |
@@ -76,14 +74,12 @@ Paths vary by integration generation; typical flow:
 | Security groups | Pod SG must allow Lattice ENI traffic |
 
 ---
-
 ## IAM
 
 - Controller role: `vpc-lattice:*` scoped + `elasticloadbalancing` if hybrid.
 - Consumer principals allowed in **auth policy** on service network association.
 
 ---
-
 ## Commonly missed
 
 - Mixing **ALB Ingress** annotations with Lattice routes without clear ownership
@@ -92,7 +88,6 @@ Paths vary by integration generation; typical flow:
 - No auth policy - open internal mesh
 
 ---
-
 ## Troubleshooting
 
 | Symptom | Check |

@@ -1,6 +1,6 @@
 ---
-title: "EventBridge Integration Patterns"
-description: "EventBridge rules, event patterns, input transformers, archive/replay, pipes, scheduler, and DLQs."
+title: "Amazon EventBridge Patterns: Event-Driven Architecture"
+description: "Production EventBridge architectural patterns: custom event buses, content filtering rules, DLQs, archive/replay, and multi-account routing."
 tags:
 - eventbridge
 - serverless

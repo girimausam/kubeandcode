@@ -1,6 +1,6 @@
 ---
-title: "Networking Overview"
-description: "Runbook for Network Firewall, Transit Gateway hub-and-spoke, VPC Lattice, and centralized inspection routing patterns."
+title: "AWS Networking Guide: VPCs, Subnets & Transit Gateway"
+description: "Foundational AWS networking architecture: VPC CIDR design, public/private subnets, Internet Gateways, NAT Gateways, and route tables."
 tags:
   - vpc
   - networking

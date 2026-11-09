@@ -1,6 +1,6 @@
 ---
-title: "Security implementation patterns (console)"
-description: "Organization guardrails, KMS, logging, detective controls, and network isolation - patterns commonly combined in production and system-design exercises."
+title: "AWS Security Patterns: IAM, Encryption & Audit Runbook"
+description: "Production AWS security runbook: least-privilege IAM policies, KMS encryption at rest, AWS CloudTrail auditing, and Security Hub baselines."
 tags:
  - aws
  - security

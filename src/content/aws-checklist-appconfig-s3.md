@@ -1,6 +1,6 @@
 ---
-title: "Checklist: AppConfig Schema and S3 Bucket Hygiene"
-description: "Short checklist: AppConfig JSON schema, S3 lifecycle / CRR / versioning / tags."
+title: "AWS AppConfig & S3 Checklist: Schema & Bucket Hygiene"
+description: "Production readiness checklist for AWS AppConfig configuration profiles, JSON schema validation, and Amazon S3 bucket security baselines."
 tags:
   - aws
   - appconfig

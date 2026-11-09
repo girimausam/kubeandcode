@@ -1,6 +1,6 @@
 ---
-title: "ECS and Lambda CI/CD with CodePipeline"
-description: "BuildSpec, AppSpec, and task definition patterns for ECS blue/green deployments and Lambda pipelines with Amazon ECR."
+title: "Amazon ECS CI/CD: Automated Pipeline with CodePipeline"
+description: "Build automated continuous deployment pipelines for Amazon ECS Fargate and AWS Lambda using CodePipeline and imagedefinitions.json."
 tags:
   - ecs
   - lambda

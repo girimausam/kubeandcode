@@ -1,6 +1,6 @@
 ---
-title: "DocumentDB: TLS in Transit and Connecting with the CA Bundle"
-description: "Enable and verify TLS to DocumentDB using global-bundle.pem—mongosh, Python, and Node examples, cluster parameters, CA rotation, and console checklist."
+title: "Amazon DocumentDB TLS: CA Bundle Connection Guide"
+description: "Connect applications securely to Amazon DocumentDB clusters using TLS encryption in transit and the AWS RDS global CA certificate bundle."
 date: 2026-09-22
 tags:
   - aws

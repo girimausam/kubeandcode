@@ -1,6 +1,6 @@
 ---
-title: "Import a Private Certificate into ACM"
-description: "OpenSSL CA + self-signed cert, import into ACM, and optional Mountpoint for S3 on the host."
+title: "AWS ACM: Import Private Certificate Guide"
+description: "Step-by-step guide to importing third-party and private SSL/TLS certificates into AWS Certificate Manager with PEM encoding and CA bundle chains."
 tags:
   - acm
   - certificate

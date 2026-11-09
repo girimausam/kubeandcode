@@ -1,6 +1,6 @@
 ---
-title: "Cloud roles mapped to real AWS work"
-description: "How Cloud Architect, DevOps, Cloud Developer, and Cloud Security map to console work: architecture, migration, cost, cloud-native apps, and security."
+title: "AWS Cloud Roles: Responsibility Matrix & RACI Guide"
+description: "Map enterprise cloud engineering roles (DevOps, SRE, Cloud Architect, Security Engineer) to AWS services, tasks, and IAM permissions."
 tags:
   - aws
   - architecture

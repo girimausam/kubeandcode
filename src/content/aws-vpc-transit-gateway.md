@@ -1,6 +1,6 @@
 ---
-title: "VPC Transit Gateway (Reference Links)"
-description: VPC Transit Gateway
+title: "AWS Transit Gateway: Multi-VPC Architecture Patterns"
+description: "Enterprise architecture patterns for AWS Transit Gateway: spoke VPC attachments, centralized internet egress, and route table associations."
 tags:
     - vpc
     - transit gateway

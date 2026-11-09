@@ -10,14 +10,148 @@ import SearchModal from '../components/SearchModal.astro';
 import ContentPreview from '../components/ContentPreview.astro';
 import type { Post } from '../utils/posts';
 
+export interface BreadcrumbItem {
+	name: string;
+	url: string;
+}
+
+export interface ArticleMeta {
+	headline: string;
+	description: string;
+	author?: string;
+	datePublished?: Date;
+	dateModified?: Date;
+}
+
 interface Props {
 	title?: string;
 	description?: string;
 	posts: Post[];
+	canonicalUrl?: string;
+	ogImage?: string;
+	ogType?: 'website' | 'article';
+	articleMeta?: ArticleMeta;
+	breadcrumbs?: BreadcrumbItem[];
+	noindex?: boolean;
 }
 
-const { title = 'Blogs', description = 'A minimal developer blog.', posts } = Astro.props;
+const {
+	title = 'AWS, EKS & DevOps Guides: Console-First Runbooks | Mausam Giri',
+	description = 'Practical AWS, EKS, and DevOps runbooks with console-first workflows, architecture patterns, and production troubleshooting guides by Mausam Giri.',
+	posts,
+	canonicalUrl,
+	ogImage,
+	ogType = 'website',
+	articleMeta,
+	breadcrumbs = [],
+	noindex = false,
+} = Astro.props;
+
 const base = import.meta.env.BASE_URL;
+const siteUrl = 'https://mausamgiri.in';
+
+// Compute full canonical URL
+const currentPath = Astro.url.pathname.replace(/^\/?/, '/');
+const normalizedPath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
+const blogPath = normalizedPath.startsWith('/blogs/') ? normalizedPath : `/blogs${normalizedPath}`;
+const finalCanonical = canonicalUrl || `${siteUrl}${blogPath}`;
+
+// Compute Open Graph image
+const defaultOgImage = `${siteUrl}/blogs/images/og-default.png`;
+const finalOgImage = ogImage || defaultOgImage;
+
+// Check search / filter query params for noindex
+const isFilterOrSearch = Astro.url.searchParams.has('tag') || Astro.url.searchParams.has('q') || Boolean(noindex);
+const robotsValue = isFilterOrSearch ? 'noindex, follow' : 'index, follow';
+
+// JSON-LD structured data construction
+const jsonLdGraph: Record<string, any>[] = [];
+
+const isHome = currentPath === '/' || currentPath === '/blogs/' || currentPath === '/blogs';
+
+if (isHome) {
+	// WebSite & Person on Home
+	jsonLdGraph.push({
+		'@type': 'WebSite',
+		'@id': `${siteUrl}/blogs/#website`,
+		url: `${siteUrl}/blogs/`,
+		name: 'AWS, EKS & DevOps Guides: Console-First Runbooks | Mausam Giri',
+		description: description,
+		inLanguage: 'en-US',
+		publisher: {
+			'@type': 'Person',
+			'@id': `${siteUrl}/#person`,
+			name: 'Mausam Giri',
+			url: siteUrl,
+			jobTitle: 'Cloud & DevOps Architect',
+			sameAs: [
+				'https://github.com/mausamgiri',
+				'https://linkedin.com/in/mausamgiri',
+			],
+		},
+	});
+
+	jsonLdGraph.push({
+		'@type': 'Person',
+		'@id': `${siteUrl}/#person`,
+		name: 'Mausam Giri',
+		url: siteUrl,
+		jobTitle: 'Cloud & DevOps Architect',
+		sameAs: [
+			'https://github.com/mausamgiri',
+			'https://linkedin.com/in/mausamgiri',
+		],
+	});
+} else if (articleMeta) {
+	// BlogPosting on posts
+	const pubDate = articleMeta.datePublished || new Date();
+	const modDate = articleMeta.dateModified || pubDate;
+
+	jsonLdGraph.push({
+		'@type': 'BlogPosting',
+		'@id': `${finalCanonical}#article`,
+		isPartOf: {
+			'@type': 'WebSite',
+			'@id': `${siteUrl}/blogs/#website`,
+		},
+		headline: articleMeta.headline,
+		description: articleMeta.description,
+		mainEntityOfPage: {
+			'@type': 'WebPage',
+			'@id': finalCanonical,
+		},
+		author: {
+			'@type': 'Person',
+			'@id': `${siteUrl}/#person`,
+			name: articleMeta.author || 'Mausam Giri',
+			url: siteUrl,
+		},
+		publisher: {
+			'@type': 'Person',
+			'@id': `${siteUrl}/#person`,
+			name: 'Mausam Giri',
+			url: siteUrl,
+		},
+		datePublished: pubDate.toISOString(),
+		dateModified: modDate.toISOString(),
+		image: finalOgImage,
+		inLanguage: 'en-US',
+	});
+}
+
+// BreadcrumbList if breadcrumbs provided
+if (breadcrumbs.length > 0) {
+	jsonLdGraph.push({
+		'@type': 'BreadcrumbList',
+		'@id': `${finalCanonical}#breadcrumb`,
+		itemListElement: breadcrumbs.map((crumb, idx) => ({
+			'@type': 'ListItem',
+			position: idx + 1,
+			name: crumb.name,
+			item: crumb.url,
+		})),
+	});
+}
 ---
 
 <!doctype html>
@@ -25,19 +159,74 @@ const base = import.meta.env.BASE_URL;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content={description} />
 		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta name="robots" content={robotsValue} />
+		<link rel="canonical" href={finalCanonical} />
+
+		<!-- Open Graph -->
+		<meta property="og:site_name" content="Mausam Giri | AWS & DevOps Guides" />
+		<meta property="og:type" content={ogType} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={finalCanonical} />
+		<meta property="og:image" content={finalOgImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={finalOgImage} />
+		<meta name="twitter:creator" content="@mausamgiri" />
+
+		<!-- Favicon & Feeds -->
 		<link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+		<link
+			rel="alternate"
+			type="application/rss+xml"
+			title="AWS, EKS & DevOps Guides | Mausam Giri"
+			href={`${siteUrl}/blogs/feed.xml`}
+		/>
+
+		<!-- Speed: Preload Critical Font -->
+		<link
+			rel="preload"
+			href={`${base}fonts/ibm-plex-sans-latin-400-normal.woff2`}
+			as="font"
+			type="font/woff2"
+			crossorigin="anonymous"
+		/>
+
+		<!-- Structured Data (JSON-LD) -->
+		{
+			jsonLdGraph.length > 0 && (
+				<script
+					type="application/ld+json"
+					is:inline
+					set:html={JSON.stringify({
+						'@context': 'https://schema.org',
+						'@graph': jsonLdGraph,
+					})}
+				/>
+			)
+		}
+
 		<script is:inline>
-			{
-				`(function () {
-					const storageKey = 'theme';
-					const theme =
-						localStorage.getItem(storageKey) ||
-						(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-					document.documentElement.dataset.theme = theme;
-				})();`
-			}
+			(function () {
+				const storageKey = 'theme';
+				const theme =
+					localStorage.getItem(storageKey) ||
+					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+				document.documentElement.dataset.theme = theme;
+
+				// Dynamic robots meta update if query params exist on client navigation
+				if (window.location.search && window.location.search.length > 1) {
+					const r = document.querySelector('meta[name="robots"]');
+					if (r) r.setAttribute('content', 'noindex, follow');
+				}
+			})();
 		</script>
 	</head>
 	<body>

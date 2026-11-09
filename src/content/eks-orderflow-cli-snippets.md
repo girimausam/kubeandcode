@@ -1,6 +1,6 @@
 ---
-title: "OrderFlow: CLI and Operations Snippets"
-description: "Copy-paste EKS, IRSA, RDS, SQS, ingress, and add-on commands for the OrderFlow migration project."
+title: "Amazon EKS OrderFlow: CLI Troubleshooting Cheat Sheet"
+description: "Operational CLI cheat sheet for debugging the OrderFlow microservices on Amazon EKS: pod logs, DNS lookup tests, and ingress routing triage."
 tags:
   - orderflow
   - eks

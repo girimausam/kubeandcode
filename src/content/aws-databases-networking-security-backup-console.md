@@ -1,6 +1,6 @@
 ---
-title: "Databases on AWS - networking, security, backup (console)"
-description: "RDS and Aurora production placement - subnet groups, security groups, encryption, backups, IAM auth, and hybrid access patterns."
+title: "AWS Database Security: Network, Encryption & Backup"
+description: "Production database runbook: VPC subnet groups, KMS encryption, automated backups, cross-region read replicas, and Secrets Manager."
 tags:
  - aws
  - rds

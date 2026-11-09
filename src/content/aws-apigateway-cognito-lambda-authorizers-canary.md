@@ -1,6 +1,6 @@
 ---
-title: "API Gateway: Cognito and Lambda authorizers, binary uploads, canary, and cache"
-description: "REST API with Cognito and Lambda authorizers, binary media types to S3, stage canary with cache, CORS on proxy routes, and forwarding all traffic to a load balancer."
+title: "API Gateway Authorizers: Cognito, Lambda & Canary"
+description: "Configure API Gateway with Cognito and Lambda authorizers, binary media types, stage canary deployments, and API response caching."
 tags:
   - aws
   - api-gateway

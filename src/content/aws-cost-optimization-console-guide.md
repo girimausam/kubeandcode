@@ -1,6 +1,6 @@
 ---
-title: "Cloud cost optimization (console)"
-description: "Tags, budgets, anomaly detection, Compute Optimizer, S3 lifecycle, and the charges competitions expect you to notice: NAT, data transfer, idle disks."
+title: "AWS Cost Optimization: Console Runbook & Quick Wins"
+description: "Reduce AWS spend using Cost Explorer, Compute Optimizer, S3 Lifecycle rules, unused EBS cleanup, and Graviton instance conversions."
 tags:
   - aws
   - cost

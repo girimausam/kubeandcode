@@ -10,10 +10,14 @@ function copyAssets(outDir) {
 	const targetRoot = path.join(outDir, 'content');
 	fs.mkdirSync(targetRoot, { recursive: true });
 
+	const blogsTargetRoot = path.join(outDir, 'blogs', 'content');
+	fs.mkdirSync(blogsTargetRoot, { recursive: true });
+
 	for (const dir of assetDirs) {
 		const source = path.join(contentRoot, dir);
 		if (!fs.existsSync(source)) continue;
 		fs.cpSync(source, path.join(targetRoot, dir), { recursive: true });
+		fs.cpSync(source, path.join(blogsTargetRoot, dir), { recursive: true });
 	}
 }
 

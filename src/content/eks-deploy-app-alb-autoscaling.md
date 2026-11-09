@@ -1,6 +1,6 @@
 ---
-title: "Deploy an Application on EKS with ALB and Autoscaling"
-description: "ECR push, eksctl cluster, Deployment, HPA, Cluster Autoscaler, AWS Load Balancer Controller, and ALB Ingress."
+title: "Amazon EKS Deployment: ALB Ingress & HPA Pod Autoscaling"
+description: "Deploy containerized web applications on Amazon EKS with AWS Application Load Balancer Ingress and Horizontal Pod Autoscaler (HPA)."
 tags:
   - eks
   - ecr

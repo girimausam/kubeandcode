@@ -1,6 +1,6 @@
 ---
-title: "VPC Lattice on EKS with Gateway API"
-description: "Install AWS Gateway API Controller, service network association, Gateway + HTTPRoute + TargetGroupPolicy for VPC Lattice."
+title: "Amazon EKS VPC Lattice Gateway API: Service Controller"
+description: "Walkthrough of AWS Gateway API Controller on Amazon EKS: custom resource definitions (CRDs), Lattice service networks, and multi-cluster routing."
 tags:
   - vpc-lattice
   - eks
@@ -15,6 +15,9 @@ resources:
   - title: Getting started (single cluster)
     url: https://www.gateway-api-controller.eks.aws.dev/latest/guides/getstarted/
 ---
+:::note[Updated Guide Available]
+This guide covers the legacy IAM Roles for Service Accounts (IRSA) installation. For modern clusters using EKS Pod Identity, see the updated guide: [Amazon EKS VPC Lattice: Gateway API & HTTPRoute Setup](/blogs/eks-vpc-lattice-gateway-api-updated/).
+:::
 
 Gateway API objects → **Amazon VPC Lattice Gateway API Controller** → Lattice services and target groups.
 
@@ -25,7 +28,6 @@ Pair with the app lab: [VPC Lattice application networking](/aws-vpc-lattice-app
 Official walkthrough: [Getting started](https://www.gateway-api-controller.eks.aws.dev/latest/guides/getstarted/) (upstream examples use service network **`my-hotel`** — name is arbitrary).
 
 ---
-
 ## 1. Cluster context and Lattice security groups
 
 ```bash
@@ -64,7 +66,6 @@ Also allow **TCP 8080** (app port) from the IPv4 prefix list on the same SG if y
 **Controller IAM:** create `VPCLatticeControllerIAMPolicy` from [recommended-inline-policy.json](https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/files/controller-installation/recommended-inline-policy.json), namespace `aws-application-networking-system`, then **EKS Pod Identity** (recommended) or **IRSA** for ServiceAccount `gateway-api-controller`. Follow [Set up IAM permissions](https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/#set-up-iam-permissions) through namespace + role binding. Skipping IAM → controller pods crash on Lattice API calls.
 
 ---
-
 ## 2. Gateway API CRDs
 
 Pin a release from [Gateway API releases](https://github.com/kubernetes-sigs/gateway-api/releases). Match a version compatible with your controller chart (see deploy guide).
@@ -74,7 +75,6 @@ kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/re
 ```
 
 ---
-
 ## 3. Install the controller (Helm)
 
 Chart version: use the value in [Install the controller](https://www.gateway-api-controller.eks.aws.dev/latest/guides/deploy/#install-the-controller) (currently **v2.1.3**). Set `serviceAccount.create=false` because the SA already exists from Pod Identity / IRSA.
@@ -103,7 +103,6 @@ When the controller is not on EKS, set Helm values explicitly: `clusterVpcId`, `
 </details>
 
 ---
-
 ## 4. GatewayClass
 
 `GatewayClass` tells Kubernetes **which controller** owns Gateways of that class. Your `Gateway` must set `spec.gatewayClassName: amazon-vpc-lattice` to match this object.
@@ -137,7 +136,6 @@ kubectl describe gatewayclass amazon-vpc-lattice
 Upstream file may still use `apiVersion: gateway.networking.k8s.io/v1beta1`; either `v1` or `v1beta1` is fine once Gateway API CRDs are installed.
 
 ---
-
 ## 5. Service network (required)
 
 The controller attaches new Gateways to a **VPC Lattice service network**. Create the network (once per Region/account lab) and associate the **EKS cluster VPC**.
@@ -181,7 +179,6 @@ helm upgrade gateway-api-controller \
 ```
 
 ---
-
 ## 6. Gateway
 
 Create namespace `networking` (optional; keeps Gateway separate from app namespaces):
@@ -231,7 +228,6 @@ For a custom domain, Gateway listener `hostname` and HTTPRoute `hostnames` must 
 </details>
 
 ---
-
 ## 7. Workload (inventory lab)
 
 Deploy the sample app from the repo (Service port **80** → pod **8080**, health **`GET /health`**):
@@ -246,7 +242,6 @@ kubectl apply -n inventory -f deployment.yaml
 ```
 
 ---
-
 ## 8. HTTPRoute
 
 Example route to **`inventory-service`** on path prefix **`/inventory`** (matches the lab app).
@@ -282,7 +277,6 @@ spec:
 </details>
 
 ---
-
 ## 9. TargetGroupPolicy
 
 Attach to the **Service**, not the HTTPRoute. Health check must hit the **pod** path and port the app exposes.
@@ -312,7 +306,6 @@ spec:
 Wrong `healthCheck.path` (for example `/healthz`) → targets **unhealthy** → no traffic even when DNS resolves.
 
 ---
-
 ## 10. Verify
 
 ```bash
@@ -333,7 +326,6 @@ kubectl logs -n aws-application-networking-system -l app.kubernetes.io/name=aws-
 ```
 
 ---
-
 ## Troubleshooting
 
 | Symptom | Likely cause |

@@ -1,6 +1,6 @@
 ---
-title: "AppSync Real-Time Collaboration"
-description: "Multi-user project tasks with Cognito auth, DynamoDB single-table design, pipeline resolvers with membership checks, and GraphQL subscriptions for live updates."
+title: "AWS AppSync Real-Time Collaboration: Pipeline Resolvers"
+description: "Build multi-user real-time collaborative apps with AWS AppSync, DynamoDB single-table design, Cognito auth, and GraphQL subscriptions."
 tags:
   - appsync
   - graphql

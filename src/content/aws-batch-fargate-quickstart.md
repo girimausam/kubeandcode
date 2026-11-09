@@ -1,6 +1,6 @@
 ---
-title: "Batch on Fargate: Quick Start Guide"
-description: "Step-by-step setup for AWS Batch with Fargate-IAM, security groups, ECR job image, compute environment, queue, submit job, pitfalls."
+title: "AWS Batch on Fargate: Quickstart Job Deployment"
+description: "Quickstart runbook for running containerized batch computing workloads on serverless AWS Fargate with custom job definitions and S3 storage."
 tags:
   - aws
   - batch

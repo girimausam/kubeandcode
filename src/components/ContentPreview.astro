@@ -20,9 +20,6 @@
 </div>
 
 <script>
-	import { codeToHtml } from 'shiki';
-	import { getShikiLanguage } from '../utils/content-assets';
-
 	const modal = document.getElementById('content-preview-modal');
 	const titleEl = document.getElementById('content-preview-title');
 	const bodyEl = document.getElementById('content-preview-body');
@@ -71,6 +68,10 @@
 			}
 
 			rawText = await response.text();
+			const [{ codeToHtml }, { getShikiLanguage }] = await Promise.all([
+				import('shiki'),
+				import('../utils/content-assets')
+			]);
 			const lang = getShikiLanguage(fileName);
 			const html = await codeToHtml(rawText, {
 				lang,

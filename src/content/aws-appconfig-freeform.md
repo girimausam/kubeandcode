@@ -1,6 +1,6 @@
 ---
-title: "AppConfig: Freeform Configuration"
-description: "Daily playbook: Freeform profile, JSON Schema validators, hosted versions, deployment (release) with bake-time rollback."
+title: "AWS AppConfig Freeform: JSON & YAML Configurations"
+description: "Manage freeform JSON and YAML configuration profiles in AWS AppConfig with JSON Schema validation and gradual deployment rollback controls."
 tags:
   - appconfig
   - aws

@@ -1,6 +1,6 @@
 ---
-title: "Building with Amazon Nova"
-description: "Bedrock Nova inference with Converse, InvokeModel, streaming, tools, multimodal inputs, and structured JSON."
+title: "Amazon Nova Models: Multimodal Generation & AI Guide"
+description: "Build generative AI applications with Amazon Nova Micro, Lite, Pro, and Canvas models on Amazon Bedrock: prompting, streaming, and pricing."
 tags:
   - aws
   - bedrock

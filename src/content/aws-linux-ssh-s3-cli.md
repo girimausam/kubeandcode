@@ -1,6 +1,6 @@
 ---
-title: "SSH, SCP, cp, and AWS CLI commands"
-description: "Copy files to EC2 and S3, then the AWS CLI checks used to review S3, EC2, security groups, RDS, EBS, CloudTrail, and IAM."
+title: "AWS CLI & Linux SSH: S3 Data Transfer Cheat Sheet"
+description: "Cheat sheet for secure Linux server administration, SSH key management, SCP file copying, and high-performance AWS CLI S3 synchronization."
 tags:
   - aws
   - linux

@@ -1,6 +1,6 @@
 ---
-title: "Service Best Practices"
-description: "Operational and security best practices by AWS service—S3 versioning and lifecycle, IAM least privilege, RDS backups, EKS logging, and more."
+title: "AWS Service Best Practices: Enterprise Architecture"
+description: "Essential AWS production best practices across compute, storage, networking, security, IAM privilege separation, and cost governance."
 tags:
   - aws
   - best-practices

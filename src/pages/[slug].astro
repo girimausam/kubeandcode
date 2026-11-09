@@ -5,6 +5,8 @@ import RelatedPosts from '../components/RelatedPosts.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import PostTags from '../components/PostTags.astro';
 import { formatDate, getPostLinks, getRelatedPosts } from '../utils/posts';
+import { getSeriesForPost } from '../data/series';
+import { withBase } from '../utils/url';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -18,19 +20,73 @@ const allPosts = await getCollection('posts');
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
 const links = getPostLinks(post);
-const related = getRelatedPosts(post, allPosts);
+const related = getRelatedPosts(post, allPosts, 4);
+const seriesInfo = getSeriesForPost(post.id);
 
 const toc = headings.filter((h) => h.depth >= 2);
+
+const siteUrl = 'https://mausamgiri.in';
+const canonicalUrl = `${siteUrl}/blogs/${post.id}/`;
+const ogImage = `${siteUrl}/blogs/og/${post.id}.png`;
+
+const breadcrumbs = [
+  { name: 'Home', url: `${siteUrl}/blogs/` },
+  ...(seriesInfo
+    ? [
+        {
+          name: seriesInfo.series.shortTitle,
+          url: `${siteUrl}/blogs/series/${seriesInfo.series.slug}/`,
+        },
+      ]
+    : []),
+  { name: post.data.title, url: canonicalUrl },
+];
+
+const articleMeta = {
+  headline: post.data.title,
+  description: post.data.description,
+  author: post.data.author || 'Mausam Giri',
+  datePublished: post.data.date,
+  dateModified: post.data.date,
+};
 ---
 
-<BaseLayout title={`${post.data.title} | Blogs`} description={post.data.description} posts={allPosts}>
+<BaseLayout
+  title={`${post.data.title} | Mausam Giri`}
+  description={post.data.description}
+  posts={allPosts}
+  canonicalUrl={canonicalUrl}
+  ogImage={ogImage}
+  ogType="article"
+  articleMeta={articleMeta}
+  breadcrumbs={breadcrumbs}
+>
   <article class="container post">
+    {
+      seriesInfo && (
+        <aside class="series-callout">
+          <div class="series-callout-header">
+            <span class="series-pill">{seriesInfo.series.badge} Series</span>
+            <span class="series-step">
+              Guide {seriesInfo.guide.order} of {seriesInfo.series.guides.length}
+            </span>
+          </div>
+          <div class="series-callout-body">
+            <span>Part of the curriculum: </span>
+            <a href={withBase(`series/${seriesInfo.series.slug}/`)}>
+              <strong>{seriesInfo.series.title}</strong> &rarr;
+            </a>
+          </div>
+        </aside>
+      )
+    }
+
     <header class="post-header">
       <h1>{post.data.title}</h1>
       <div class="post-meta">
         <PostTags tags={post.data.tags} centered />
         <p class="details">
-          <!-- {post.data.date && <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>} -->
+          {post.data.date && <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>}
           {post.data.author && <span>{post.data.author}</span>}
           {
             links.map((link) => (
@@ -43,7 +99,7 @@ const toc = headings.filter((h) => h.depth >= 2);
       </div>
     </header>
 
-    {post.data.image && <img class="cover" src={post.data.image} alt="" loading="lazy" />}
+    {post.data.image && <img class="cover" src={post.data.image} alt={post.data.title} loading="lazy" />}
 
     <div class="post-body">
       <div class="prose">
@@ -51,7 +107,25 @@ const toc = headings.filter((h) => h.depth >= 2);
       </div>
     </div>
 
-    
+    {
+      seriesInfo && (seriesInfo.prevGuide || seriesInfo.nextGuide) && (
+        <nav class="series-pagination" aria-label="Series guide navigation">
+          {seriesInfo.prevGuide ? (
+            <a href={withBase(`${seriesInfo.prevGuide.slug}/`)} class="series-nav-btn prev">
+              <span class="label">&larr; Previous in Series</span>
+              <span class="title">Guide {seriesInfo.prevGuide.order}</span>
+            </a>
+          ) : <div />}
+          {seriesInfo.nextGuide ? (
+            <a href={withBase(`${seriesInfo.nextGuide.slug}/`)} class="series-nav-btn next">
+              <span class="label">Next in Series &rarr;</span>
+              <span class="title">Guide {seriesInfo.nextGuide.order}</span>
+            </a>
+          ) : <div />}
+        </nav>
+      )
+    }
+
     <RelatedPosts posts={related} />
   </article>
   <TableOfContents headings={toc} />
@@ -60,6 +134,45 @@ const toc = headings.filter((h) => h.depth >= 2);
 <style>
   .post {
     padding: 3rem 0 0;
+  }
+  .series-callout {
+    margin-bottom: 2rem;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 0.35rem;
+    background: var(--bg-subtle);
+    min-height: 4.5rem;
+    contain: layout;
+  }
+  .series-callout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+  }
+  .series-pill {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .series-step {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+  .series-callout-body {
+    font-size: var(--text-sm);
+    color: var(--text);
+  }
+  .series-callout-body a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .series-callout-body a:hover {
+    text-decoration: underline;
   }
   .post-header {
     text-align: center;
@@ -91,15 +204,41 @@ const toc = headings.filter((h) => h.depth >= 2);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
   }
-  .prose > :global(h1:first-of-type) {
-    display: none;
-  }
-
   .prose :global(:is(h2, h3, h4, h5, h6)) {
     scroll-margin-top: calc(var(--header-height) + 1.5rem);
   }
-
-  .post-body {
-    margin-top: 3rem;
+  .series-pagination {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2.5rem 0 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .series-nav-btn {
+    display: flex;
+    flex-direction: column;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.35rem;
+    text-decoration: none;
+    background: var(--bg);
+    transition: border-color 0.15s;
+  }
+  .series-nav-btn:hover {
+    border-color: var(--accent);
+  }
+  .series-nav-btn.next {
+    text-align: right;
+  }
+  .series-nav-btn .label {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .series-nav-btn .title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--accent);
   }
 </style>

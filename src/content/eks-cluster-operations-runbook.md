@@ -1,6 +1,6 @@
 ---
-title: "EKS Cluster Operations Runbook"
-description: "EKS version guidance, access entries, Pod Identity vs IRSA, and day-2 cluster operations for Amazon EKS."
+title: "Amazon EKS Operations Runbook: Troubleshooting & Upgrades"
+description: "Day-2 operational runbook for Amazon EKS: cluster version upgrades, worker node draining, control plane logging, and CoreDNS troubleshooting."
 tags:
   - eks
   - kubernetes

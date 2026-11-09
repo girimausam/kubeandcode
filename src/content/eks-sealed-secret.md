@@ -1,6 +1,6 @@
 ---
-title: "Sealed Secret on Amazon EKS"
-description: Use Sealed Secret on Amazon EKS.
+title: "Amazon EKS Sealed Secrets: GitOps Secret Management"
+description: "Encrypt and store sensitive Kubernetes secrets in Git using Bitnami Sealed Secrets on Amazon EKS with asymmetric public-key cryptography."
 tags:
   - eks
   - kubernetes

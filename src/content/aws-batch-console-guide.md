@@ -1,6 +1,6 @@
 ---
-title: "Batch in the current console"
-description: "Current AWS Batch: wizard, Fargate and EC2 environments, fair-share scheduling, consumable resources, job definitions, and the console settings that are not resources."
+title: "AWS Batch Console Guide: Fargate & EC2 Environments"
+description: "Configure AWS Batch compute environments on Fargate and EC2, job queues with fair-share scheduling, and multi-node job definitions."
 tags:
   - aws
   - batch

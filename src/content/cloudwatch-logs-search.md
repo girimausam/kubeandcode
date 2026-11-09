@@ -1,6 +1,6 @@
 ---
-title: "Search CloudWatch Logs"
-description: "Current ways to search CloudWatch Logs: log group filter, Logs Insights, OpenSearch SQL and PPL, Live Tail, field indexes, and saved queries."
+title: "AWS CloudWatch Logs Insights: Query Syntax & Examples"
+description: "Master Amazon CloudWatch Logs Insights: write high-performance search queries, extract structured fields, and visualize application errors."
 tags:
   - aws
   - cloudwatch

@@ -1,6 +1,6 @@
 ---
-title: "Lambda Python Runtime and Packaging"
-description: "Python Lambda handler patterns, deployment packages, virtual environments, layers, and packaging notes for boto3 and third-party dependencies."
+title: "AWS Lambda Python Runtimes: Layers & Packaging Guide"
+description: "Package and optimize Python runtimes for AWS Lambda: compile C-extensions with Docker, build Lambda Layers, and configure memory/timeout."
 tags:
   - lambda
   - python

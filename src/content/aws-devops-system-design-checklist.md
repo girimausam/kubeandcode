@@ -1,6 +1,6 @@
 ---
-title: "System design and DevOps prep checklist"
-description: "Industry-level AWS topics for full-system implementations - commonly missed items, service combinations, and links to console-focused reference posts on this site."
+title: "AWS DevOps System Design Checklist: Production Ready"
+description: "Comprehensive AWS system design checklist covering multi-AZ high availability, disaster recovery, auto scaling, and observability."
 tags:
  - aws
  - devops

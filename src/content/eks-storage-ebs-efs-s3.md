@@ -1,6 +1,6 @@
 ---
-title: "EKS Storage: EBS, EFS, and S3"
-description: "Daily playbook for persistent storage on Amazon EKS: pick EBS vs EFS vs S3, install CSI add-ons, copy-paste StorageClass/PVC/PV, and avoid common bind and permission failures."
+title: "Amazon EKS Storage Guide: EBS, EFS & S3 CSI Drivers"
+description: "Choose and deploy persistent storage on Amazon EKS: Amazon EBS for block storage, Amazon EFS for shared multi-writer files, and S3 Mountpoint."
 tags:
   - eks
   - ebs

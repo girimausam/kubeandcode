@@ -1,22 +1,24 @@
 <script>
-	import mermaid from 'mermaid';
-
-	const getTheme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default');
-
 	const renderMermaid = async () => {
-		const nodes = document.querySelectorAll<HTMLElement>('.mermaid');
-
+		const nodes = document.querySelectorAll('.mermaid');
 		if (nodes.length === 0) return;
+
+		const { default: mermaid } = await import('mermaid');
+		const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default';
 
 		mermaid.initialize({
 			startOnLoad: false,
-			theme: getTheme(),
+			theme,
 			securityLevel: 'loose',
 		});
 
 		await mermaid.run({ nodes });
 	};
 
-	renderMermaid();
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', renderMermaid);
+	} else {
+		renderMermaid();
+	}
 	document.addEventListener('astro:page-load', renderMermaid);
 </script>

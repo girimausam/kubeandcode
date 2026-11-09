@@ -1,6 +1,6 @@
 ---
-title: "Prometheus on EKS with EBS CSI Storage"
-description: Run Prometheus on EKS with persistent volumes via the AWS EBS CSI driver.
+title: "Amazon EKS Prometheus: EBS CSI Driver Storage Manifests"
+description: "Deploy Prometheus on Amazon EKS with persistent EBS volume storage using the AWS EBS CSI driver, dynamic StorageClasses, and PVCs."
 tags:
   - eks
   - prometheus

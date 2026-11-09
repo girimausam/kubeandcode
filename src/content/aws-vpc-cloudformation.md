@@ -1,6 +1,6 @@
 ---
-title: "Build an AWS VPC with CloudFormation"
-description: Deploy a lab VPC with public and private subnets using CloudFormation.
+title: "AWS VPC CloudFormation: Multi-AZ Production Template"
+description: "Deploy an automated multi-AZ AWS VPC using CloudFormation: public and private subnets, NAT Gateways, route tables, and network ACLs."
 tags:
   - vpc
   - cloudformation

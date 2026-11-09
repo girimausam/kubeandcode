@@ -1,6 +1,6 @@
 ---
-title: "Getting Started with Amazon EKS"
-description: Initial EKS cluster setup including IAM roles, nodes, CNI, and ECR.
+title: "Amazon EKS Getting Started: Cluster Creation & kubectl"
+description: "Beginner-to-production guide to provisioning Amazon EKS clusters: eksctl automation, VPC networking, managed node groups, and kubeconfig."
 tags:
   - eks
   - iam

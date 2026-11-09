@@ -62,7 +62,17 @@ export function initCodeDir(opts: CodeDirPayload) {
 	async function openPath(rel: string) {
 		if (!fileSet.has(rel)) return;
 		for (const b of treeEl.querySelectorAll('.file')) {
-			b.classList.toggle('on', b.getAttribute('data-path') === rel);
+			const isMatch = b.getAttribute('data-path') === rel;
+			b.classList.toggle('on', isMatch);
+			if (isMatch) {
+				let parent = b.parentElement;
+				while (parent && parent !== treeEl) {
+					if (parent.tagName === 'DETAILS') {
+						(parent as HTMLDetailsElement).open = true;
+					}
+					parent = parent.parentElement;
+				}
+			}
 		}
 		pathEl.textContent = rel;
 		history.replaceState(null, '', `#${encodeURIComponent(rel)}`);
@@ -89,7 +99,17 @@ export function initCodeDir(opts: CodeDirPayload) {
 	});
 
 	const fromHash = decodeURIComponent(location.hash.replace(/^#/, ''));
-	if (fromHash && fileSet.has(fromHash)) void openPath(fromHash);
+	if (fromHash) {
+		const cleanHash = fromHash.replace(/^\/+|\/+$/g, '');
+		if (fileSet.has(cleanHash)) {
+			void openPath(cleanHash);
+		} else {
+			const matchingFile = opts.files.find((f) => f.startsWith(cleanHash + '/'));
+			if (matchingFile) {
+				void openPath(matchingFile);
+			}
+		}
+	}
 
 	new MutationObserver((records) => {
 		const themeChanged = records.some((r) => r.attributeName === 'data-theme');

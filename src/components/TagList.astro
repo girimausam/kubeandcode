@@ -184,13 +184,20 @@ const { tags, totalCount, initialTags = [] } = Astro.props;
 	}
 
 	.tag-pill.is-active {
-		background: var(--accent);
-		color: white;
-		box-shadow: 0 0 0 1px var(--accent);
+		background: hsl(220 85% 35%);
+		color: #ffffff;
+		box-shadow: 0 0 0 1px hsl(220 85% 35%);
+	}
+
+	:global(:root[data-theme='dark']) .tag-pill.is-active {
+		background: hsl(220 85% 65%);
+		color: #0b0f19;
+		box-shadow: 0 0 0 1px hsl(220 85% 65%);
+		font-weight: 600;
 	}
 
 	.tag-pill.is-active:hover {
-		background: var(--accent);
+		filter: brightness(1.08);
 	}
 
 	.tag-count {

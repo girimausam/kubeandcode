@@ -1,6 +1,6 @@
 ---
-title: "Site-to-Site VPN on AWS (console guide)"
-description: "Production-oriented Site-to-Site VPN - VGW and Transit Gateway paths, routing, security, and commonly missed console settings."
+title: "AWS Site-to-Site VPN: Customer Gateway & IPsec Setup"
+description: "Configure highly available AWS Site-to-Site VPN connections from the console: Customer Gateways, Virtual Private Gateways, and BGP routing."
 tags:
  - aws
  - vpn

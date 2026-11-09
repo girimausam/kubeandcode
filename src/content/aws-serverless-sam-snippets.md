@@ -1,6 +1,6 @@
 ---
-title: "Serverless SAM and CLI Snippets"
-description: "SAM build, deploy, local invoke, scaling policy, and CodeDeploy commands for the serverless order-events project."
+title: "AWS SAM Snippets: API Gateway & Lambda YAML Templates"
+description: "Production-ready AWS SAM YAML snippets: HTTP and REST APIs, DynamoDB tables, SQS event sources, Lambda environment variables, and IAM roles."
 tags:
   - serverless
   - sam

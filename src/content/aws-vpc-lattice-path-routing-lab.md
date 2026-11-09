@@ -1,6 +1,6 @@
 ---
-title: "VPC Lattice Path-Based Routing Lab"
-description: "Hands-on VPC Lattice setup with EC2 and Lambda backends, target groups, path-based routing, weighted default action, and service network VPC association."
+title: "AWS VPC Lattice Path Routing: Multi-Service Lab Setup"
+description: "Step-by-step hands-on lab configuring path-based routing rules on AWS VPC Lattice to distribute traffic across ECS, EC2, and EKS backends."
 tags:
   - vpc-lattice
   - ec2
@@ -10,6 +10,9 @@ tags:
   - notes
 date: 2026-08-27
 ---
+:::note[Primary Architecture]
+For the full multi-VPC architecture connecting ECS, EKS, EC2, Lambda, and private RDS via Lattice service networks, see [AWS VPC Lattice: Multi-VPC Service Network Guide](/blogs/aws-vpc-lattice-application-networking/).
+:::
 
 ## Overview
 
@@ -42,7 +45,6 @@ VPC Lattice service (listener :80 / :443)
 ```
 
 ---
-
 ## Backends
 
 ### Backend A: EC2 instance (Flask)
@@ -94,7 +96,6 @@ curl http://localhost:8080/test
 Create a standard Python 3.x Lambda that returns a simple HTTP response (for example via Lambda Function URLs or a minimal handler compatible with Lattice Lambda targets).
 
 ---
-
 ## Target groups
 
 Create two target groups in VPC Lattice:
@@ -105,7 +106,6 @@ Create two target groups in VPC Lattice:
 | `lambda-lattice-tg` | Lambda function | - | Configured Lambda function |
 
 ---
-
 ## Lattice service
 
 ### Auth policy (IAM)
@@ -143,7 +143,6 @@ Create an **HTTP** listener on port **80** (or **HTTPS** on **443**) with:
 > **Weighted default:** Target weights must sum to exactly **100%**.
 
 ---
-
 ## Service network
 
 1. Create or select a **service network**.
@@ -160,7 +159,6 @@ Create an **HTTP** listener on port **80** (or **HTTPS** on **443**) with:
    See [AWS: finding the service domain name](https://d2908q01vomqb2.cloudfront.net/da4b9237bacccdf19c0760cab7aec4a8359010b0/2022/11/20/vpc-lattice-service-domain-name.png).
 
 ---
-
 ## Test from a client EC2 instance
 
 Run `curl` from an instance in the associated VPC:
@@ -177,7 +175,6 @@ curl "http://${LATTICE_SERVICE_DOMAIN}/"
 Replace `${LATTICE_SERVICE_DOMAIN}` with the domain name from the service network association.
 
 ---
-
 ## References
 
 - [VPC Lattice service networks](https://docs.aws.amazon.com/vpc-lattice/latest/ug/service-networks.html)

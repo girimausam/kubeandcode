@@ -1,6 +1,6 @@
 ---
-title: "EKS Kubernetes Resource YAML Examples"
-description: Minimal YAML samples for common Kubernetes resources on EKS.
+title: "Amazon EKS YAML Manifests: Deployments & Ingress Examples"
+description: "Production-ready Kubernetes YAML manifests for Amazon EKS: Deployments, ClusterIP/NodePort Services, Ingress objects, ConfigMaps, and Secrets."
 tags:
   - eks
   - kubernetes

@@ -1,6 +1,6 @@
 ---
-title: "Use existing AI services (console, no model training)"
-description: "Northwind invoices: S3 to Textract and Comprehend via Lambda. Architect pattern for managed AI, IAM, KMS, and what not to build in SageMaker."
+title: "AWS Managed AI Services: Console Setup & Integration"
+description: "Leverage pre-trained AWS AI services from the console: Amazon Bedrock foundation models, Textract OCR, and Rekognition image labeling."
 tags:
   - aws
   - textract

@@ -1,6 +1,6 @@
 ---
-title: "llama.cpp: Local GGUF Inference"
-description: "Run GGUF models locally with llama-server, download from Hugging Face, estimate VRAM and RAM needs, and pick a quantization for your hardware."
+title: "llama.cpp Local GGUF Inference: CPU & GPU Setup Guide"
+description: "Run quantized LLMs locally with llama.cpp: GGUF model conversion, CPU and GPU offloading flags, batching parameters, and local OpenAI-compatible API."
 tags:
   - llama.cpp
   - gguf

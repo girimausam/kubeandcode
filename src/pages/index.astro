@@ -11,12 +11,16 @@ const posts = (await getCollection('posts')).sort(
 
 const initialTags = [...new Set(Astro.url.searchParams.getAll('tag'))];
 const tags = getAllTags(posts);
+
+const title = 'AWS, EKS & DevOps Guides: Console-First Runbooks | Mausam Giri';
+const description = 'Practical AWS, EKS, and DevOps runbooks with console-first workflows, architecture patterns, and production troubleshooting guides by Mausam Giri.';
+const canonicalUrl = 'https://mausamgiri.in/blogs/';
 ---
 
-<BaseLayout title="Blogs" posts={posts}>
+<BaseLayout title={title} description={description} posts={posts} canonicalUrl={canonicalUrl}>
 	<main class="container landing">
 		<section class="posts">
-			<h1>Posts</h1>
+			<h1>AWS, EKS &amp; DevOps Runbooks</h1>
 			<div class="posts-list">
 				{posts.map((post) => <PostCard post={post} />)}
 				<p class="empty" data-posts-empty hidden>No posts match your filters.</p>

@@ -1,6 +1,6 @@
 ---
-title: "ECS at production scale: Service Connect, Service Discovery, and storage"
-description: "Deep guide to ECS east-west networking (Service Connect vs Cloud Map discovery) and production filesystem choices—console walkthroughs, failure modes, and when to use EBS, EFS, FSx, and S3 Files."
+title: "Amazon ECS Production: Service Connect, Discovery & Storage"
+description: "Production Amazon ECS architecture: compare Service Connect vs Cloud Map discovery, and attach persistent EBS, EFS, and S3 storage."
 tags:
   - ecs
   - fargate
@@ -12,7 +12,7 @@ tags:
   - storage
   - aws
   - production
-image: /images/ecs-service-connect-architecture.png
+image: /images/ecs-service-connect-architecture.webp
 links:
   - title: Amazon ECS Service Connect
     url: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html
@@ -21,6 +21,9 @@ links:
   - title: Storage options for ECS tasks
     url: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html
 ---
+:::note[Primary Comparison Guide]
+For a deep architectural comparison of ECS Service Connect vs Cloud Map discovery (Envoy sidecar mechanics, DNS resolution, and latency benchmarks), see [Amazon ECS Service Connect vs Cloud Map Discovery](/blogs/aws-ecs-service-connect-vs-discovery/).
+:::
 
 # ECS at production scale: Service Connect, Service Discovery, and storage
 
@@ -39,7 +42,6 @@ This post is written for teams shipping **multi-service Fargate or EC2 clusters*
 **Full example:** [ShopFlow on ECS — end-to-end walkthrough](./ecs-shopflow-production-walkthrough.md) (four services, ALB, EFS, Lambda settlement).
 
 ---
-
 ## Mental model: three layers
 
 ```text
@@ -61,12 +63,11 @@ This post is written for teams shipping **multi-service Fargate or EC2 clusters*
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-![Service Connect east-west mesh](/images/ecs-service-connect-architecture.png)
+<img src="/blogs/images/ecs-service-connect-architecture.webp" alt="Service Connect east-west mesh" width="1280" height="720" loading="lazy" decoding="async" />
 
 Official overview (WordPress → MySQL with short name `mysql`): [Use Service Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html) — AWS documents the proxy path, round-robin, and outlier detection in the same page.
 
 ---
-
 ## Part 1 — Service Discovery (Cloud Map) in production
 
 ### What it actually does
@@ -103,7 +104,6 @@ orders-api.svc.prod.internal  →  10.0.42.15, 10.0.88.3  (multivalue A records)
 **Name is not the ECS service name.** The DNS label comes from the **Cloud Map service** you attach in `serviceRegistries`, not from `my-service-abc123` auto-suffixes in the ECS console.
 
 ---
-
 ### Console walkthrough — Service Discovery
 
 Open the [ECS console](https://console.aws.amazon.com/ecs/v2) and work **top down**.
@@ -149,7 +149,6 @@ curl -sS "http://orders-api.svc.prod.internal:8080/health"
 If `nslookup` fails, check VPC **DNS hostnames/support** and that the querying task uses `AmazonProvidedDNS`.
 
 ---
-
 ## Part 2 — Service Connect in production
 
 ### What it adds beyond discovery
@@ -196,7 +195,6 @@ Service Connect aliases are applied when the **task starts**. If a **client** ta
 - **Cross-account:** Share Cloud Map namespace via **RAM**; use **namespace ARN** in SC config ([shared namespaces](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-shared-namespaces-setup.html)).
 
 ---
-
 ### Console walkthrough — Service Connect
 
 #### Step 1 — Task definition: named port mappings
@@ -250,7 +248,6 @@ curl -v "http://orders:8080/health"
 Check **CloudWatch** → Service Connect metrics for the namespace ([monitoring](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)).
 
 ---
-
 ## Part 3 — Using Service Connect **and** Service Discovery together
 
 Production clusters often run **both**:
@@ -291,12 +288,11 @@ Production clusters often run **both**:
 Attach **service registry** to `orders-api` **in addition to** Service Connect if non-ECS callers need DNS—two registration paths, one task.
 
 ---
-
 ## Part 4 — Production storage for ECS tasks
 
 Storage choice drives **availability**, **backup**, **cost**, and **blast radius** on deploy. ECS supports multiple volume types; Fargate and EC2 differ.
 
-![ECS storage decision flow](/images/ecs-storage-decision.png)
+<img src="/blogs/images/ecs-storage-decision.webp" alt="ECS storage decision flow" width="1280" height="720" loading="lazy" decoding="async" />
 
 Authoritative matrix: [Storage options for Amazon ECS tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html).
 
@@ -383,7 +379,6 @@ Mount bucket-backed file interface for workloads that need **high-throughput S3 
 | One security group `0.0.0.0/0` for “simplicity” | East-west compromise blast radius |
 
 ---
-
 ## Part 5 — End-to-end production reference
 
 ### Networking + storage on one service
@@ -413,7 +408,6 @@ Example: **orders-api** on Fargate
 - **ECS:** task stopped reason, deployment circuit breaker.
 
 ---
-
 ## Console quick links
 
 | Task | Console entry |
@@ -426,7 +420,6 @@ Example: **orders-api** on Fargate
 | EBS volumes (standalone AWS view) | [EC2 → Volumes](https://console.aws.amazon.com/ec2/home#Volumes:) |
 
 ---
-
 ## Further reading
 
 - [Amazon ECS Service Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
@@ -438,5 +431,4 @@ Example: **orders-api** on Fargate
 - [Increase Fargate disk / EBS (re:Post)](https://repost.aws/knowledge-center/ecs-fargate-increase-disk-space)
 
 ---
-
 [← ECS Service Connect vs Discovery (cheat sheet)](./aws-ecs-service-connect-vs-discovery.md)

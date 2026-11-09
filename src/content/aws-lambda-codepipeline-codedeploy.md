@@ -1,6 +1,6 @@
 ---
-title: "Lambda CI/CD with CodePipeline and CodeDeploy"
-description: "End-to-end Lambda deployment pipeline using CodeCommit, CodeBuild, CodePipeline, and CodeDeploy canary traffic shifting."
+title: "AWS Lambda CI/CD: Automated Canary Deployments Runbook"
+description: "Implement zero-downtime automated canary and linear deployments for AWS Lambda functions using CodePipeline, CodeDeploy, and CloudWatch alarms."
 tags:
   - lambda
   - cicd

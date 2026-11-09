@@ -1,6 +1,6 @@
 ---
-title: "Architecture Reference Links"
-description: "Curated Well-Architected, prescriptive guidance, workshops, and hands-on lab templates for EKS, networking, and data."
+title: "AWS Architecture Reference: Well-Architected Guides"
+description: "Curated AWS reference architectures, Well-Architected whitepapers, and official design blueprints for enterprise cloud deployments."
 tags:
  - aws
  - architecture

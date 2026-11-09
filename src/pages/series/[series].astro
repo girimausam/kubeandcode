@@ -1,0 +1,283 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SERIES_LIST, type Series } from '../../data/series';
+import { withBase } from '../../utils/url';
+
+export async function getStaticPaths() {
+  return SERIES_LIST.map((series) => ({
+    params: { series: series.slug },
+    props: { series },
+  }));
+}
+
+interface Props {
+  series: Series;
+}
+
+const { series } = Astro.props;
+const allPosts = await getCollection('posts');
+const postMap = new Map(allPosts.map((p) => [p.id, p]));
+
+// Group guides by stage while preserving sequence order
+const stages: { name: string; guides: { order: number; slug: string; summary: string; postTitle: string; tags: string[] }[] }[] = [];
+for (const guide of series.guides) {
+  const post = postMap.get(guide.slug);
+  const postTitle = post ? post.data.title : guide.slug;
+  const tags = post ? post.data.tags : [];
+  let stageGroup = stages.find((s) => s.name === guide.stage);
+  if (!stageGroup) {
+    stageGroup = { name: guide.stage, guides: [] };
+    stages.push(stageGroup);
+  }
+  stageGroup.guides.push({
+    order: guide.order,
+    slug: guide.slug,
+    summary: guide.summary,
+    postTitle,
+    tags
+  });
+}
+
+const pageTitle = `${series.title} | Mausam Giri`;
+const canonicalUrl = `https://mausamgiri.in/blogs/series/${series.slug}/`;
+const breadcrumbs = [
+  { name: 'Home', url: 'https://mausamgiri.in/blogs/' },
+  { name: 'Series', url: 'https://mausamgiri.in/blogs/series/' },
+  { name: series.shortTitle, url: canonicalUrl }
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={series.metaDescription}
+  posts={allPosts}
+  canonicalUrl={canonicalUrl}
+  breadcrumbs={breadcrumbs}
+>
+  <main class="container series-hub">
+    <nav class="hub-breadcrumb" aria-label="Breadcrumb">
+      <a href={withBase()}>Home</a>
+      <span class="sep">/</span>
+      <a href={withBase('series/')}>Series</a>
+      <span class="sep">/</span>
+      <span class="current">{series.shortTitle}</span>
+    </nav>
+
+    <header class="hub-header">
+      <div class="hub-pill">{series.badge} Series</div>
+      <h1>{series.title}</h1>
+      <p class="hub-desc">{series.description}</p>
+      <div class="hub-meta">
+        <span><strong>{series.guides.length}</strong> Practical Guides</span>
+        <span class="dot">&bull;</span>
+        <span>Curated Reading Order</span>
+        <span class="dot">&bull;</span>
+        <span>Console-First & Manifests</span>
+      </div>
+    </header>
+
+    <div class="curriculum">
+      {
+        stages.map((stage, stageIdx) => (
+          <section class="stage-section">
+            <div class="stage-header">
+              <span class="stage-number">Stage {stageIdx + 1}</span>
+              <h2>{stage.name}</h2>
+            </div>
+
+            <ol class="guide-list">
+              {stage.guides.map((item) => (
+                <li class="guide-item">
+                  <div class="guide-num">{item.order}</div>
+                  <div class="guide-content">
+                    <h3>
+                      <a href={withBase(`${item.slug}/`)}>{item.postTitle}</a>
+                    </h3>
+                    <p>{item.summary}</p>
+                    <div class="guide-tags">
+                      {item.tags.slice(0, 3).map((tag) => (
+                        <span class="tag">#{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+    </div>
+
+    <footer class="hub-footer">
+      <a href={withBase('series/')} class="back-link">&larr; Back to all series</a>
+    </footer>
+  </main>
+</BaseLayout>
+
+<style>
+  .series-hub {
+    padding: 2rem 0 4rem;
+    max-width: 52rem;
+  }
+  .hub-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+  .hub-breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .hub-breadcrumb a:hover {
+    color: var(--accent);
+  }
+  .hub-breadcrumb .current {
+    color: var(--text);
+  }
+  .hub-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hub-pill {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: var(--accent-muted);
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-size: var(--text-3xl);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    margin: 0 0 1rem;
+  }
+  .hub-desc {
+    font-size: var(--text-base);
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0 0 1.25rem;
+  }
+  .hub-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+  .stage-section {
+    margin-bottom: 2.5rem;
+  }
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .stage-number {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--bg-subtle);
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .stage-header h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin: 0;
+  }
+  .guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .guide-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.15rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--bg);
+    transition: border-color 0.15s;
+  }
+  .guide-item:hover {
+    border-color: var(--accent);
+  }
+  .guide-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .guide-content {
+    flex-grow: 1;
+  }
+  .guide-content h3 {
+    margin: 0 0 0.4rem;
+    font-size: var(--text-base);
+    line-height: 1.35;
+  }
+  .guide-content h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .guide-content h3 a:hover {
+    color: var(--accent);
+  }
+  .guide-content p {
+    margin: 0 0 0.5rem;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .guide-tags {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .tag {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+  }
+  .hub-footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .back-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+</style>
+

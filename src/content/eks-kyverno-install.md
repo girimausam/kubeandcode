@@ -1,6 +1,6 @@
 ---
-title: "Install Kyverno on Amazon EKS"
-description: Install and configure Kyverno policy engine on Amazon EKS.
+title: "Amazon EKS Kyverno: Installation & Policy Engine Runbook"
+description: "Install Kyverno policy controller on Amazon EKS with Helm, verify admission webhooks, and deploy baseline Pod Security Standards policies."
 tags:
   - eks
   - kyverno

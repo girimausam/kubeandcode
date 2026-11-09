@@ -1,6 +1,6 @@
 ---
-title: "Egress-Only IPv6 with VPC and Transit Gateway"
-description: Notes on egress-only VPC routing with AWS Transit Gateway.
+title: "AWS VPC Egress-Only IPv6: Transit Gateway Architecture"
+description: "Design scalable egress-only IPv6 and IPv4 architectures with AWS Transit Gateway, egress-only internet gateways, and centralized routing."
 tags:
   - vpc
   - transit-gateway

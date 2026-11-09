@@ -1,6 +1,6 @@
 ---
-title: "Kinesis Data Streams and Analytics"
-description: "Reference videos and AWS resources for Kinesis Data Streams, producer/consumer patterns, and Kinesis Data Analytics."
+title: "Amazon Kinesis: Data Streams & Real-Time Analytics"
+description: "Ingest and analyze high-throughput data streams in real time using Amazon Kinesis Data Streams, shard scaling, and Managed Service for Apache Flink."
 tags:
   - kinesis
   - streaming

@@ -1,6 +1,6 @@
 ---
-title: "AI/ML: Text and Chatbots (Comprehend, Translate, Lex)"
-description: "Console-first guide to Amazon Comprehend, Translate, and Lex V2. AWS CLI commands in collapsible sections."
+title: "AWS AI NLP: Comprehend, Translate & Amazon Lex"
+description: "Build conversational interfaces and NLP pipelines using Amazon Comprehend for sentiment analysis, Translate for localization, and Lex for chatbots."
 tags:
   - aws
   - comprehend

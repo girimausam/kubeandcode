@@ -1,6 +1,6 @@
 ---
-title: "API Gateway Mapping Templates for DynamoDB"
-description: "Velocity Template Language (VTL) examples for API Gateway proxy integrations with DynamoDB-PutItem, GetItem, and custom JSON responses."
+title: "API Gateway DynamoDB Integration: VTL Templates"
+description: "Direct AWS service integration between API Gateway and DynamoDB using Velocity Template Language (VTL) mapping without Lambda compute."
 tags:
   - api-gateway
   - dynamodb

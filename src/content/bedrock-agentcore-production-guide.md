@@ -1,6 +1,6 @@
 ---
-title: "Bedrock AgentCore in Production"
-description: "Part 4 — AgentCore Build console (Harness, Runtime, Gateways, Memory, Policy, Identity), IAM roles, and Lambda/compute integration for production agents."
+title: "Amazon Bedrock AgentCore: Production Architecture Guide"
+description: "Deploy autonomous AI agents in production with Amazon Bedrock AgentCore: session management, memory persistence, action groups, and guardrails."
 tags:
   - aws
   - bedrock

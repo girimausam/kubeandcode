@@ -1,6 +1,6 @@
 ---
-title: "AI/ML: Speech, Vision, and Documents (Polly, Transcribe, Rekognition, Textract)"
-description: "Console-first guide to Polly, Transcribe, Rekognition, and Textract. AWS CLI in collapsible sections."
+title: "AWS AI Services: Polly, Transcribe & Rekognition"
+description: "Integrate Amazon Polly, Transcribe, Rekognition, and Textract for speech synthesis, transcription, computer vision, and document analysis."
 tags:
   - aws
   - polly

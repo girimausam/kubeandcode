@@ -1,6 +1,6 @@
 ---
-title: "Docker: Alpine Non-Root Images and ECR"
-description: ""
+title: "Docker Alpine Non-Root Images for Amazon ECR Deployment"
+description: "Production Dockerfile patterns for Alpine and Debian non-root container images with custom UID/GID security configurations for Amazon ECR."
 tags:
   - docker
   - ecr

@@ -1,6 +1,6 @@
 ---
-title: "EKS GitOps: CodeCommit to Argo CD"
-description: End-to-end GitOps from CodeCommit through CodePipeline to Argo CD on EKS.
+title: "Amazon EKS GitOps: Argo CD & AWS CodeCommit CI/CD Guide"
+description: "Deploy a production GitOps pipeline on Amazon EKS using Argo CD, AWS CodeCommit, Amazon ECR image scanning, and automated application sync."
 tags:
   - eks
   - argocd
@@ -11,6 +11,9 @@ tags:
   - cicd
   - gitops
 ---
+:::note[Quickstart Bootstrap]
+If you need initial standalone installation instructions for deploying Argo CD on a test EKS cluster, refer to [Amazon EKS Argo CD: Step-by-Step Installation Runbook](/blogs/eks-argocd-install/).
+:::
 
 # CodeCommit to ArgoCD Pipeline on EKS
 
@@ -36,7 +39,6 @@ app-repo/              manifest-repo/
 **Prerequisites:** Argo CD installed on EKS ([ArgoCD on EKS](argocd-eks.md)), `aws` CLI, `kubectl`, and `git-remote-codecommit` for local clones.
 
 ---
-
 ## 1. Create CodeCommit repos
 
 Create two repos in CodeCommit:
@@ -478,5 +480,4 @@ kubectl get pods -n my-app -o jsonpath='{.items[*].spec.containers[*].image}'
 ```
 
 ---
-
 **Optional:** For private Argo CD, create a VPC interface endpoint for `com.amazonaws.<region>.eks-capabilities` across multiple AZs with inbound HTTPS (443) allowed.

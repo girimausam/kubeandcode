@@ -1,6 +1,6 @@
 ---
-title: "ECR Best Practices"
-description: "Repository hardening workloads-scan on push, immutable production tags, and lifecycle policies for cost control."
+title: "Amazon ECR Best Practices: Security, Scanning & Policies"
+description: "Production security best practices for Amazon ECR: immutable image tags, enhanced vulnerability scanning, KMS encryption, and IAM access."
 tags:
   - ecr
   - eks
@@ -9,6 +9,9 @@ tags:
   - lifecycle
   - aws
 ---
+:::note[Primary Guide]
+Looking for advanced lifecycle policy rules and prefix matching specifications? See our dedicated guide: [Amazon ECR Lifecycle Policies: Syntax & Retention Rules](/blogs/aws-ecr-lifecycle-policy/).
+:::
 ## Overview
 
 Harden Amazon ECR repositories used by EKS workloads with scanning, immutable tags for production, and lifecycle rules that control storage cost.

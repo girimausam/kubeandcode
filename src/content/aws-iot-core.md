@@ -1,6 +1,6 @@
 ---
-title: "IoT Core: MQTT, Policies, and Rules Engine"
-description: "Thing, X.509 cert, policy, MQTT publish/subscribe, rules to Lambda, shadows, and common connect/policy failures."
+title: "AWS IoT Core: MQTT Broker, Device Policies & Rules"
+description: "Connect IoT devices securely to AWS IoT Core using X.509 certificates, MQTT topics, fine-grained IoT policies, and SQL rules engine routing."
 tags:
   - iot
   - iot-core

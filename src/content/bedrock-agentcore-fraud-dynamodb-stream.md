@@ -1,6 +1,6 @@
 ---
-title: "Fraud detection with DynamoDB Streams and AgentCore Harness"
-description: "Scenario: DynamoDB stream triggers Lambda, Lambda invokes a fraud orchestrator harness that calls four specialist agents via Gateway, then persists results to DynamoDB."
+title: "Bedrock AgentCore Fraud Pipeline: DynamoDB Streams & AI"
+description: "Build a serverless real-time fraud detection pipeline using DynamoDB Streams, AWS Lambda triggers, and Amazon Bedrock AgentCore multi-agents."
 tags:
   - aws
   - bedrock

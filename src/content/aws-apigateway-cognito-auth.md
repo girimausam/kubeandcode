@@ -1,7 +1,6 @@
 ---
-
-title: "API Gateway with Amazon Cognito"
-description: "Runbook for securing REST and HTTP APIs with Cognito User Pools (JWT authorizer) and Identity Pools (IAM/SigV4), including OAuth grants, trust policies, and scopes."
+title: "API Gateway Cognito Auth: User & Identity Pools"
+description: "Secure REST and HTTP APIs using Cognito User Pool JWT authorizers and Identity Pool IAM SigV4 credentials with custom OAuth scopes."
 tags:
   - aws
   - cognito

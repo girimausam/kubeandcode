@@ -1,6 +1,6 @@
 ---
-title: "AppSync Ticket API: Multi-Auth and EventBridge"
-description: "Support ticket API with Cognito and IAM auth, Lambda-backed createTicket, DynamoDB pipeline for updateTicketStatus, and EventBridge event publishing."
+title: "AWS AppSync Multi-Auth: API Key, IAM & EventBridge"
+description: "Configure multi-auth modes on AWS AppSync GraphQL APIs with API Key and IAM, plus direct EventBridge event bus mutations."
 tags:
   - appsync
   - graphql

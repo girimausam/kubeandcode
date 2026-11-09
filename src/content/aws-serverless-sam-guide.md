@@ -1,6 +1,6 @@
 ---
-title: "Serverless on AWS with AWS SAM"
-description: "11-phase walkthrough building an event-driven order pipeline with SAM, Lambda, HTTP API, EventBridge, SQS, and DynamoDB."
+title: "AWS SAM Guide: Serverless Application Model Framework"
+description: "Build and deploy serverless applications using AWS SAM: template structure, local testing with sam local, and automated CI/CD deployments."
 tags:
   - serverless
   - sam

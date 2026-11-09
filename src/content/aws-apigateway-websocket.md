@@ -1,6 +1,6 @@
 ---
-title: "API Gateway WebSocket APIs"
-description: "WebSocket route keys ($connect, $disconnect, $default), MOCK integration setup, CLI inspection commands, and Lambda handler patterns for custom routes."
+title: "API Gateway WebSocket APIs: Route Keys & Connections"
+description: "Build real-time bidirectional WebSocket APIs with Amazon API Gateway, custom route keys, @connections management, and mock integrations."
 tags:
   - api-gateway
   - websocket

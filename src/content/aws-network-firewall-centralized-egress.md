@@ -1,6 +1,6 @@
 ---
-title: "Network Firewall for Centralized Egress"
-description: "Rule groups, policies, endpoints, stateless vs stateful processing, domain lists, Suricata, TLS inspection, managed rules, and logging - with the centralized TGW lab as the multi-VPC pattern."
+title: "AWS Network Firewall: Centralized Egress Architecture"
+description: "Deploy AWS Network Firewall with Transit Gateway: stateful 5-tuple and Suricata IPS rules, domain list filtering, and centralized egress VPC."
 tags:
   - network-firewall
   - vpc

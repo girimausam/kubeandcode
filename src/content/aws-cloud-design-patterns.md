@@ -1,6 +1,6 @@
 ---
-title: "Cloud Design Patterns in Plain English"
-description: "AWS Prescriptive Guidance modernization patterns, explained simply, with official diagrams."
+title: "AWS Cloud Design Patterns: Resilient Architectures"
+description: "Practical guide to cloud architecture patterns: Strangler Fig, Circuit Breaker, Saga, Event Sourcing, and CQRS implemented on AWS."
 tags:
   - architecture
   - microservices
